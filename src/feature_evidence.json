@@ -1,0 +1,86 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-add-a-new-preferences-control-that-lets-the-user-manually-reload-from-scratch-on-demand-exposed-as-a-clearly-labeled-button-inside-the-preferences-screen",
+      "featureTitle": "Add a new Preferences control that lets the user manually “reload from scratch” on demand, exposed as a clearly labeled button inside the Preferences screen.",
+      "files": [
+        "frontend/src/components/UserPreferences.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-when-the-user-clicks-the-reset-button-show-a-confirmation-dialog-that-clearly-explains-what-will-be-deleted-and-requires-explicit-confirmation-before-proceeding",
+      "featureTitle": "When the user clicks the reset button, show a confirmation dialog that clearly explains what will be deleted and requires explicit confirmation before proceeding.",
+      "files": [
+        "frontend/src/components/ResetFromScratchDialog.tsx",
+        "frontend/src/components/UserPreferences.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-reset-action-to-actually-clear-local-ai-evolution-data-and-app-caches-then-force-a-clean-reload-so-the-app-starts-as-if-opened-for-the-first-time-on-that-device",
+      "featureTitle": "Implement the reset action to actually clear local “AI evolution” data and app caches, then force a clean reload so the app starts as if opened for the first time on that device.",
+      "files": [
+        "frontend/src/components/UserPreferences.tsx",
+        "frontend/src/lib/learningEngine.ts",
+        "frontend/src/lib/resetFromScratch.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-safe-ux-feedback-for-the-reset-flow-including-progress-disabled-states-and-error-handling-if-clearing-storage-fails",
+      "featureTitle": "Add safe UX feedback for the reset flow, including progress/disabled states and error handling if clearing storage fails.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/ResetFromScratchDialog.tsx",
+        "frontend/src/lib/resetFromScratch.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

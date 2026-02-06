@@ -1,0 +1,525 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 72,
+  "summary": "Crypto Market Assistant é uma PWA React (dark neon/PT-BR) para Binance Futures USD‑M perp com análise técnica client-side, recomendações/radar e persistência em canister Motoko no ICP. A tentativa de unificar CoinGecko+Binance via HTTP outcalls no backend esbarra em bloqueios (DNS/hostname inválido e principalmente restrição geográfica/eligibilidade da Binance para chamadas originadas do ICP), levando a telas pretas/fallback. Direção definida: Binance deve ser consumida no frontend (browser do usuário) para garantir dados reais; o backend deve focar em CoinGecko (dados gerais), persistência/agregação e status explícito por fonte, adiando integrações externas instáveis até ter uma abordagem executável/estável. Próxima prioridade: empacotar/formatar o app como PWA “nativo” completo (modo standalone/app-like) para rodar em celulares e desktops sem UI de navegador.",
+  "architectural_notes": [
+    "Frontend is a React SPA (Vite-style entry) using @tanstack/react-query for data fetching/caching, and next-themes for theme control (defaulting to dark).",
+    "ICP integration uses an actor abstraction: a custom useActor hook creates either an anonymous or authenticated canister actor based on Internet Identity state; actor changes invalidate and refetch dependent React Query queries.",
+    "Technical analysis is computed client-side from Binance 24hr ticker data and then persisted to the backend (saveMarketData, saveAnalysis) for storage/aggregation.",
+    "Recommendation and radar-alert creation is automated client-side via React effects (auto-generate recommendations and auto-detect radar alerts) with duplicate suppression using an in-memory per-minute Set.",
+    "Backend is a Motoko canister maintaining in-canister state for market data, analyses, recommendations, radar alerts, user settings, and PWA asset metadata; includes an upgrade migration that introduces radarAlerts.",
+    "PWA support includes manifest + service worker implementing mixed caching strategies (cache-first for manifest/static, network-first for API/canister calls with cache fallback), plus an install prompt with iOS manual instructions.",
+    "UI styling uses TailwindCSS (including typography/container-queries/animate plugins) with an extensive neon color system and custom animations for bullish/bearish/radar states.",
+    "Backend also includes a reusable HTTP outcall helper module (http-outcalls/outcall.mo) to perform IC management-canister http_request GET/POST with response transformation.",
+    "Frontend now incorporates shadcn-ui for a standardized set of UI primitives/components, with associated tooling and configuration.",
+    "Backend now includes explicit Theme and UserPreferences domain models/modules to support persisted personalization (e.g., theme selection, favorites, layout prefs)."
+  ],
+  "known_issues": [
+    "RadarDashboard fetches backend radar alerts (useRadarAlerts) but does not use the returned backendAlerts value; alerts shown are computed locally from Binance data only (potentially wasted calls and inconsistent UX vs persisted alerts).",
+    "Client writes to the backend (saveMarketData/saveAnalysis/addRecommendation/createRadarAlert) have no visible access control or rate limiting; any caller/anonymous user could spam state and grow storage/cycles usage.",
+    "Recommendations are appended indefinitely (List) without pruning/deduplication in the backend, which can lead to unbounded growth over time.",
+    "Radar alerts are stored in a Map keyed only by symbol; creating a new alert overwrites the previous alert for that symbol, losing history and preventing multiple concurrent alerts per symbol/time window.",
+    "Binance public endpoint is polled every 30s without backoff; potential rate-limit/CORS/availability issues can lead to empty datasets (errors are logged but UI will simply show no data).",
+    "The codebase snapshot includes two different frontend/index.css contents (one neon theme and one default theme), suggesting a possible file conflict/duplication risk depending on the actual repository state.",
+    "Deploy/publicação no ICP apresentou falhas intermitentes (ex.: \"CaLM permanent canister reservation failed\" e \"Deployment failed\"), sugerindo instabilidade/limites de infraestrutura que impactam a entrega contínua.",
+    "Data fetch error in ICP canister method fetchBinanceFuturesAssets: replica rejects HTTP outcall due to DNS resolution failure to api.example.com (IC0406 / reject code 4). UI shows error dump/black screens and falls back to “Showing last known data”. Likely misconfigured or placeholder hostname in backend HTTP outcall target.",
+    "Após mudanças recentes/integrations, abas Mercado/Radar/Recomendações às vezes ficam com tela preta ou exibem caracteres/números embaralhados, sugerindo conflito/incompatibilidade entre frontend e backend (build/deploy ou payload/decoding).",
+    "A aba de Sentimento de Mercado ficou instável ao tentar integrar APIs externas adicionais; há relatos de tela preta e necessidade de adiar a integração com ‘outras APIs’."
+  ],
+  "isFixRequest": false,
+  "generatedImages": [
+    {
+      "filename": "frontend/public/assets/generated/app-icon-maskable.dim_512x512.png",
+      "description": "Generated PWA maskable app icon (512x512).",
+      "targetWidth": 512,
+      "targetHeight": 512
+    },
+    {
+      "filename": "frontend/public/assets/generated/app-icon.dim_1024x1024.png",
+      "description": "Generated high-resolution PWA app icon (1024x1024).",
+      "targetWidth": 1024,
+      "targetHeight": 1024
+    }
+  ],
+  "existing_features": [
+    {
+      "id": "IF-1",
+      "title": "Binance Futures USD-M market data polling",
+      "synonyms": [
+        "24h ticker fetch",
+        "Market data refresh"
+      ],
+      "description": "Fetches 24h ticker data from Binance Futures (fapi/v1/ticker/24hr), filters to a curated set of major USD-M pairs (e.g., BTCUSDT, ETHUSDT, SOLUSDT, ICPUSDT), and refreshes automatically every 30 seconds using React Query.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Client-side advanced technical analysis with confidence scoring",
+      "synonyms": [
+        "SMC-style analysis",
+        "Prediction and zones"
+      ],
+      "description": "Computes trend (bullish/bearish), strength (0–100), predicted next price, Fibonacci-like support/resistance zones, confidence (0.1–1.0) and descriptive tags based on price change, range/volatility, volume delta, and trade intensity.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Manipulation zone detection heuristics",
+      "synonyms": [
+        "Liquidity zone detection",
+        "Order block detection"
+      ],
+      "description": "Detects potential manipulation zones (e.g., liquidity and support/resistance/order-block-like regions) using volume delta and volatility/price change thresholds and attaches confidence per zone plus a price range.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "Institutional order detection heuristics",
+      "synonyms": [
+        "Institutional flow detection",
+        "Accumulation/distribution inference"
+      ],
+      "description": "Detects potential institutional buy/sell activity using rules such as high volume with small price movement (accumulation/distribution) and large directional moves with high volume (momentum), outputting order type, confidence, and price range.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "Persist market data and analyses to ICP backend canister",
+      "synonyms": [
+        "saveMarketData",
+        "saveAnalysis"
+      ],
+      "description": "When an ICP actor is available, each polled ticker is persisted to the backend with timestamped market data and the computed analysis (prediction, zones, trend enum, confidence, tags, manipulation zones, and institutional orders).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Recommendations storage and retrieval",
+      "synonyms": [
+        "Trading recommendations",
+        "getAllRecommendations"
+      ],
+      "description": "Backend supports adding recommendations (symbol, strength, confidence, timestamp) and querying all recommendations. Frontend fetches them via React Query and sorts primarily by confidence and then by strength for display.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Automatic recommendation generation",
+      "synonyms": [
+        "Auto-recs",
+        "Signal-based recommendations"
+      ],
+      "description": "Client automatically generates and submits recommendations based on market analysis (bullish trend, strength > 50, confidence > 0.4), selecting the top candidates, avoiding duplicates per symbol/minute, and invalidating recommendation queries on success.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Radar anomaly detection and alert creation",
+      "synonyms": [
+        "Market radar",
+        "Anomaly alerts"
+      ],
+      "description": "Detects anomalies from live market data using price-change (>3%) and volume-spike (>1.5x baseline) thresholds, computes a confidence score, and automatically creates/persists radar alerts in the backend with duplicate suppression per symbol/minute.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Radar alerts querying (active window)",
+      "synonyms": [
+        "Active alerts",
+        "getActiveRadarAlerts"
+      ],
+      "description": "Backend stores radar alerts and exposes queries for all alerts and active alerts (within the last hour). Frontend provides a React Query hook to poll active radar alerts every 30 seconds.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Market overview UI with selectable asset and detailed analysis",
+      "synonyms": [
+        "Mercado tab",
+        "Market cards"
+      ],
+      "description": "Provides a scrollable grid of market cards for supported pairs with price, 24h change, volume, strength and confidence indicators, and a detailed view for the selected symbol showing key metrics, prediction, and support/resistance zones with neon styling and badges for detected manipulation zones/institutional orders.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Predictive confidence panel component (full and compact)",
+      "synonyms": [
+        "Confidence UI",
+        "Confidence gradient bar"
+      ],
+      "description": "Reusable component to visualize predictive confidence (percentage, label, animated gradient bar) and show top analysis tags; supports compact rendering for recommendation cards and full rendering for detailed views.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "Top recommendations UI",
+      "synonyms": [
+        "Recomendações tab",
+        "Top signals"
+      ],
+      "description": "Displays up to 10 top recommendations, enriched with live market data, showing strength/confidence badges, compact confidence panels, and optional badges for manipulation zones/institutional orders with high-confidence highlighting.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Radar dashboard UI (real-time anomaly view)",
+      "synonyms": [
+        "Radar tab",
+        "Anomaly list"
+      ],
+      "description": "Renders a radar-style dashboard that computes and displays current anomalies from Binance data, ranks them by anomaly score, and shows confidence/intensity styling and animations for high-intensity alerts.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Internet Identity authentication and actor lifecycle management",
+      "synonyms": [
+        "II login",
+        "Delegation identity"
+      ],
+      "description": "Implements an Internet Identity provider that initializes AuthClient, loads stored delegation identities, supports login/logout, exposes status flags, and rebuilds the ICP canister actor when identity changes, invalidating/refetching dependent queries.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-16",
+      "title": "PWA support: manifest, install prompt, and service worker caching",
+      "synonyms": [
+        "Installable app",
+        "Offline caching"
+      ],
+      "description": "Includes a localized PWA manifest (icons, shortcuts, screenshots), a custom service worker with caching strategies and skip-waiting messaging, and an install prompt UX supporting Android beforeinstallprompt and iOS manual install instructions with a dismissal cooldown.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Backend support for user settings and PWA asset metadata",
+      "synonyms": [
+        "saveUserSettings",
+        "addPWAAsset"
+      ],
+      "description": "Backend stores per-user settings (preferred language, dark mode) and tracks PWA asset URLs with asset type and timestamps, with query endpoints to retrieve settings and assets.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Backend upgrade migration for radar alerts",
+      "synonyms": [
+        "State migration",
+        "Canister upgrade support"
+      ],
+      "description": "Includes a migration module that upgrades old actor state to a new state shape by adding an empty radarAlerts map, enabling backward-compatible upgrades.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-19",
+      "title": "HTTP outcall helper module for ICP canisters",
+      "synonyms": [
+        "IC http_request wrapper",
+        "Transform function"
+      ],
+      "description": "Provides reusable Motoko helpers for GET/POST HTTP outcalls via the IC management canister with cycle budgeting, custom headers, idempotency key generation for POST, and response transformation that strips headers.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "User preferences UI + backend persistence (favorites, layout, theme)",
+      "synonyms": [
+        "Personalização do app",
+        "UserPreferences",
+        "Preferências do usuário"
+      ],
+      "description": "Adds a dedicated UserPreferences experience in the frontend and supporting Motoko types/storage for persisting per-user customization such as favorite assets, layout/display preferences, and selected theme variant (beyond the default dark-neon).",
+      "reqIds": [
+        "AR-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-21",
+      "title": "Multiple theme variants including \"Cyber Glow\"",
+      "synonyms": [
+        "Theme variants",
+        "Cyber Glow theme",
+        "ThemeProvider enhancements"
+      ],
+      "description": "Introduces additional neon theme options (e.g., \"Cyber Glow\") with updated ThemeProvider/theme model, enabling users to switch styles beyond the original dark-neon default.",
+      "reqIds": [
+        "AR-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-22",
+      "title": "Enhanced Radar mode: trend filters + dynamic alerts",
+      "synonyms": [
+        "DynamicAlerts",
+        "Radar filters",
+        "Visual/audio alerts"
+      ],
+      "description": "Extends the Radar experience with additional filtering (e.g., bullish/bearish trend) and dynamic alerts presentation logic (visual and/or sound cues) for notable events such as breakouts and critical zones.",
+      "reqIds": [
+        "AR-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-23",
+      "title": "Shadcn UI component system integrated into frontend",
+      "synonyms": [
+        "shadcn-ui",
+        "UI primitives library"
+      ],
+      "description": "Introduces a shadcn-ui based component library (accordion, dialog, tabs, table, etc.) and supporting tooling/configuration to standardize UI primitives across the React frontend.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-24",
+      "title": "Local learning/feedback integration layer for signals and analysis enrichment",
+      "synonyms": [
+        "learningEngine",
+        "learningIntegration",
+        "analysis enrichment"
+      ],
+      "description": "Adds a client-side learning/feedback integration layer (learning engine + enrichment/integration hooks) to support improving/annotating signals and analysis over time, alongside a storage abstraction for persisting related client data.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-25",
+      "title": "Build/deploy template scaffold for React + ICP (frontend/backend) project",
+      "synonyms": [
+        "build-template",
+        "deployment scaffold",
+        "icp.yaml + canister.yaml template"
+      ],
+      "description": "Introduces a reusable build-template directory and associated scripts/config (Dockerfile, deploy.sh, icp.yaml, per-canister canister.yaml, pnpm workspace, image prune/resize scripts, and shadcn-ui frontend scaffold) to standardize building and deploying the React PWA + Motoko backend to ICP.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-26",
+      "title": "App-wide error boundary and per-tab fetch error states",
+      "synonyms": [
+        "AppErrorBoundary",
+        "TabFetchErrorState",
+        "Resilient UI"
+      ],
+      "description": "Adds a top-level React error boundary plus reusable per-tab error/empty/loading state components to prevent UI crashes and provide consistent recovery messaging when data fetching or rendering fails.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-27",
+      "title": "Unified market snapshot querying + data status indicator",
+      "synonyms": [
+        "unifiedSnapshot",
+        "DataStatusIndicator",
+        "Unified data layer"
+      ],
+      "description": "Introduces unified React Query hooks that compose Binance polling, backend/actor availability, and local enrichment into a single snapshot used by the UI, alongside a status indicator component showing data freshness/health (e.g., last update and fetch state).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-28",
+      "title": "Service worker update detection and update UX",
+      "synonyms": [
+        "useServiceWorkerUpdate",
+        "PWA update prompt",
+        "SW refresh flow"
+      ],
+      "description": "Adds client logic to detect new service worker versions (skip-waiting / controllerchange flow) and expose an update UX so users can refresh to receive the latest cached assets.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-29",
+      "title": "Pesquisa inteligente por ativo (Asset Research) para pares USD‑M",
+      "synonyms": [
+        "AssetResearch",
+        "Busca por par",
+        "Aba Pesquisa"
+      ],
+      "description": "Substitui/expande a experiência antes dedicada ao ICP, permitindo pesquisar/selecionar qualquer par USD‑M perp e visualizar uma explicação do momento e possibilidades com base no snapshot unificado (Binance + estado ICP + enriquecimento local) e dados persistidos no canister quando disponíveis.",
+      "reqIds": [
+        "AR-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-30",
+      "title": "PWA install/status + diagnostics experience",
+      "synonyms": [
+        "PWADiagnosticsView",
+        "PWAInstallDialog",
+        "PWAInstallStatus",
+        "usePWADiagnostics"
+      ],
+      "description": "Adds dedicated PWA diagnostics and install-status UI (views/components + hooks) to verify installability/standalone readiness, surface manifest/service-worker status, and provide clearer install guidance beyond the basic install prompt.",
+      "reqIds": [
+        "AR-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-31",
+      "title": "Expanded PWA icon set (maskable + high-res) and updated manifest assets",
+      "synonyms": [
+        "maskable icon",
+        "1024 icon",
+        "manifest icons update"
+      ],
+      "description": "Adds/updates generated PWA icon assets including maskable 512x512 and high-resolution 1024x1024 icons and updates the manifest/static assets accordingly to improve cross-platform install appearance.",
+      "reqIds": [
+        "AR-8",
+        "AR-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-market-snapshot-diagnostics-api-snapshot-diagnostic-panel-from-the-market-tab-so-no-api-diagnostic-information-is-shown-on-the-market-screen",
+      "title": "Remove the \"Market Snapshot Diagnostics\" (API snapshot diagnostic) panel from the Market tab so no API diagnostic information is shown on the market screen.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-preferences-control-that-lets-the-user-manually-reload-from-scratch-on-demand-exposed-as-a-clearly-labeled-button-inside-the-preferences-screen",
+      "title": "Add a new Preferences control that lets the user manually “reload from scratch” on demand, exposed as a clearly labeled button inside the Preferences screen.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-the-user-clicks-the-reset-button-show-a-confirmation-dialog-that-clearly-explains-what-will-be-deleted-and-requires-explicit-confirmation-before-proceeding",
+      "title": "When the user clicks the reset button, show a confirmation dialog that clearly explains what will be deleted and requires explicit confirmation before proceeding.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-reset-action-to-actually-clear-local-ai-evolution-data-and-app-caches-then-force-a-clean-reload-so-the-app-starts-as-if-opened-for-the-first-time-on-that-device",
+      "title": "Implement the reset action to actually clear local “AI evolution” data and app caches, then force a clean reload so the app starts as if opened for the first time on that device.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-safe-ux-feedback-for-the-reset-flow-including-progress-disabled-states-and-error-handling-if-clearing-storage-fails",
+      "title": "Add safe UX feedback for the reset flow, including progress/disabled states and error handling if clearing storage fails.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Adicionar Histórico Analítico por par (evolução de predições/zonas ao longo do tempo) com consulta/visualização no app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Expandir universo de ativos para todos os pares Binance Futures USD‑M perp (busca dinâmica + análise sob demanda)",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Adicionar Análise de Sentimento de Mercado (otimista/neutro/pessimista) e painel dedicado, cruzando dados on-chain e informações públicas em tempo real",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Integração multi-fonte no backend: CoinGecko para dados gerais de mercado + Binance para métricas/fluxo em tempo real, com polling/intervalos ajustados e consistência de dados",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Melhorar o sistema de alertas visuais (toast/overlay) para alta visibilidade no estilo neon (contraste, animação, ícones, posicionamento mobile/desktop)",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Corrigir/garantir troca de tema/cores (ex.: Dark Neon/Cyber Glow) aplicando mudanças instantaneamente e persistindo preferências",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Permitir configurar imagem/ícone padrão do app (web/mobile/desktop PWA), incluindo splash e ícones",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Refatorar arquitetura de fontes: Binance apenas no frontend (browser) por bloqueio no ICP; CoinGecko no backend + persistência, com status padronizado por fonte (LIVE/BLOCKED/STALE) e sem fallback silencioso",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Usar ativos favoritos (Preferências) como sinal extra para priorização do aprendizado/recomendações da IA, sem alterar as regras atuais (whitelist permanece)",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Pacote PWA completo/profissional: garantir instalabilidade e execução em modo standalone no mobile (sem UI do navegador), com manifesto/splash/ícones/shortcuts/screenshots e ajustes de service worker para experiência “app nativo”",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Formatar/empacotar o app como PWA completo “nativo” para mobile e desktop: modo standalone/app-like (sem UI do browser), instalabilidade, manifest/ícones/splash/shortcuts/screenshots e ajustes de service worker/metadata para experiência profissional",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Remover da tela Mercado o painel/infos de API \"Market Snapshot Diagnostic\" (diagnóstico do snapshot)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Adicionar opção/botão nas Preferências para o usuário \"recarregar tudo do zero\" (reset/regenerar dados locais e/ou estado persistido: análises IA, recomendações e radar) sob demanda",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Crypto Market Assistant - Binance Futures USD-M",
+  "clarification_mode": "thinking",
+  "clarification_rounds": 0
+}

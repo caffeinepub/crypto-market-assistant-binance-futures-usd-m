@@ -1,0 +1,91 @@
+{
+  "kind": "build_request",
+  "title": "Add a user-triggered “Reset / Reload from scratch” action in Preferences",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "text": "Add a new Preferences control that lets the user manually “reload from scratch” on demand, exposed as a clearly labeled button inside the Preferences screen.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Adicione essa funcao.  Então.  Para o usuário poder optar por isso quando quiser.\n\n Adicione esse botao.. na area de preferência"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Preferences screen shows a new button for resetting/reloading (user-facing label in English).",
+        "The button is visually styled as a destructive/danger action (consistent with the app’s existing shadcn/Tailwind styling).",
+        "The button is placed inside the Preferences area (same screen/component as the other user preferences)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "When the user clicks the reset button, show a confirmation dialog that clearly explains what will be deleted and requires explicit confirmation before proceeding.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Para o usuário poder optar por isso quando quiser."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the reset button opens a modal/dialog confirmation step (no immediate reset).",
+        "The dialog includes English text describing the scope of the reset (at minimum: local AI learning history and local app caches).",
+        "The dialog provides Cancel and Confirm actions, with Cancel leaving all data untouched."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Implement the reset action to actually clear local “AI evolution” data and app caches, then force a clean reload so the app starts as if opened for the first time on that device.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "recarregar tudo do zero"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Confirming the reset deletes the app’s local AI learning storage (IndexedDB database used by the learning engine), so AI learning stats/predictions do not persist after reload.",
+        "Confirming the reset clears relevant localStorage keys used for user-level local settings/caches (at minimum the keys used by the current Preferences UI).",
+        "Confirming the reset clears the in-memory data cache (React Query cache) so the next load refetches/recomputes normally.",
+        "After reset completes, the app reloads (or navigates) to a fresh state without runtime errors."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add safe UX feedback for the reset flow, including progress/disabled states and error handling if clearing storage fails.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ]
+      },
+      "acceptanceCriteria": [
+        "While reset is running, the confirm button is disabled and indicates progress (English text).",
+        "If reset fails (e.g., IndexedDB deletion error), the user sees an error toast/message and the app does not get stuck in a broken state.",
+        "On success, a success toast/message is shown before triggering reload (or immediately after reload via a persisted one-time flag)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Frontend immutable paths must not be edited: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Backend must remain a single Motoko actor in backend/main.mo; only add migration.mo if state schema changes require it.",
+    "Use English for any user-facing text added as part of this feature (button label, dialog copy, progress/error messages)."
+  ],
+  "nonGoals": [
+    "Do not add new third-party auth or external services.",
+    "Do not attempt to synchronize state between draft and live environments/canisters.",
+    "Do not delete or alter canister (backend) state as part of this reset unless a separate explicit request is made (this reset is local, device-side)."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

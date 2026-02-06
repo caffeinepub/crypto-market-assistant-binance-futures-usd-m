@@ -1,0 +1,97 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Preferences: user-triggered local reset/reload from scratch",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Add a clearly labeled destructive “Reload from scratch” button inside the existing Preferences screen.",
+      "acceptanceCriteria": [
+        "The Preferences screen shows a new button for resetting/reloading (user-facing label in English).",
+        "The button is visually styled as a destructive/danger action (consistent with the app’s existing shadcn/Tailwind styling).",
+        "The button is placed inside the Preferences area (same screen/component as the other user preferences)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/UserPreferences.tsx",
+          "operation": "modify",
+          "description": "Add a new Preferences section containing a prominently labeled English reset action (e.g., “Reload from scratch”) using existing shadcn/Tailwind primitives (e.g., Button with destructive styling). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Require explicit confirmation via a modal/dialog describing what local data will be deleted before running the reset.",
+      "acceptanceCriteria": [
+        "Clicking the reset button opens a modal/dialog confirmation step (no immediate reset).",
+        "The dialog includes English text describing the scope of the reset (at minimum: local AI learning history and local app caches).",
+        "The dialog provides Cancel and Confirm actions, with Cancel leaving all data untouched."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/UserPreferences.tsx",
+          "operation": "modify",
+          "description": "Implement a confirmation modal/dialog UI (shadcn-style if available; otherwise a local modal component) with English explanatory copy, plus Cancel and Confirm actions wired to the reset handler. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/ResetFromScratchDialog.tsx",
+          "operation": "create",
+          "description": "Create a focused dialog component used by Preferences to present the confirmation step and actions (Cancel/Confirm), including destructive styling and accessible structure consistent with the app UI. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "On confirm, clear local AI evolution (IndexedDB), local settings/caches (localStorage), and React Query cache, then force a clean reload.",
+      "acceptanceCriteria": [
+        "Confirming the reset deletes the app’s local AI learning storage (IndexedDB database used by the learning engine), so AI learning stats/predictions do not persist after reload.",
+        "Confirming the reset clears relevant localStorage keys used for user-level local settings/caches (at minimum the keys used by the current Preferences UI).",
+        "Confirming the reset clears the in-memory data cache (React Query cache) so the next load refetches/recomputes normally.",
+        "After reset completes, the app reloads (or navigates) to a fresh state without runtime errors."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/learningEngine.ts",
+          "operation": "modify",
+          "description": "Add a public reset helper (e.g., delete/clear the IndexedDB database used by the learning engine, ensuring open connections are closed) to support complete deletion of local AI evolution data."
+        },
+        {
+          "path": "frontend/src/lib/resetFromScratch.ts",
+          "operation": "create",
+          "description": "Create a single reset orchestrator that: clears required localStorage keys (at minimum: keys used by Preferences and theme), clears CacheStorage caches (app caches), unregisters service workers if present, calls the learning engine IndexedDB deletion helper, and triggers a clean reload; expose a simple function the Preferences dialog can call."
+        },
+        {
+          "path": "frontend/src/components/UserPreferences.tsx",
+          "operation": "modify",
+          "description": "Wire the dialog Confirm action to call the reset orchestrator, and clear React Query in-memory cache via the React Query client before triggering reload (so next load refetches/recomputes). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add safe UX feedback for the reset flow: disabled/progress state, success messaging, and error handling without leaving the app broken.",
+      "acceptanceCriteria": [
+        "While reset is running, the confirm button is disabled and indicates progress (English text).",
+        "If reset fails (e.g., IndexedDB deletion error), the user sees an error toast/message and the app does not get stuck in a broken state.",
+        "On success, a success toast/message is shown before triggering reload (or immediately after reload via a persisted one-time flag)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ResetFromScratchDialog.tsx",
+          "operation": "modify",
+          "description": "Add running/progress UI: disable Confirm while executing, show English progress text (e.g., “Resetting…”), and surface errors to the user (toast/message) with safe recovery (dialog stays usable / can cancel). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/resetFromScratch.ts",
+          "operation": "modify",
+          "description": "Implement robust error handling (catch and return structured success/failure), and set a one-time persisted flag (e.g., in localStorage) to show a success toast after reload if the reload happens immediately."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "On app startup, detect the one-time post-reset success flag and show an English success toast/message, then clear the flag so it only displays once. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}
