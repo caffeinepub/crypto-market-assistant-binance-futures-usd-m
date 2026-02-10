@@ -1,91 +1,66 @@
 {
   "kind": "build_request",
-  "title": "Add a user-triggered “Reset / Reload from scratch” action in Preferences",
+  "title": "Unify visual layout for Radar and Trading Opportunities tabs",
   "priority": "normal",
   "requirements": [
     {
+      "id": "REQ-1",
+      "text": "Update the Radar tab UI (frontend/src/components/RadarDashboard.tsx) so its overall page layout, spacing, and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations): a consistent top-level structure without extra/inconsistent padding and with a primary Card container using the same theme-driven border/background/backdrop styles.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "As abas Radar e Trading Opportunity devem ter o mesmo formato visual que as outras abas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Radar tab no longer adds extra outer padding/margins that make it look visually different from other tabs (e.g., remove/adjust any redundant outer `p-4` wrappers when TabsContent already controls spacing).",
+        "Radar tab has a single, consistent top-level container structure aligned with other tabs (Card-based header/section styling consistent with existing tab patterns).",
+        "Visual elements (header block, filter block, list container) align with the app’s existing theme variables and common Card/backdrop treatment used elsewhere (no bespoke gradient treatment that makes Radar look like a different template)."
+      ]
+    },
+    {
       "id": "REQ-2",
-      "text": "Add a new Preferences control that lets the user manually “reload from scratch” on demand, exposed as a clearly labeled button inside the Preferences screen.",
+      "text": "Update the Trading Opportunities tab UI (frontend/src/components/Opportunities.tsx) so its page header and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations), replacing any standalone heading layout with the same Card-based header/container approach.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-12"
         ],
         "quotes": [
-          "Adicione essa funcao.  Então.  Para o usuário poder optar por isso quando quiser.\n\n Adicione esse botao.. na area de preferência"
+          "As abas Radar e Trading Opportunity devem ter o mesmo formato visual que as outras abas."
         ]
       },
       "acceptanceCriteria": [
-        "The Preferences screen shows a new button for resetting/reloading (user-facing label in English).",
-        "The button is visually styled as a destructive/danger action (consistent with the app’s existing shadcn/Tailwind styling).",
-        "The button is placed inside the Preferences area (same screen/component as the other user preferences)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "When the user clicks the reset button, show a confirmation dialog that clearly explains what will be deleted and requires explicit confirmation before proceeding.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "Para o usuário poder optar por isso quando quiser."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Clicking the reset button opens a modal/dialog confirmation step (no immediate reset).",
-        "The dialog includes English text describing the scope of the reset (at minimum: local AI learning history and local app caches).",
-        "The dialog provides Cancel and Confirm actions, with Cancel leaving all data untouched."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Implement the reset action to actually clear local “AI evolution” data and app caches, then force a clean reload so the app starts as if opened for the first time on that device.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "recarregar tudo do zero"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Confirming the reset deletes the app’s local AI learning storage (IndexedDB database used by the learning engine), so AI learning stats/predictions do not persist after reload.",
-        "Confirming the reset clears relevant localStorage keys used for user-level local settings/caches (at minimum the keys used by the current Preferences UI).",
-        "Confirming the reset clears the in-memory data cache (React Query cache) so the next load refetches/recomputes normally.",
-        "After reset completes, the app reloads (or navigates) to a fresh state without runtime errors."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Add safe UX feedback for the reset flow, including progress/disabled states and error handling if clearing storage fails.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-20"
-        ]
-      },
-      "acceptanceCriteria": [
-        "While reset is running, the confirm button is disabled and indicates progress (English text).",
-        "If reset fails (e.g., IndexedDB deletion error), the user sees an error toast/message and the app does not get stuck in a broken state.",
-        "On success, a success toast/message is shown before triggering reload (or immediately after reload via a persisted one-time flag)."
+        "The Opportunities tab renders its main title/description inside a CardHeader/Card layout consistent with other tabs (instead of a standalone h1 block).",
+        "The Opportunities tab’s top-level styling (borders/background/backdrop/shadow treatment) visually matches the common tab template used by MarketOverview/TopRecommendations.",
+        "No regressions to existing Opportunities functionality: modality tabs still switch content correctly; loading/error/empty states still render."
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable paths must not be edited: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add migration.mo if state schema changes require it.",
-    "Use English for any user-facing text added as part of this feature (button label, dialog copy, progress/error messages)."
+    "Do not modify any files under frontend/src/components/ui (shadcn components are read-only and must be composed, not edited).",
+    "Keep changes limited to visual/layout consistency; do not change backend APIs or data-fetching behavior."
   ],
   "nonGoals": [
-    "Do not add new third-party auth or external services.",
-    "Do not attempt to synchronize state between draft and live environments/canisters.",
-    "Do not delete or alter canister (backend) state as part of this reset unless a separate explicit request is made (this reset is local, device-side)."
+    "Translating the entire application UI to English or Portuguese.",
+    "Redesigning the information architecture or adding new features to Radar or Opportunities.",
+    "Changing alert/opportunity scoring logic or react-query caching behavior."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

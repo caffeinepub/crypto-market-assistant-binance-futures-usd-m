@@ -1,81 +1,50 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T14:10:43.750Z",
+  "generatedAt": "2026-02-10T18:17:20.802Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
+        "id": "REQ-1",
+        "summary": "Update the Radar tab UI (frontend/src/components/RadarDashboard.tsx) so its overall page layout, spacing, and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations): a consistent top-level structure without extra/inconsistent padding and with a primary Card container using the same theme-driven border/background/backdrop styles.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/TabPageCard.tsx",
+          "frontend/src/components/RadarDashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/TabPageCard.tsx",
+          "frontend/src/components/RadarDashboard.tsx"
+        ]
+      },
+      {
         "id": "REQ-2",
-        "summary": "Add a new Preferences control that lets the user manually “reload from scratch” on demand, exposed as a clearly labeled button inside the Preferences screen.",
+        "summary": "Update the Trading Opportunities tab UI (frontend/src/components/Opportunities.tsx) so its page header and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations), replacing any standalone heading layout with the same Card-based header/container approach.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/UserPreferences.tsx"
+          "frontend/src/components/Opportunities.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/UserPreferences.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "When the user clicks the reset button, show a confirmation dialog that clearly explains what will be deleted and requires explicit confirmation before proceeding.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/UserPreferences.tsx",
-          "frontend/src/components/ResetFromScratchDialog.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/UserPreferences.tsx",
-          "frontend/src/components/ResetFromScratchDialog.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Implement the reset action to actually clear local “AI evolution” data and app caches, then force a clean reload so the app starts as if opened for the first time on that device.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/learningEngine.ts",
-          "frontend/src/lib/resetFromScratch.ts",
-          "frontend/src/components/UserPreferences.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/learningEngine.ts",
-          "frontend/src/lib/resetFromScratch.ts",
-          "frontend/src/components/UserPreferences.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Add safe UX feedback for the reset flow, including progress/disabled states and error handling if clearing storage fails.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ResetFromScratchDialog.tsx",
-          "frontend/src/lib/resetFromScratch.ts",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ResetFromScratchDialog.tsx",
-          "frontend/src/lib/resetFromScratch.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/components/Opportunities.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/ResetFromScratchDialog.tsx",
-    "frontend/src/components/UserPreferences.tsx",
-    "frontend/src/lib/learningEngine.ts",
-    "frontend/src/lib/resetFromScratch.ts",
+    "frontend/src/components/Opportunities.tsx",
+    "frontend/src/components/RadarDashboard.tsx",
+    "frontend/src/components/TabPageCard.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

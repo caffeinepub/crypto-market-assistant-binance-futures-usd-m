@@ -73,8 +73,8 @@ export default function TopRecommendations() {
             </AlertDescription>
           </Alert>
         ) : (
-          <ScrollArea className="h-[700px] pr-4">
-            <div className="space-y-4">
+          <ScrollArea className="h-[700px] pr-2 overflow-x-hidden">
+            <div className="space-y-4 min-w-0">
               {topRecs.map((rec, index) => {
                 const isHighConfidence = rec.confidence >= 0.7;
                 const hasLearning = rec.market && (rec.market.analysis.learningLevel || 0) >= 0.6;
@@ -82,16 +82,16 @@ export default function TopRecommendations() {
                   <Card
                     key={`${rec.symbol}-${rec.timestamp}`}
                     className={cn(
-                      'border-2 bg-gradient-to-br from-card/80 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300',
+                      'border-2 bg-gradient-to-br from-card/80 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300 min-w-0',
                       isHighConfidence 
                         ? 'to-neon-green/10 border-neon-green/50 shadow-neon-bullish animate-pulse-bullish' 
                         : 'to-neon-cyan/10 border-neon-green/40 hover:shadow-neon-bullish'
                     )}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
+                    <CardContent className="p-4 sm:p-6 min-w-0">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-4 min-w-0">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="relative flex-shrink-0">
                             <div className={cn(
                               "absolute inset-0 blur-lg opacity-60 rounded-full",
                               isHighConfidence ? "bg-neon-green" : "bg-neon-cyan"
@@ -105,36 +105,36 @@ export default function TopRecommendations() {
                               {index + 1}
                             </div>
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-xl text-neon-green neon-text-bullish">{rec.symbol}</h3>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-bold text-xl text-neon-green neon-text-bullish truncate">{rec.symbol}</h3>
                               {hasLearning && (
-                                <Brain className="w-5 h-5 text-neon-purple" />
+                                <Brain className="w-5 h-5 text-neon-purple flex-shrink-0" />
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground font-medium">
+                            <p className="text-sm text-muted-foreground font-medium truncate">
                               Binance Futures USD-M
                               {hasLearning && ' • AI Advanced'}
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2 items-end">
+                        <div className="flex flex-row sm:flex-col gap-2 items-start sm:items-end flex-shrink-0">
                           <Badge className={cn(
-                            'text-lg px-4 py-2 border-2 font-bold',
+                            'text-base sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 border-2 font-bold whitespace-nowrap',
                             isHighConfidence 
                               ? 'bg-neon-green/20 text-neon-green border-neon-green/60 shadow-neon-bullish' 
                               : 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/60'
                           )}>
-                            <Zap className="w-5 h-5 mr-1 fill-current" />
+                            <Zap className="w-4 sm:w-5 h-4 sm:h-5 mr-1 fill-current" />
                             {rec.strength.toFixed(0)}%
                           </Badge>
                           <Badge className={cn(
-                            'text-sm px-3 py-1 border-2 font-bold',
+                            'text-xs sm:text-sm px-2 sm:px-3 py-1 border-2 font-bold whitespace-nowrap',
                             isHighConfidence 
                               ? 'bg-neon-green/20 text-neon-green border-neon-green/60' 
                               : 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/60'
                           )}>
-                            <Target className="w-4 h-4 mr-1" />
+                            <Target className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
                             {Math.round(rec.confidence * 100)}% confidence
                           </Badge>
                         </div>
@@ -142,34 +142,34 @@ export default function TopRecommendations() {
 
                       {rec.market && (
                         <>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="space-y-1 p-3 rounded-lg bg-accent/30 border border-neon-cyan/30">
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 min-w-0">
+                            <div className="space-y-1 p-2 sm:p-3 rounded-lg bg-accent/30 border border-neon-cyan/30 min-w-0">
                               <p className="text-xs text-muted-foreground font-medium">Current Price</p>
-                              <p className="text-lg font-bold text-neon-cyan">
+                              <p className="text-base sm:text-lg font-bold text-neon-cyan truncate">
                                 ${parseFloat(rec.market.lastPrice).toLocaleString('en-US', {
                                   minimumFractionDigits: 2,
                                   maximumFractionDigits: 2,
                                 })}
                               </p>
                             </div>
-                            <div className="space-y-1 p-3 rounded-lg bg-neon-green/10 border border-neon-green/40">
+                            <div className="space-y-1 p-2 sm:p-3 rounded-lg bg-neon-green/10 border border-neon-green/40 min-w-0">
                               <p className="text-xs text-muted-foreground font-medium">24h Change</p>
-                              <div className="flex items-center gap-1">
-                                <TrendingUp className="w-5 h-5 text-neon-green" />
-                                <p className="text-lg font-bold text-neon-green">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5 text-neon-green flex-shrink-0" />
+                                <p className="text-base sm:text-lg font-bold text-neon-green truncate">
                                   {rec.market.priceChangePercent.toFixed(2)}%
                                 </p>
                               </div>
                             </div>
-                            <div className="space-y-1 p-3 rounded-lg bg-accent/30 border border-neon-blue/30">
+                            <div className="space-y-1 p-2 sm:p-3 rounded-lg bg-accent/30 border border-neon-blue/30 min-w-0">
                               <p className="text-xs text-muted-foreground font-medium">24h Volume</p>
-                              <p className="text-lg font-bold text-neon-blue">
+                              <p className="text-base sm:text-lg font-bold text-neon-blue truncate">
                                 ${(parseFloat(rec.market.quoteVolume) / 1000000).toFixed(1)}M
                               </p>
                             </div>
-                            <div className="space-y-1 p-3 rounded-lg bg-accent/30 border border-neon-purple/30">
+                            <div className="space-y-1 p-2 sm:p-3 rounded-lg bg-accent/30 border border-neon-purple/30 min-w-0">
                               <p className="text-xs text-muted-foreground font-medium">Prediction</p>
-                              <p className="text-lg font-bold text-neon-purple">
+                              <p className="text-base sm:text-lg font-bold text-neon-purple truncate">
                                 ${rec.market.analysis.prediction.toLocaleString('en-US', {
                                   minimumFractionDigits: 2,
                                   maximumFractionDigits: 2,
@@ -178,7 +178,7 @@ export default function TopRecommendations() {
                             </div>
                           </div>
 
-                          <div className="mb-4">
+                          <div className="mb-4 min-w-0">
                             <PredictiveConfidencePanel 
                               analysis={rec.market.analysis} 
                               symbol={rec.symbol} 
@@ -187,13 +187,13 @@ export default function TopRecommendations() {
                           </div>
 
                           {hasLearning && (
-                            <div className="mb-4">
+                            <div className="mb-4 min-w-0">
                               <AIPerformancePanel symbol={rec.symbol} compact />
                             </div>
                           )}
 
                           {(rec.market.analysis.manipulationZones.length > 0 || rec.market.analysis.institutionalOrders.length > 0) && (
-                            <div className="flex flex-wrap gap-2 mb-4">
+                            <div className="flex flex-wrap gap-2 mb-4 min-w-0">
                               {rec.market.analysis.manipulationZones.length > 0 && (
                                 <Badge className="bg-neon-orange/20 text-neon-orange border border-neon-orange/60 text-xs">
                                   <img 
@@ -201,7 +201,7 @@ export default function TopRecommendations() {
                                     alt="" 
                                     className="w-3 h-3 mr-1"
                                   />
-                                  {rec.market.analysis.manipulationZones.length} Manipulation Zone(s)
+                                  {rec.market.analysis.manipulationZones.length} Manipulation Zone{rec.market.analysis.manipulationZones.length > 1 ? 's' : ''}
                                 </Badge>
                               )}
                               {rec.market.analysis.institutionalOrders.length > 0 && (
@@ -211,32 +211,30 @@ export default function TopRecommendations() {
                                     alt="" 
                                     className="w-3 h-3 mr-1"
                                   />
-                                  {rec.market.analysis.institutionalOrders.length} Institutional Order(s)
+                                  {rec.market.analysis.institutionalOrders.length} Institutional Order{rec.market.analysis.institutionalOrders.length > 1 ? 's' : ''}
                                 </Badge>
                               )}
                             </div>
                           )}
+
+                          <div className="space-y-2 min-w-0">
+                            <h4 className="text-sm font-bold text-neon-cyan">Key Indicators:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {rec.market.analysis.tags.map((tag, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs border-neon-cyan/40 text-neon-cyan">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed break-words">
+                              Strong {rec.market.analysis.trend} trend detected with {rec.strength.toFixed(0)}% strength. 
+                              Technical analysis shows {rec.market.analysis.confidence >= 0.7 ? 'high' : 'moderate'} confidence 
+                              based on price action, volume analysis, and market structure.
+                              {hasLearning && ' Enhanced by AI learning from historical predictions.'}
+                            </p>
+                          </div>
                         </>
                       )}
-
-                      <div className={cn(
-                        "p-4 rounded-lg border-2 transition-all duration-300",
-                        isHighConfidence 
-                          ? "bg-neon-green/10 border-neon-green/40 shadow-neon-bullish" 
-                          : "bg-neon-cyan/10 border-neon-cyan/40"
-                      )}>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          <span className={cn(
-                            "font-bold",
-                            isHighConfidence ? "text-neon-green neon-text-bullish" : "text-neon-cyan"
-                          )}>
-                            {isHighConfidence ? 'High Confidence' : 'Moderate'} Analysis:
-                          </span> Strong upside potential identified through advanced analysis of Smart Money Concepts, 
-                          Volume Delta, liquidity zones and institutional order detection. 
-                          {isHighConfidence && ' High reliability signal with multiple converging indicators.'}
-                          {hasLearning && ' The AI has developed consistent patterns for this asset through continuous learning.'}
-                        </p>
-                      </div>
                     </CardContent>
                   </Card>
                 );

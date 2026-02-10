@@ -1,50 +1,16 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T14:10:43.747Z",
-  "summary": "The diff adds a new reset-from-scratch confirmation dialog in Preferences, implements local data clearing (IndexedDB, localStorage, CacheStorage) with progress and toast feedback, and triggers an app reload with a one-time post-reload success toast. However, the reset flow does not show evidence of clearing the in-memory React Query cache as required.",
-  "missing_requirements": [
-    {
-      "id": "REQ-4",
-      "requirement": "Confirming the reset clears the in-memory data cache (React Query cache) so the next load refetches/recomputes normally.",
-      "reason": "The reset orchestrator clears IndexedDB, localStorage, CacheStorage, and unregisters service workers, but there is no evidence of interacting with a React Query QueryClient (e.g., queryClient.clear()/removeQueries()/invalidateQueries()) anywhere in the provided diff.",
-      "evidence": [
-        "frontend/src/lib/resetFromScratch.ts",
-        "frontend/src/App.tsx"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Unregistering all service workers as part of the local reset.",
-      "reason": "REQ-4 mentions clearing local app caches and local AI learning storage plus localStorage keys; it does not explicitly request service worker unregistration.",
-      "evidence": [
-        "frontend/src/lib/resetFromScratch.ts"
-      ]
-    },
-    {
-      "description": "Deleting all IndexedDB databases found in the browser (not just the AI learning engine DB).",
-      "reason": "REQ-4 requires deleting the IndexedDB database used by the learning engine; the implementation enumerates and deletes every IndexedDB database name returned by indexedDB.databases().",
-      "evidence": [
-        "frontend/src/lib/resetFromScratch.ts"
-      ]
-    },
-    {
-      "description": "Adding a LearningEngine.resetDatabase() helper method.",
-      "reason": "The BuildRequest only asks for a user-triggered reset flow and data clearing; it does not request adding new public API methods to the learning engine.",
-      "evidence": [
-        "frontend/src/lib/learningEngine.ts"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "generatedAt": "2026-02-10T18:17:20.800Z",
+  "summary": "The diff introduces a new shared Card-based wrapper component (TabPageCard) and updates both Opportunities and RadarDashboard to import/use Card primitives and TabPageCard, aligning with the requested goal of consistent Card-based tab layout. Due to truncation of the key render sections in both modified tab files, some acceptance-criteria details (e.g., removal of redundant outer padding wrappers) cannot be conclusively verified from the provided diff summary alone.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/ResetFromScratchDialog.tsx",
-    "frontend/src/components/UserPreferences.tsx",
-    "frontend/src/lib/learningEngine.ts",
-    "frontend/src/lib/resetFromScratch.ts",
+    "frontend/src/components/Opportunities.tsx",
+    "frontend/src/components/RadarDashboard.tsx",
+    "frontend/src/components/TabPageCard.tsx",
     "project_state.json"
   ]
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { learningEngine } from '@/lib/learningEngine';
 import { fetchBinanceAsset, fetchBinanceMarketData, filterMajorPairs } from './queries/binanceFetch';
 import { calculateAdvancedTechnicalAnalysis } from './queries/analysisEnrichment';
-import { generateRecommendations, generateRadarAlerts } from './queries/localSignals';
+import { generateRecommendations, generateRadarAlerts, ExtendedRadarAlert, AnomalyType } from './queries/localSignals';
 import { recordPredictions, updatePastPredictions, LearningPrioritization } from './queries/learningIntegration';
 
 // Type definitions
@@ -33,6 +33,9 @@ export interface RadarAlert {
   volumeDelta: number;
   direction: DirectionType;
   confidence: number;
+  anomalyScore: number;
+  anomalyTypes: AnomalyType[];
+  reasons: string[];
   timestamp: number;
 }
 
@@ -361,7 +364,7 @@ export function useAutoGenerateRecommendations() {
 }
 
 /**
- * Get radar alerts (generated locally from market data)
+ * Get radar alerts (generated locally from market data with extended anomaly detection)
  */
 export function useRadarAlerts() {
   const { data: marketData, error } = useBinanceMarketData();
@@ -372,10 +375,13 @@ export function useRadarAlerts() {
       if (!marketData || marketData.length === 0) return [];
 
       try {
-        return generateRadarAlerts(marketData);
+        const extendedAlerts = await generateRadarAlerts(marketData);
+        // Convert ExtendedRadarAlert to RadarAlert (they're compatible)
+        return extendedAlerts;
       } catch (error) {
         console.error('Error generating radar alerts:', error);
-        throw error;
+        // Return empty array on error to prevent UI crashes
+        return [];
       }
     },
     enabled: !!marketData && !error,
@@ -394,24 +400,28 @@ export function useAutoDetectRadarAlerts() {
   useEffect(() => {
     if (!marketData || marketData.length === 0) return;
 
-    try {
-      const alerts = generateRadarAlerts(marketData);
+    const detectAlerts = async () => {
+      try {
+        const alerts = await generateRadarAlerts(marketData);
 
-      alerts.forEach((alert) => {
-        const key = `${alert.symbol}-${Math.floor(Date.now() / 60000)}`;
-        if (!processedRef.current.has(key)) {
-          processedRef.current.add(key);
+        alerts.forEach((alert) => {
+          const key = `${alert.symbol}-${Math.floor(Date.now() / 60000)}`;
+          if (!processedRef.current.has(key)) {
+            processedRef.current.add(key);
+          }
+        });
+
+        // Clean up old entries
+        if (processedRef.current.size > 100) {
+          const entries = Array.from(processedRef.current);
+          processedRef.current = new Set(entries.slice(-50));
         }
-      });
-
-      // Clean up old entries
-      if (processedRef.current.size > 100) {
-        const entries = Array.from(processedRef.current);
-        processedRef.current = new Set(entries.slice(-50));
+      } catch (error) {
+        console.warn('Error auto-detecting radar alerts:', error);
       }
-    } catch (error) {
-      console.warn('Error auto-detecting radar alerts:', error);
-    }
+    };
+
+    detectAlerts();
   }, [marketData]);
 }
 

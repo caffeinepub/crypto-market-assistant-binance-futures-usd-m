@@ -7,6 +7,7 @@ import MarketOverview from './components/MarketOverview';
 import TopRecommendations from './components/TopRecommendations';
 import AssetResearch from './components/AssetResearch';
 import RadarDashboard from './components/RadarDashboard';
+import Opportunities from './components/Opportunities';
 import InstallPrompt from './components/InstallPrompt';
 import UserPreferences from './components/UserPreferences';
 import DynamicAlerts from './components/DynamicAlerts';
@@ -21,7 +22,7 @@ import { checkResetSuccess } from './lib/resetFromScratch';
 import { toast } from 'sonner';
 import { WifiOff } from 'lucide-react';
 
-type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'aprendizado' | 'pesquisa' | 'preferencias';
+type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'aprendizado' | 'pesquisa' | 'preferencias';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabValue>('mercado');
@@ -88,7 +89,7 @@ function App() {
     const tabParam = params.get('tab');
     
     if (tabParam) {
-      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'aprendizado', 'pesquisa', 'preferencias'];
+      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'opportunities', 'aprendizado', 'pesquisa', 'preferencias'];
       if (validTabs.includes(tabParam as TabValue)) {
         setActiveTab(tabParam as TabValue);
       }
@@ -153,10 +154,11 @@ function App() {
           
           <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8">
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)} className="w-full">
-              <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-6 mb-4 sm:mb-8 h-11 sm:h-10 touch-manipulation">
+              <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-7 mb-4 sm:mb-8 h-11 sm:h-10 touch-manipulation">
                 <TabsTrigger value="mercado" className="text-xs sm:text-sm">Mercado</TabsTrigger>
                 <TabsTrigger value="radar" className="text-xs sm:text-sm">Radar</TabsTrigger>
                 <TabsTrigger value="recomendacoes" className="text-xs sm:text-sm">Recomendações</TabsTrigger>
+                <TabsTrigger value="opportunities" className="text-xs sm:text-sm">Opportunities</TabsTrigger>
                 <TabsTrigger value="aprendizado" className="text-xs sm:text-sm">Aprendizado</TabsTrigger>
                 <TabsTrigger value="pesquisa" className="text-xs sm:text-sm">Pesquisa</TabsTrigger>
                 <TabsTrigger value="preferencias" className="text-xs sm:text-sm">Preferências</TabsTrigger>
@@ -170,8 +172,12 @@ function App() {
                 <RadarDashboard />
               </TabsContent>
               
-              <TabsContent value="recomendacoes" className="space-y-4 sm:space-y-6">
+              <TabsContent value="recomendacoes" className="space-y-4 sm:space-y-6 overflow-x-hidden">
                 <TopRecommendations />
+              </TabsContent>
+              
+              <TabsContent value="opportunities" className="space-y-4 sm:space-y-6">
+                <Opportunities />
               </TabsContent>
               
               <TabsContent value="aprendizado" className="space-y-4 sm:space-y-6">

@@ -103,6 +103,19 @@
       ]
     },
     {
+      "name": "Opportunities",
+      "short_name": "Opportunities",
+      "description": "View trading opportunities by modality",
+      "url": "/?tab=opportunities",
+      "icons": [
+        {
+          "src": "/assets/generated/app-icon-512.dim_512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
       "name": "Pesquisa",
       "short_name": "Pesquisa",
       "description": "Pesquisar e analisar qualquer ativo",

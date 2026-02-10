@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Let users manually reset the app’s local state and restart from a clean “first launch” experience via a control in Preferences.
+**Goal:** Make the Radar and Trading Opportunities tabs visually consistent with the established layout and Card-based styling used by other tabs (e.g., Market Overview / Top Recommendations).
 
 **Planned changes:**
-- Add a clearly labeled English “Reset / Reload from scratch” button to the existing Preferences screen, styled as a destructive/danger action.
-- On click, open a confirmation dialog explaining that local AI learning history and local app caches will be deleted, with Cancel and Confirm actions.
-- On confirm, clear local AI evolution storage (IndexedDB), clear relevant localStorage keys used by Preferences/settings/caches, clear the in-memory React Query cache, then force a clean app reload.
-- Add UX feedback for the reset flow: disabled/progress state during reset, success messaging, and error handling with a toast/message if clearing storage fails.
+- Update `frontend/src/components/RadarDashboard.tsx` to match the common tab page structure: remove/adjust redundant outer padding/margins, use a single consistent top-level container, and apply the same theme-driven Card border/background/backdrop styling as other tabs.
+- Update `frontend/src/components/Opportunities.tsx` to render its header (title/description) within a CardHeader/Card layout consistent with other tabs, and align its primary container styling (borders/background/backdrop/shadow) with the shared tab template.
+- Keep all functionality intact (e.g., Opportunities modality switching and loading/error/empty states) while limiting changes to visual/layout consistency only.
 
-**User-visible outcome:** Users can go to Preferences, choose “Reset / Reload from scratch,” confirm the action, and the app restarts in a fresh local state with prior local AI learning and caches removed.
+**User-visible outcome:** Radar and Trading Opportunities pages look and feel like the other app tabs, with consistent spacing and Card-based containers, without changing how either tab functions.
