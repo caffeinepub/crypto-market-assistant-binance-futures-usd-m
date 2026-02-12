@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { X, TrendingUp, Zap } from 'lucide-react';
 import { useRadarAlerts, useRecommendations } from '@/hooks/useQueries';
+import { useRadarSensitivity } from '@/hooks/useRadarSensitivity';
 import { cn } from '@/lib/utils';
 
 interface Alert {
@@ -14,8 +15,9 @@ interface Alert {
 export default function DynamicAlerts() {
   const { data: radarAlerts } = useRadarAlerts();
   const { data: recommendations } = useRecommendations();
+  const { policy } = useRadarSensitivity();
   const [activeAlerts, setActiveAlerts] = useState<Alert[]>([]);
-  const processedRadarRef = useRef<Set<string>>(new Set());
+  const processedRadarRef = useRef<Map<string, number>>(new Map());
   const processedRecommendationsRef = useRef<Set<string>>(new Set());
   const [enableAlerts, setEnableAlerts] = useState(true);
 
@@ -25,46 +27,59 @@ export default function DynamicAlerts() {
     setEnableAlerts(enabled);
   }, []);
 
-  // Process radar alerts
+  // Process radar alerts with sensitivity-aware cooldown
   useEffect(() => {
     if (!radarAlerts || !enableAlerts) return;
 
+    const now = Date.now();
+
     radarAlerts.forEach((alert) => {
-      const key = `${alert.symbol}-${Math.floor(alert.timestamp / 60000)}`;
-      
-      if (!processedRadarRef.current.has(key) && alert.confidence > 0.5) {
-        processedRadarRef.current.add(key);
-
-        // Build message with primary reason
-        const primaryReason = alert.reasons[0] || 'Anomaly detected';
-        const additionalCount = alert.reasons.length - 1;
-        const message = additionalCount > 0
-          ? `${primaryReason} (+${additionalCount} more)`
-          : primaryReason;
-
-        const newAlert: Alert = {
-          id: `radar-${key}`,
-          type: 'radar',
-          symbol: alert.symbol,
-          message,
-          timestamp: Date.now(),
-        };
-
-        setActiveAlerts((prev) => [...prev, newAlert]);
-
-        // Auto-dismiss after 8 seconds
-        setTimeout(() => {
-          setActiveAlerts((prev) => prev.filter((a) => a.id !== newAlert.id));
-        }, 8000);
+      // Check if alert meets notification confidence threshold
+      if (alert.confidence < policy.minConfidenceForNotification) {
+        return;
       }
+
+      const key = alert.symbol;
+      const lastNotified = processedRadarRef.current.get(key) || 0;
+      
+      // Apply cooldown from sensitivity policy
+      if (now - lastNotified < policy.notificationCooldownMs) {
+        return;
+      }
+
+      processedRadarRef.current.set(key, now);
+
+      // Build message with primary reason
+      const primaryReason = alert.reasons[0] || 'Anomaly detected';
+      const additionalCount = alert.reasons.length - 1;
+      const message = additionalCount > 0
+        ? `${primaryReason} (+${additionalCount} more)`
+        : primaryReason;
+
+      const newAlert: Alert = {
+        id: `radar-${key}-${now}`,
+        type: 'radar',
+        symbol: alert.symbol,
+        message,
+        timestamp: now,
+      };
+
+      setActiveAlerts((prev) => [...prev, newAlert]);
+
+      // Auto-dismiss after 8 seconds
+      setTimeout(() => {
+        setActiveAlerts((prev) => prev.filter((a) => a.id !== newAlert.id));
+      }, 8000);
     });
 
-    // Clean up old entries
+    // Clean up old entries (keep last 50)
     if (processedRadarRef.current.size > 100) {
-      const entries = Array.from(processedRadarRef.current);
-      processedRadarRef.current = new Set(entries.slice(-50));
+      const entries = Array.from(processedRadarRef.current.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 50);
+      processedRadarRef.current = new Map(entries);
     }
-  }, [radarAlerts, enableAlerts]);
+  }, [radarAlerts, enableAlerts, policy]);
 
   // Process recommendations
   useEffect(() => {
@@ -143,30 +158,18 @@ export default function DynamicAlerts() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-sm">{alert.symbol}</h4>
-                    <span
-                      className={cn(
-                        'text-xs font-medium px-2 py-0.5 rounded',
-                        alert.type === 'radar'
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-green-500/20 text-green-500'
-                      )}
-                    >
-                      {alert.type === 'radar' ? 'Radar' : 'Signal'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1 break-words">
+                  <div className="font-semibold text-sm mb-1">{alert.symbol}</div>
+                  <div className="text-xs text-muted-foreground break-words">
                     {alert.message}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => dismissAlert(alert.id)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-background/50 transition-colors"
-              aria-label="Close alert"
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-background/20 transition-colors"
+              aria-label="Dismiss alert"
             >
               <X className="h-4 w-4" />
             </button>

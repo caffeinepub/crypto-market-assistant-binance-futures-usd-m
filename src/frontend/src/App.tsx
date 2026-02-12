@@ -15,7 +15,6 @@ import AIPerformancePanel from './components/AIPerformancePanel';
 import DataStatusIndicator from './components/DataStatusIndicator';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
-import { useAutoGenerateRecommendations, useAutoDetectRadarAlerts } from './hooks/useQueries';
 import { useServiceWorkerUpdate } from './hooks/useServiceWorkerUpdate';
 import { learningEngine } from './lib/learningEngine';
 import { checkResetSuccess } from './lib/resetFromScratch';
@@ -27,12 +26,6 @@ type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'apren
 function App() {
   const [activeTab, setActiveTab] = useState<TabValue>('mercado');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  // Initialize auto-generation of recommendations
-  useAutoGenerateRecommendations();
-  
-  // Initialize auto-detection of radar alerts
-  useAutoDetectRadarAlerts();
 
   // Handle service worker updates
   const { isUpdateAvailable, updateAndReload } = useServiceWorkerUpdate();

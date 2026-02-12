@@ -1,24 +1,35 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "App de monitoramento/análise de mercado usando dados da Binance Futures, com ciclo de versões (v40 live) e plano de melhorias para próxima versão (v41), priorizando refino do Radar.",
+  "architectural_notes": [
+    "O app consome dados ao vivo via Binance Futures (USD-M) endpoints públicos.",
+    "Plano menciona uso de chave de API Binance read-only para monitoramento de trades."
+  ],
   "known_issues": [],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-radar-tab-ui-frontend-src-components-radardashboard-tsx-so-its-overall-page-layout-spacing-and-primary-container-styling-match-the-established-visual-pattern-used-by-the-other-tabs-e-g-market-overview-top-recommendations-a-consistent-top-level-structure-without-extra-inconsistent-padding-and-with-a-primary-card-container-using-the-same-theme-driven-border-background-backdrop-styles",
-      "title": "Update the Radar tab UI (frontend/src/components/RadarDashboard.tsx) so its overall page layout, spacing, and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations): a consistent top-level structure without extra/inconsistent padding and with a primary Card container using the same theme-driven border/background/backdrop styles.",
+      "id": "feature-refine-the-radar-anomaly-detection-logic-to-detect-abnormal-moves-earlier-and-reduce-false-positives-by-replacing-the-current-fixed-baselines-and-thresholds-with-adaptive-market-relative-scoring",
+      "title": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-trading-opportunities-tab-ui-frontend-src-components-opportunities-tsx-so-its-page-header-and-primary-container-styling-match-the-established-visual-pattern-used-by-the-other-tabs-e-g-market-overview-top-recommendations-replacing-any-standalone-heading-layout-with-the-same-card-based-header-container-approach",
-      "title": "Update the Trading Opportunities tab UI (frontend/src/components/Opportunities.tsx) so its page header and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations), replacing any standalone heading layout with the same Card-based header/container approach.",
+      "id": "feature-add-smarter-radar-filters-in-the-radar-ui-so-users-can-narrow-alerts-by-anomaly-type-s-and-severity-in-addition-to-the-existing-trend-and-min-confidence-filters",
+      "title": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-introduce-a-user-facing-radar-sensitivity-setting-that-tunes-detection-thresholds-e-g-conservative-balanced-aggressive-and-apply-it-consistently-to-both-the-radar-list-and-the-top-of-screen-dynamic-alerts-notifications",
+      "title": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
@@ -26,12 +37,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Padronizar o visual das abas Radar e Trading Opportunity para ter o mesmo modelo/tema visual das demais abas (cores e formato visual consistentes)",
+      "summary": "Refinar o Radar para detectar movimentos anormais mais cedo e aplicar filtros mais inteligentes.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Unify visual layout for Radar and Trading Opportunities tabs",
+  "gameProjectType": "none",
+  "projectName": "Refine Radar anomaly detection with smarter filters and earlier signals",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

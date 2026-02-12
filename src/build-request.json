@@ -1,66 +1,80 @@
 {
   "kind": "build_request",
-  "title": "Unify visual layout for Radar and Trading Opportunities tabs",
+  "title": "Refine Radar anomaly detection with smarter filters and earlier signals",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Radar tab UI (frontend/src/components/RadarDashboard.tsx) so its overall page layout, spacing, and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations): a consistent top-level structure without extra/inconsistent padding and with a primary Card container using the same theme-driven border/background/backdrop styles.",
+      "text": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "As abas Radar e Trading Opportunity devem ter o mesmo formato visual que as outras abas."
+          "Vamos refinar o radar . Acho a melhor ação para agora."
         ]
       },
       "acceptanceCriteria": [
-        "Radar tab no longer adds extra outer padding/margins that make it look visually different from other tabs (e.g., remove/adjust any redundant outer `p-4` wrappers when TabsContent already controls spacing).",
-        "Radar tab has a single, consistent top-level container structure aligned with other tabs (Card-based header/section styling consistent with existing tab patterns).",
-        "Visual elements (header block, filter block, list container) align with the app’s existing theme variables and common Card/backdrop treatment used elsewhere (no bespoke gradient treatment that makes Radar look like a different template)."
+        "Radar alerts are still produced via the existing react-query hook (useRadarAlerts) and render in the Radar tab without runtime errors.",
+        "The anomaly score uses adaptive baselines derived from the current marketData set (e.g., relative/percentile-based volume baseline instead of a single hard-coded avgVolume constant), so alerts remain meaningful across different market regimes.",
+        "“Earlier detection” is achieved by making the price-move/volatility detection sensitive to smaller moves when corroborated by at least one other signal (e.g., volume spike, extreme volatility, funding irregularity, or open interest spike).",
+        "Alert confidence is normalized to 0..1 and is monotonic with severity (higher anomaly severity yields higher confidence).",
+        "Radar alerts remain sorted by highest severity/score first, and the alert object fields expected by the UI (symbol, percentChange, volumeDelta, direction, confidence, anomalyScore, anomalyTypes, reasons, timestamp) are preserved."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the Trading Opportunities tab UI (frontend/src/components/Opportunities.tsx) so its page header and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations), replacing any standalone heading layout with the same Card-based header/container approach.",
+      "text": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "As abas Radar e Trading Opportunity devem ter o mesmo formato visual que as outras abas."
+          "Vamos refinar o radar . Acho a melhor ação para agora."
         ]
       },
       "acceptanceCriteria": [
-        "The Opportunities tab renders its main title/description inside a CardHeader/Card layout consistent with other tabs (instead of a standalone h1 block).",
-        "The Opportunities tab’s top-level styling (borders/background/backdrop/shadow treatment) visually matches the common tab template used by MarketOverview/TopRecommendations.",
-        "No regressions to existing Opportunities functionality: modality tabs still switch content correctly; loading/error/empty states still render."
+        "Radar tab includes a filter control to include/exclude alerts by anomaly type (Price Move, Volume Spike, Extreme Volatility, Funding Alert, OI Spike).",
+        "Radar tab includes a severity control (e.g., min anomaly score and/or min confidence) that actually changes the visible list.",
+        "Existing filters (All/Bullish/Bearish/Learning and Min Confidence) continue to work as before.",
+        "Filters do not require backend changes and persist across reloads (e.g., via localStorage) unless explicitly reset by the user."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Vamos refinar o radar . Acho a melhor ação para agora."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Radar tab provides a Sensitivity selector with at least three presets (Conservative, Balanced, Aggressive) using clear English labels.",
+        "Changing sensitivity immediately affects which alerts are generated/shown (without needing a hard refresh).",
+        "DynamicAlerts notifications use the same sensitivity policy (e.g., confidence cutoff/cooldown) so notifications match what the Radar is considering “high enough confidence.”",
+        "Sensitivity choice persists across reloads (localStorage is acceptable)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (shadcn components are read-only and must be composed, not edited).",
-    "Keep changes limited to visual/layout consistency; do not change backend APIs or data-fetching behavior."
+    "Do not edit any files under frontend/src/components/ui (read-only components must be composed, not modified).",
+    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Keep all backend Motoko logic in the single actor (backend/main.mo); avoid backend changes unless strictly required for Radar refinement."
   ],
   "nonGoals": [
-    "Translating the entire application UI to English or Portuguese.",
-    "Redesigning the information architecture or adding new features to Radar or Opportunities.",
-    "Changing alert/opportunity scoring logic or react-query caching behavior."
+    "Implementing the Binance API key / read-only authenticated trade monitoring tab.",
+    "Replacing or redesigning the Sentiment tab data sources.",
+    "PWA installation/standalone-mode fixes.",
+    "General visual theme redesign outside of Radar-specific filter controls."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-radar-tab-ui-frontend-src-components-radardashboard-tsx-so-its-overall-page-layout-spacing-and-primary-container-styling-match-the-established-visual-pattern-used-by-the-other-tabs-e-g-market-overview-top-recommendations-a-consistent-top-level-structure-without-extra-inconsistent-padding-and-with-a-primary-card-container-using-the-same-theme-driven-border-background-backdrop-styles",
-      "featureTitle": "Update the Radar tab UI (frontend/src/components/RadarDashboard.tsx) so its overall page layout, spacing, and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations): a consistent top-level structure without extra/inconsistent padding and with a primary Card container using the same theme-driven border/background/backdrop styles.",
+      "featureId": "feature-refine-the-radar-anomaly-detection-logic-to-detect-abnormal-moves-earlier-and-reduce-false-positives-by-replacing-the-current-fixed-baselines-and-thresholds-with-adaptive-market-relative-scoring",
+      "featureTitle": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
       "files": [
-        "frontend/src/components/RadarDashboard.tsx",
-        "frontend/src/components/TabPageCard.tsx"
+        "frontend/src/hooks/queries/localSignals.ts",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -22,10 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-trading-opportunities-tab-ui-frontend-src-components-opportunities-tsx-so-its-page-header-and-primary-container-styling-match-the-established-visual-pattern-used-by-the-other-tabs-e-g-market-overview-top-recommendations-replacing-any-standalone-heading-layout-with-the-same-card-based-header-container-approach",
-      "featureTitle": "Update the Trading Opportunities tab UI (frontend/src/components/Opportunities.tsx) so its page header and primary container styling match the established visual pattern used by the other tabs (e.g., Market Overview / Top Recommendations), replacing any standalone heading layout with the same Card-based header/container approach.",
+      "featureId": "feature-add-smarter-radar-filters-in-the-radar-ui-so-users-can-narrow-alerts-by-anomaly-type-s-and-severity-in-addition-to-the-existing-trend-and-min-confidence-filters",
+      "featureTitle": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
       "files": [
-        "frontend/src/components/Opportunities.tsx"
+        "frontend/src/components/RadarDashboard.tsx",
+        "frontend/src/lib/radarFilters.ts"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -37,6 +38,30 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-introduce-a-user-facing-radar-sensitivity-setting-that-tunes-detection-thresholds-e-g-conservative-balanced-aggressive-and-apply-it-consistently-to-both-the-radar-list-and-the-top-of-screen-dynamic-alerts-notifications",
+      "featureTitle": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "files": [
+        "frontend/src/components/DynamicAlerts.tsx",
+        "frontend/src/components/RadarDashboard.tsx",
+        "frontend/src/hooks/queries/localSignals.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useRadarSensitivity.ts",
+        "frontend/src/lib/radarSensitivity.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

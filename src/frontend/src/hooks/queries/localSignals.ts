@@ -1,5 +1,6 @@
 import { BinanceMarketData, Recommendation, RadarAlert, DirectionType } from '../useQueries';
 import { fetchFundingRates, fetchOpenInterest, metricsHistory, FundingRateData, OpenInterestData } from './binanceFuturesMetrics';
+import { RadarSensitivityPolicy } from '@/lib/radarSensitivity';
 
 /**
  * Anomaly types for Radar alerts
@@ -54,22 +55,49 @@ export function generateRecommendations(marketData: BinanceMarketData[]): Recomm
 }
 
 /**
+ * Compute adaptive baseline from market data (percentile-based)
+ */
+function computeAdaptiveBaselines(marketData: BinanceMarketData[]) {
+  const volumes = marketData.map(m => parseFloat(m.quoteVolume)).filter(v => v > 0).sort((a, b) => a - b);
+  const priceChanges = marketData.map(m => Math.abs(m.priceChangePercent)).sort((a, b) => a - b);
+  
+  // Use median as baseline
+  const medianVolume = volumes.length > 0 ? volumes[Math.floor(volumes.length / 2)] : 5000000000;
+  const medianPriceChange = priceChanges.length > 0 ? priceChanges[Math.floor(priceChanges.length / 2)] : 1.5;
+  
+  // Use 75th percentile for high activity baseline
+  const p75Volume = volumes.length > 0 ? volumes[Math.floor(volumes.length * 0.75)] : medianVolume * 2;
+  
+  return {
+    medianVolume,
+    medianPriceChange,
+    p75Volume,
+  };
+}
+
+/**
  * Detect extreme volatility using intraday range
  */
-function detectExtremeVolatility(market: BinanceMarketData): { detected: boolean; score: number; reason: string } {
+function detectExtremeVolatility(
+  market: BinanceMarketData,
+  policy: RadarSensitivityPolicy
+): { detected: boolean; score: number; reason: string } {
   const high = parseFloat(market.highPrice);
   const low = parseFloat(market.lowPrice);
   const open = parseFloat(market.openPrice);
-  const last = parseFloat(market.lastPrice);
+  
+  if (open === 0) {
+    return { detected: false, score: 0, reason: '' };
+  }
   
   // Calculate intraday range as percentage of open
   const range = ((high - low) / open) * 100;
   
-  // Extreme volatility threshold: >8% intraday range
-  const isExtreme = range > 8;
+  // Use policy threshold
+  const isExtreme = range > policy.volatilityThreshold;
   
-  // Calculate volatility score
-  const volatilityScore = Math.min(range / 15, 1.0);
+  // Calculate volatility score (normalized)
+  const volatilityScore = Math.min(range / (policy.volatilityThreshold * 2), 1.0);
   
   const reason = isExtreme 
     ? `Extreme volatility: ${range.toFixed(2)}% intraday range`
@@ -161,11 +189,16 @@ function detectOpenInterestSpike(
 }
 
 /**
- * Generate radar alerts from market data with multiple anomaly types
+ * Generate radar alerts from market data with adaptive baselines and sensitivity policy
  */
-export async function generateRadarAlerts(marketData: BinanceMarketData[]): Promise<ExtendedRadarAlert[]> {
+export async function generateRadarAlerts(
+  marketData: BinanceMarketData[],
+  policy: RadarSensitivityPolicy
+): Promise<ExtendedRadarAlert[]> {
   const alerts: ExtendedRadarAlert[] = [];
-  const avgVolume = 5000000000; // Baseline average volume
+  
+  // Compute adaptive baselines from current market data
+  const baselines = computeAdaptiveBaselines(marketData);
   
   // Fetch funding and open interest data for all symbols
   const symbols = marketData.map(m => m.symbol);
@@ -177,38 +210,39 @@ export async function generateRadarAlerts(marketData: BinanceMarketData[]): Prom
   marketData.forEach((market) => {
     const percentChange = market.priceChangePercent;
     const volume = parseFloat(market.quoteVolume);
-    const volumeRatio = volume / avgVolume;
+    const volumeRatio = volume / baselines.medianVolume;
     
     const anomalyTypes: AnomalyType[] = [];
     const reasons: string[] = [];
     let totalScore = 0;
     let anomalyCount = 0;
     
-    // 1. Detect price anomalies (>3% change)
-    const isPriceAnomaly = Math.abs(percentChange) > 3;
+    // Detect all anomaly types first
+    const detections = {
+      price: false,
+      volume: false,
+      volatility: false,
+      funding: false,
+      openInterest: false,
+    };
+    
+    // 1. Detect price anomalies (adaptive threshold)
+    const priceThreshold = policy.priceChangeThreshold;
+    const isPriceAnomaly = Math.abs(percentChange) > priceThreshold;
     if (isPriceAnomaly) {
-      anomalyTypes.push('price_move');
-      reasons.push(`Price ${percentChange > 0 ? 'surge' : 'drop'}: ${Math.abs(percentChange).toFixed(2)}%`);
-      totalScore += Math.abs(percentChange) / 10;
-      anomalyCount++;
+      detections.price = true;
     }
     
-    // 2. Detect volume anomalies (>150% of average)
-    const isVolumeAnomaly = volumeRatio > 1.5;
+    // 2. Detect volume anomalies (adaptive threshold)
+    const isVolumeAnomaly = volumeRatio > policy.volumeRatioThreshold;
     if (isVolumeAnomaly) {
-      anomalyTypes.push('volume_spike');
-      reasons.push(`Volume spike: ${(volumeRatio * 100).toFixed(0)}% of baseline`);
-      totalScore += (volumeRatio - 1) / 2;
-      anomalyCount++;
+      detections.volume = true;
     }
     
     // 3. Detect extreme volatility
-    const volatility = detectExtremeVolatility(market);
+    const volatility = detectExtremeVolatility(market, policy);
     if (volatility.detected) {
-      anomalyTypes.push('extreme_volatility');
-      reasons.push(volatility.reason);
-      totalScore += volatility.score;
-      anomalyCount++;
+      detections.volatility = true;
     }
     
     // 4. Detect funding irregularities
@@ -216,10 +250,7 @@ export async function generateRadarAlerts(marketData: BinanceMarketData[]): Prom
     const priorFunding = metricsHistory.getPriorFunding(market.symbol);
     const funding = detectFundingIrregularity(market.symbol, currentFunding, priorFunding);
     if (funding.detected) {
-      anomalyTypes.push('funding_irregularity');
-      reasons.push(funding.reason);
-      totalScore += funding.score;
-      anomalyCount++;
+      detections.funding = true;
     }
     
     // 5. Detect open interest spikes
@@ -227,6 +258,71 @@ export async function generateRadarAlerts(marketData: BinanceMarketData[]): Prom
     const priorOI = metricsHistory.getPriorOpenInterest(market.symbol);
     const openInterest = detectOpenInterestSpike(market.symbol, currentOI, priorOI);
     if (openInterest.detected) {
+      detections.openInterest = true;
+    }
+    
+    // Count corroborating signals
+    const corroboratingSignals = [
+      detections.volume,
+      detections.volatility,
+      detections.funding,
+      detections.openInterest,
+    ].filter(Boolean).length;
+    
+    // Apply corroboration-based earlier detection
+    // If we have corroboration, relax price/volatility thresholds
+    const hasCorroboration = corroboratingSignals > 0;
+    
+    if (hasCorroboration && policy.requireCorroboration) {
+      // Relax price threshold when corroborated
+      const relaxedPriceThreshold = priceThreshold * policy.corroborationMultiplier;
+      if (!detections.price && Math.abs(percentChange) > relaxedPriceThreshold) {
+        detections.price = true;
+      }
+      
+      // Relax volatility threshold when corroborated
+      const relaxedVolatilityThreshold = policy.volatilityThreshold * policy.corroborationMultiplier;
+      const high = parseFloat(market.highPrice);
+      const low = parseFloat(market.lowPrice);
+      const open = parseFloat(market.openPrice);
+      if (open > 0) {
+        const range = ((high - low) / open) * 100;
+        if (!detections.volatility && range > relaxedVolatilityThreshold) {
+          detections.volatility = true;
+        }
+      }
+    }
+    
+    // Now build alert based on detected anomalies
+    if (detections.price) {
+      anomalyTypes.push('price_move');
+      reasons.push(`Price ${percentChange > 0 ? 'surge' : 'drop'}: ${Math.abs(percentChange).toFixed(2)}%`);
+      totalScore += Math.abs(percentChange) / 10;
+      anomalyCount++;
+    }
+    
+    if (detections.volume) {
+      anomalyTypes.push('volume_spike');
+      reasons.push(`Volume spike: ${(volumeRatio * 100).toFixed(0)}% of baseline`);
+      totalScore += (volumeRatio - 1) / 2;
+      anomalyCount++;
+    }
+    
+    if (detections.volatility && volatility.detected) {
+      anomalyTypes.push('extreme_volatility');
+      reasons.push(volatility.reason);
+      totalScore += volatility.score;
+      anomalyCount++;
+    }
+    
+    if (detections.funding && funding.detected) {
+      anomalyTypes.push('funding_irregularity');
+      reasons.push(funding.reason);
+      totalScore += funding.score;
+      anomalyCount++;
+    }
+    
+    if (detections.openInterest && openInterest.detected) {
       anomalyTypes.push('open_interest_spike');
       reasons.push(openInterest.reason);
       totalScore += openInterest.score;
@@ -235,20 +331,29 @@ export async function generateRadarAlerts(marketData: BinanceMarketData[]): Prom
     
     // Create alert if any anomaly is detected
     if (anomalyTypes.length > 0) {
+      // Compute anomaly score (average of individual scores)
       const anomalyScore = anomalyCount > 0 ? totalScore / anomalyCount : 0;
-      const confidence = Math.min(anomalyScore, 1.0);
       
-      alerts.push({
-        symbol: market.symbol,
-        percentChange,
-        volumeDelta: volumeRatio,
-        direction: percentChange >= 0 ? 'up' : 'down',
-        confidence,
-        anomalyScore: totalScore,
-        anomalyTypes,
-        reasons,
-        timestamp: Date.now(),
-      });
+      // Confidence is normalized 0..1 and monotonic with severity
+      // Boost confidence when multiple anomalies corroborate
+      const baseConfidence = Math.min(anomalyScore, 1.0);
+      const corroborationBoost = Math.min(anomalyCount * 0.1, 0.3);
+      const confidence = Math.min(baseConfidence + corroborationBoost, 1.0);
+      
+      // Only include alerts that meet minimum confidence
+      if (confidence >= policy.minConfidenceForAlert) {
+        alerts.push({
+          symbol: market.symbol,
+          percentChange,
+          volumeDelta: volumeRatio,
+          direction: percentChange >= 0 ? 'up' : 'down',
+          confidence,
+          anomalyScore: totalScore, // Use total score for sorting
+          anomalyTypes,
+          reasons,
+          timestamp: Date.now(),
+        });
+      }
     }
   });
   

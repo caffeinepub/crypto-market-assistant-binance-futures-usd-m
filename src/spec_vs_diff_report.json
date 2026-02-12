@@ -1,16 +1,85 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T18:17:20.800Z",
-  "summary": "The diff introduces a new shared Card-based wrapper component (TabPageCard) and updates both Opportunities and RadarDashboard to import/use Card primitives and TabPageCard, aligning with the requested goal of consistent Card-based tab layout. Due to truncation of the key render sections in both modified tab files, some acceptance-criteria details (e.g., removal of redundant outer padding wrappers) cannot be conclusively verified from the provided diff summary alone.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.62,
+  "generatedAt": "2026-02-12T15:15:04.990Z",
+  "summary": "Implemented Radar sensitivity presets with localStorage, added persistent Radar filters (anomaly types + min score), and updated DynamicAlerts to use sensitivity policy (confidence threshold + cooldown). Also introduced adaptive baseline utilities and new anomaly types in localSignals. However, several non-Radar changes (PWA/service worker/manifest/theme/other tabs) appear in the diff and are outside the BuildRequest scope. Some REQ-1/REQ-3 acceptance criteria cannot be fully verified from the truncated diff (notably immediate sensitivity effect on alert generation and confidence/score monotonicity guarantees).",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Alert confidence is normalized to 0..1 and is monotonic with severity; alerts remain sorted by highest severity/score first; required alert fields are preserved.",
+      "reason": "The diff shows new types and some detection helpers, but the core `generateRadarAlerts` implementation and sorting/normalization behavior are not visible in the provided truncated excerpts, so these AC items cannot be confirmed from evidence.",
+      "evidence": [
+        "frontend/src/hooks/queries/localSignals.ts (truncated; helper functions shown but not generateRadarAlerts)",
+        "frontend/src/hooks/useQueries.ts (truncated; references generateRadarAlerts but not its behavior)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Earlier detection via smaller price-move/volatility triggers when corroborated by at least one other signal (volume spike, extreme volatility, funding irregularity, open interest spike).",
+      "reason": "Sensitivity policy introduces corroboration settings, and additional anomaly detectors are being added, but the orchestration logic that combines corroboration + thresholds for earlier detection is not shown in the truncated diff, so it cannot be verified.",
+      "evidence": [
+        "frontend/src/lib/radarSensitivity.ts (corroboration settings only)",
+        "frontend/src/hooks/queries/localSignals.ts (truncated; shows detector helpers but not how corroboration is enforced)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Changing sensitivity immediately affects which alerts are generated/shown (without needing a hard refresh).",
+      "reason": "`useRadarSensitivity` updates local state and localStorage, and `DynamicAlerts` consumes the hook, but `useRadarAlerts` generation appears to use `getCurrentPolicy()` (localStorage read) with no clear reactive link to rerun/regenerate alerts on preset change. No evidence in the diff shows query invalidation or dependency wiring to update alerts immediately when sensitivity changes.",
+      "evidence": [
+        "frontend/src/hooks/useRadarSensitivity.ts",
+        "frontend/src/hooks/useQueries.ts (truncated; imports getCurrentPolicy)",
+        "frontend/src/components/DynamicAlerts.tsx (truncated; uses useRadarSensitivity)",
+        "frontend/src/components/RadarDashboard.tsx (truncated; uses useRadarSensitivity)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "PWA/service worker/manifest and install prompt enhancements (non-goal: PWA installation/standalone-mode fixes).",
+      "reason": "BuildRequest explicitly lists PWA installation/standalone-mode fixes as non-goals, yet the diff summary indicates significant related changes.",
+      "evidence": [
+        "frontend/src/App.tsx (service worker registration/update loop)",
+        "frontend/public/sw.js (mentioned in frontend-file-summaries.txt)",
+        "frontend/index.html (mentioned in frontend-file-summaries.txt)",
+        "frontend/public/manifest.json (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/InstallPrompt.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/Header.tsx (mentioned in frontend-file-summaries.txt)"
+      ]
+    },
+    {
+      "description": "Broad visual/theme redesign and global styling changes outside Radar-specific filter controls (non-goal: general visual theme redesign).",
+      "reason": "Diff summary mentions extensive global CSS/theme/animation changes, which exceed 'Radar-specific filter controls'.",
+      "evidence": [
+        "frontend/src/index.css (mentioned in frontend-file-summaries.txt)",
+        "frontend/tailwind.config.js (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/Footer.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/MarketCard.tsx (mentioned in frontend-file-summaries.txt)"
+      ]
+    },
+    {
+      "description": "Updates to other tabs/pages (MarketOverview, TopRecommendations, ICPAnalysis, Opportunities shortcut) not requested for Radar refinement.",
+      "reason": "BuildRequest scope is Radar detection/filters/sensitivity; other page feature work is not requested.",
+      "evidence": [
+        "frontend/src/components/MarketOverview.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/TopRecommendations.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/ICPAnalysis.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/public/manifest.json (shortcuts incl. Opportunities per frontend-file-summaries.txt)",
+        "frontend/src/App.tsx (URL/tab sync changes)"
+      ]
+    }
+  ],
+  "confidence": 0.63,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/Opportunities.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/DynamicAlerts.tsx",
     "frontend/src/components/RadarDashboard.tsx",
-    "frontend/src/components/TabPageCard.tsx",
+    "frontend/src/hooks/queries/localSignals.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useRadarSensitivity.ts",
+    "frontend/src/lib/radarFilters.ts",
+    "frontend/src/lib/radarSensitivity.ts",
     "project_state.json"
   ]
 }

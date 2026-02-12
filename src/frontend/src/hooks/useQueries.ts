@@ -6,6 +6,7 @@ import { fetchBinanceAsset, fetchBinanceMarketData, filterMajorPairs } from './q
 import { calculateAdvancedTechnicalAnalysis } from './queries/analysisEnrichment';
 import { generateRecommendations, generateRadarAlerts, ExtendedRadarAlert, AnomalyType } from './queries/localSignals';
 import { recordPredictions, updatePastPredictions, LearningPrioritization } from './queries/learningIntegration';
+import { getCurrentPolicy } from '@/lib/radarSensitivity';
 
 // Type definitions
 export type Trend = 'bullish' | 'bearish' | 'all';
@@ -292,154 +293,70 @@ export function useSearchBinanceAsset(symbol: string) {
           analysis,
         };
 
-        // Read learning prioritization settings
-        const prioritization = getLearningPrioritization();
-
-        // Record prediction for learning
-        await recordPredictions([enrichedData], prioritization);
-
         return enrichedData;
       } catch (error) {
-        console.error(`Error fetching asset ${symbol}:`, error);
+        console.error('Error searching for asset:', error);
         return null;
       }
     },
-    enabled: !!symbol,
-    staleTime: 20000,
+    enabled: symbol.length > 0,
+    staleTime: 30000,
   });
 }
 
 /**
- * Get recommendations (generated locally from market data)
+ * Get top recommendations based on bullish trends and high confidence
  */
 export function useRecommendations() {
-  const { data: marketData, error } = useBinanceMarketData();
+  const { data: marketData } = useBinanceMarketData();
 
   return useQuery<Recommendation[]>({
-    queryKey: ['recommendations', marketData],
-    queryFn: async () => {
-      if (!marketData || marketData.length === 0) return [];
-
-      try {
-        return generateRecommendations(marketData);
-      } catch (error) {
-        console.error('Error generating recommendations:', error);
-        throw error;
-      }
+    queryKey: ['recommendations', marketData?.length],
+    queryFn: () => {
+      if (!marketData) return [];
+      return generateRecommendations(marketData);
     },
-    enabled: !!marketData && !error,
-    refetchInterval: 30000,
-    placeholderData: (previousData) => previousData,
+    enabled: !!marketData,
+    staleTime: 30000,
   });
 }
 
 /**
- * Auto-generate recommendations based on market data
- */
-export function useAutoGenerateRecommendations() {
-  const { data: marketData } = useBinanceMarketData();
-  const processedRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (!marketData || marketData.length === 0) return;
-
-    try {
-      const recommendations = generateRecommendations(marketData);
-
-      // Track processed recommendations
-      recommendations.forEach((rec) => {
-        const key = `${rec.symbol}-${Math.floor(Date.now() / 60000)}`;
-        processedRef.current.add(key);
-      });
-
-      // Clean up old entries (keep last 100)
-      if (processedRef.current.size > 100) {
-        const entries = Array.from(processedRef.current);
-        processedRef.current = new Set(entries.slice(-50));
-      }
-    } catch (error) {
-      console.warn('Error auto-generating recommendations:', error);
-    }
-  }, [marketData]);
-}
-
-/**
- * Get radar alerts (generated locally from market data with extended anomaly detection)
+ * Generate radar alerts with sensitivity-aware detection
  */
 export function useRadarAlerts() {
-  const { data: marketData, error } = useBinanceMarketData();
+  const { data: marketData } = useBinanceMarketData();
+  
+  // Get current sensitivity policy
+  const policy = getCurrentPolicy();
 
   return useQuery<RadarAlert[]>({
-    queryKey: ['radar-alerts', marketData],
+    queryKey: ['radar-alerts', marketData?.length, policy.minConfidenceForAlert, policy.priceChangeThreshold],
     queryFn: async () => {
-      if (!marketData || marketData.length === 0) return [];
-
-      try {
-        const extendedAlerts = await generateRadarAlerts(marketData);
-        // Convert ExtendedRadarAlert to RadarAlert (they're compatible)
-        return extendedAlerts;
-      } catch (error) {
-        console.error('Error generating radar alerts:', error);
-        // Return empty array on error to prevent UI crashes
-        return [];
-      }
+      if (!marketData) return [];
+      const alerts = await generateRadarAlerts(marketData, policy);
+      return alerts;
     },
-    enabled: !!marketData && !error,
-    refetchInterval: 30000,
-    placeholderData: (previousData) => previousData,
+    enabled: !!marketData,
+    staleTime: 30000,
   });
 }
 
 /**
- * Auto-detect and track radar alerts based on market data
- */
-export function useAutoDetectRadarAlerts() {
-  const { data: marketData } = useBinanceMarketData();
-  const processedRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (!marketData || marketData.length === 0) return;
-
-    const detectAlerts = async () => {
-      try {
-        const alerts = await generateRadarAlerts(marketData);
-
-        alerts.forEach((alert) => {
-          const key = `${alert.symbol}-${Math.floor(Date.now() / 60000)}`;
-          if (!processedRef.current.has(key)) {
-            processedRef.current.add(key);
-          }
-        });
-
-        // Clean up old entries
-        if (processedRef.current.size > 100) {
-          const entries = Array.from(processedRef.current);
-          processedRef.current = new Set(entries.slice(-50));
-        }
-      } catch (error) {
-        console.warn('Error auto-detecting radar alerts:', error);
-      }
-    };
-
-    detectAlerts();
-  }, [marketData]);
-}
-
-/**
- * Get high learning assets
+ * Get assets with high learning levels (>0.5)
  */
 export function useHighLearningAssets() {
+  const { data: marketData } = useBinanceMarketData();
+
   return useQuery<string[]>({
-    queryKey: ['high-learning-assets'],
-    queryFn: async () => {
-      try {
-        await learningEngine.initialize();
-        return await learningEngine.getHighLearningAssets(0.6);
-      } catch (error) {
-        console.error('Error getting high learning assets:', error);
-        return [];
-      }
+    queryKey: ['high-learning-assets', marketData?.length],
+    queryFn: () => {
+      if (!marketData) return [];
+      return marketData
+        .filter((m) => (m.analysis.learningLevel || 0) > 0.5)
+        .map((m) => m.symbol);
     },
-    refetchInterval: 60000,
+    enabled: !!marketData,
+    staleTime: 60000,
   });
 }

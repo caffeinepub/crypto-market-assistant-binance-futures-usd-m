@@ -3,9 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, TrendingDown, Radio, AlertTriangle, Zap, Filter, Brain, Activity, DollarSign, TrendingUpDown } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { TrendingUp, TrendingDown, Radio, AlertTriangle, Zap, Filter, Brain, Activity, DollarSign, TrendingUpDown, RotateCcw, Gauge } from 'lucide-react';
 import { useBinanceMarketData, useRadarAlerts, useHighLearningAssets, RadarAlert } from '@/hooks/useQueries';
 import { AnomalyType } from '@/hooks/queries/localSignals';
+import { useRadarSensitivity } from '@/hooks/useRadarSensitivity';
+import { loadFilters, saveFilters, resetFilters, getAllAnomalyTypes } from '@/lib/radarFilters';
 import TabFetchErrorState from './TabFetchErrorState';
 import TabPageCard from './TabPageCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -33,10 +37,32 @@ export default function RadarDashboard() {
   const { data: marketData, isLoading, error } = useBinanceMarketData();
   const { data: radarAlerts, isLoading: alertsLoading } = useRadarAlerts();
   const { data: highLearningAssets } = useHighLearningAssets();
+  const { preset, setPreset } = useRadarSensitivity();
+  
   const [trendFilter, setTrendFilter] = useState<TrendFilter>('all');
   const [minConfidence, setMinConfidence] = useState<number>(0);
+  
+  // Load filters from localStorage
+  const [enabledAnomalyTypes, setEnabledAnomalyTypes] = useState<Set<AnomalyType>>(() => {
+    const filters = loadFilters();
+    return filters.enabledAnomalyTypes;
+  });
+  const [minAnomalyScore, setMinAnomalyScore] = useState<number>(() => {
+    const filters = loadFilters();
+    return filters.minAnomalyScore;
+  });
+  
   const previousAlertsRef = useRef<Set<string>>(new Set());
   const [newAlerts, setNewAlerts] = useState<Set<string>>(new Set());
+
+  // Save filters to localStorage when they change
+  useEffect(() => {
+    saveFilters({
+      enabledAnomalyTypes,
+      minAnomalyScore,
+      minConfidence,
+    });
+  }, [enabledAnomalyTypes, minAnomalyScore, minConfidence]);
 
   // Mark new alerts
   useEffect(() => {
@@ -98,9 +124,37 @@ export default function RadarDashboard() {
 
     // Confidence filter
     filtered = filtered.filter((a) => a.confidence >= minConfidence);
+    
+    // Anomaly type filter
+    filtered = filtered.filter((a) => 
+      a.anomalyTypes.some(type => enabledAnomalyTypes.has(type))
+    );
+    
+    // Anomaly score filter
+    filtered = filtered.filter((a) => a.anomalyScore >= minAnomalyScore);
 
     return filtered;
-  }, [enrichedAlerts, trendFilter, minConfidence]);
+  }, [enrichedAlerts, trendFilter, minConfidence, enabledAnomalyTypes, minAnomalyScore]);
+
+  const handleResetFilters = () => {
+    const defaults = resetFilters();
+    setEnabledAnomalyTypes(defaults.enabledAnomalyTypes);
+    setMinAnomalyScore(defaults.minAnomalyScore);
+    setMinConfidence(defaults.minConfidence);
+    setTrendFilter('all');
+  };
+
+  const toggleAnomalyType = (type: AnomalyType) => {
+    setEnabledAnomalyTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) {
+        next.delete(type);
+      } else {
+        next.add(type);
+      }
+      return next;
+    });
+  };
 
   if (error) {
     return <TabFetchErrorState />;
@@ -140,68 +194,158 @@ export default function RadarDashboard() {
         }
       >
         <div className="space-y-6">
-          {/* Filters */}
-          <Card className="border-border">
+          {/* Sensitivity Selector */}
+          <Card className="border-border bg-card/40">
             <CardContent className="pt-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Filters:</span>
+                  <Gauge className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Sensitivity:</span>
                 </div>
-
-                {/* Trend Filter */}
                 <div className="flex gap-2">
                   <Button
-                    variant={trendFilter === 'all' ? 'default' : 'outline'}
+                    variant={preset === 'conservative' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setTrendFilter('all')}
+                    onClick={() => setPreset('conservative')}
                   >
-                    All
+                    Conservative
                   </Button>
                   <Button
-                    variant={trendFilter === 'bullish' ? 'default' : 'outline'}
+                    variant={preset === 'balanced' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setTrendFilter('bullish')}
-                    className="gap-1"
+                    onClick={() => setPreset('balanced')}
                   >
-                    <TrendingUp className="h-3 w-3" />
-                    Bullish
+                    Balanced
                   </Button>
                   <Button
-                    variant={trendFilter === 'bearish' ? 'default' : 'outline'}
+                    variant={preset === 'aggressive' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setTrendFilter('bearish')}
-                    className="gap-1"
+                    onClick={() => setPreset('aggressive')}
                   >
-                    <TrendingDown className="h-3 w-3" />
-                    Bearish
-                  </Button>
-                  <Button
-                    variant={trendFilter === 'learning' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setTrendFilter('learning')}
-                    className="gap-1"
-                  >
-                    <Brain className="h-3 w-3" />
-                    Learning
+                    Aggressive
                   </Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                {/* Confidence Filter */}
-                <div className="flex items-center gap-2 ml-auto">
-                  <span className="text-sm text-muted-foreground">Min Confidence:</span>
+          {/* Filters */}
+          <Card className="border-border">
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Filters:</span>
+                  </div>
+
+                  {/* Trend Filter */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant={trendFilter === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setTrendFilter('all')}
+                    >
+                      All
+                    </Button>
+                    <Button
+                      variant={trendFilter === 'bullish' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setTrendFilter('bullish')}
+                      className="gap-1"
+                    >
+                      <TrendingUp className="h-3 w-3" />
+                      Bullish
+                    </Button>
+                    <Button
+                      variant={trendFilter === 'bearish' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setTrendFilter('bearish')}
+                      className="gap-1"
+                    >
+                      <TrendingDown className="h-3 w-3" />
+                      Bearish
+                    </Button>
+                    <Button
+                      variant={trendFilter === 'learning' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setTrendFilter('learning')}
+                      className="gap-1"
+                    >
+                      <Brain className="h-3 w-3" />
+                      Learning
+                    </Button>
+                  </div>
+
+                  {/* Confidence Filter */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <span className="text-sm text-muted-foreground">Min Confidence:</span>
+                    <div className="flex gap-1">
+                      {[0, 0.3, 0.5, 0.7].map((threshold) => (
+                        <Button
+                          key={threshold}
+                          variant={minConfidence === threshold ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setMinConfidence(threshold)}
+                        >
+                          {threshold === 0 ? 'All' : `${(threshold * 100).toFixed(0)}%`}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Anomaly Type Filter */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Anomaly Types:</Label>
+                  <div className="flex flex-wrap gap-3">
+                    {getAllAnomalyTypes().map((type) => (
+                      <div key={type} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`anomaly-${type}`}
+                          checked={enabledAnomalyTypes.has(type)}
+                          onCheckedChange={() => toggleAnomalyType(type)}
+                        />
+                        <Label
+                          htmlFor={`anomaly-${type}`}
+                          className="text-sm cursor-pointer flex items-center gap-1"
+                        >
+                          {anomalyTypeIcons[type]}
+                          {anomalyTypeLabels[type]}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Severity Filter */}
+                <div className="flex items-center gap-4">
+                  <Label className="text-sm font-medium">Min Severity:</Label>
                   <div className="flex gap-1">
-                    {[0, 0.3, 0.5, 0.7].map((threshold) => (
+                    {[0, 0.5, 1.0, 1.5].map((threshold) => (
                       <Button
                         key={threshold}
-                        variant={minConfidence === threshold ? 'default' : 'outline'}
+                        variant={minAnomalyScore === threshold ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setMinConfidence(threshold)}
+                        onClick={() => setMinAnomalyScore(threshold)}
                       >
-                        {threshold === 0 ? 'All' : `${(threshold * 100).toFixed(0)}%`}
+                        {threshold === 0 ? 'All' : threshold.toFixed(1)}
                       </Button>
                     ))}
                   </div>
+                </div>
+
+                {/* Reset Button */}
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetFilters}
+                    className="gap-2"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    Reset Filters
+                  </Button>
                 </div>
               </div>
             </CardContent>
