@@ -127,7 +127,9 @@ export interface MarketSourceResult {
     errorMessage?: string;
 }
 export interface MarketSnapshot {
+    binanceSpotTicker: MarketSourceResult;
     binanceTrades: MarketSourceResult;
+    binanceSpotDepth: MarketSourceResult;
     coingeckoBTC: MarketSourceResult;
 }
 export interface http_header {
@@ -153,6 +155,8 @@ export interface backendInterface {
     fetchAssetList(): Promise<Array<string>>;
     fetchBinanceFuturesAssets(): Promise<UnifiedSnapshot | null>;
     filterAssetsByDirection(direction: DirectionType): Promise<Array<MarketData>>;
+    getBinanceSpotDepthBTCUSDT(): Promise<string>;
+    getBinanceSpotTickerBTCUSDT(): Promise<string>;
     getBinanceTradesBTCUSDT(): Promise<string>;
     getCoinGeckoBTC(): Promise<string>;
     getCryptoMarketSnapshot(): Promise<MarketSnapshot>;
@@ -233,6 +237,34 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.filterAssetsByDirection(to_candid_DirectionType_n10(this._uploadFile, this._downloadFile, arg0));
             return from_candid_vec_n9(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getBinanceSpotDepthBTCUSDT(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getBinanceSpotDepthBTCUSDT();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getBinanceSpotDepthBTCUSDT();
+            return result;
+        }
+    }
+    async getBinanceSpotTickerBTCUSDT(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getBinanceSpotTickerBTCUSDT();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getBinanceSpotTickerBTCUSDT();
+            return result;
         }
     }
     async getBinanceTradesBTCUSDT(): Promise<string> {
@@ -382,14 +414,20 @@ function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
     return value.length === 0 ? null : from_candid_UnifiedSnapshot_n7(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    binanceSpotTicker: _MarketSourceResult;
     binanceTrades: _MarketSourceResult;
+    binanceSpotDepth: _MarketSourceResult;
     coingeckoBTC: _MarketSourceResult;
 }): {
+    binanceSpotTicker: MarketSourceResult;
     binanceTrades: MarketSourceResult;
+    binanceSpotDepth: MarketSourceResult;
     coingeckoBTC: MarketSourceResult;
 } {
     return {
+        binanceSpotTicker: from_candid_MarketSourceResult_n14(_uploadFile, _downloadFile, value.binanceSpotTicker),
         binanceTrades: from_candid_MarketSourceResult_n14(_uploadFile, _downloadFile, value.binanceTrades),
+        binanceSpotDepth: from_candid_MarketSourceResult_n14(_uploadFile, _downloadFile, value.binanceSpotDepth),
         coingeckoBTC: from_candid_MarketSourceResult_n14(_uploadFile, _downloadFile, value.coingeckoBTC)
     };
 }

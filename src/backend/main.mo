@@ -3,13 +3,11 @@ import Principal "mo:core/Principal";
 import List "mo:core/List";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-
+import Nat "mo:core/Nat";
 import OutCall "http-outcalls/outcall";
 import DirectionType "DirectionType";
 import MarketData "MarketData";
 import UserPreferences "UserPreferences";
-import Nat "mo:core/Nat";
-
 
 actor {
   type UnifiedSnapshot = {
@@ -165,6 +163,11 @@ actor {
     await OutCall.httpGetRequest(url, [], transform);
   };
 
+  public shared ({ caller }) func getBinanceSpotTickerBTCUSDT() : async Text {
+    let url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+    await OutCall.httpGetRequest(url, [], transform);
+  };
+
   public type MarketSourceResult = {
     ok : Bool;
     body : Text;
@@ -174,6 +177,8 @@ actor {
   public type MarketSnapshot = {
     coingeckoBTC : MarketSourceResult;
     binanceTrades : MarketSourceResult;
+    binanceSpotTicker : MarketSourceResult;
+    binanceSpotDepth : MarketSourceResult;
   };
 
   func callWithFallback(f : shared () -> async Text, fallback : Text) : async Text {
@@ -196,13 +201,22 @@ actor {
     };
   };
 
+  public shared ({ caller }) func getBinanceSpotDepthBTCUSDT() : async Text {
+    let url = "https://api.binance.com/api/v3/depth?symbol=BTCUSDT";
+    await OutCall.httpGetRequest(url, [], transform);
+  };
+
   public shared ({ caller }) func getCryptoMarketSnapshot() : async MarketSnapshot {
     let coinGeckoRes = await callWithFallback(getCoinGeckoBTC, "");
-    let binanceRes = await callWithFallback(getBinanceTradesBTCUSDT, "");
+    let binanceTradesRes = await callWithFallback(getBinanceTradesBTCUSDT, "");
+    let binanceSpotTickerRes = await callWithFallback(getBinanceSpotTickerBTCUSDT, "");
+    let binanceSpotDepthRes = await callWithFallback(getBinanceSpotDepthBTCUSDT, "");
 
     {
-      coingeckoBTC = makeSourceResult(coinGeckoRes, if (coinGeckoRes == "") { ? "CoinGecko call failed" } else { null });
-      binanceTrades = makeSourceResult(binanceRes, if (binanceRes == "") { ? "Binance call failed" } else { null });
+      coingeckoBTC = makeSourceResult(coinGeckoRes, if (coinGeckoRes == "") { ?"CoinGecko call failed" } else { null });
+      binanceTrades = makeSourceResult(binanceTradesRes, if (binanceTradesRes == "") { ?"Binance trades call failed" } else { null });
+      binanceSpotTicker = makeSourceResult(binanceSpotTickerRes, if (binanceSpotTickerRes == "") { ?"Binance spot ticker call failed" } else { null });
+      binanceSpotDepth = makeSourceResult(binanceSpotDepthRes, if (binanceSpotDepthRes == "") { ?"Binance spot depth call failed" } else { null });
     };
   };
 };

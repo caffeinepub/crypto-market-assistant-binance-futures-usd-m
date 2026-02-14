@@ -1,92 +1,80 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Radar: adaptive anomaly scoring, smarter filters, and sensitivity presets",
+  "title": "Trade recommendations in Opportunities details (Long/Short + Entry/TP/SL by modality)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace fixed Radar baselines/thresholds with adaptive, market-relative anomaly scoring and earlier corroborated signals while preserving alert shape and ordering.",
+      "summary": "Enable selecting an opportunity from any modality tab and opening a closable details side panel for the chosen symbol without losing the active tab.",
       "acceptanceCriteria": [
-        "Radar alerts are still produced via the existing react-query hook (useRadarAlerts) and render in the Radar tab without runtime errors.",
-        "The anomaly score uses adaptive baselines derived from the current marketData set (e.g., relative/percentile-based volume baseline instead of a single hard-coded avgVolume constant), so alerts remain meaningful across different market regimes.",
-        "“Earlier detection” is achieved by making the price-move/volatility detection sensitive to smaller moves when corroborated by at least one other signal (e.g., volume spike, extreme volatility, funding irregularity, or open interest spike).",
-        "Alert confidence is normalized to 0..1 and is monotonic with severity (higher anomaly severity yields higher confidence).",
-        "Radar alerts remain sorted by highest severity/score first, and the alert object fields expected by the UI (symbol, percentChange, volumeDelta, direction, confidence, anomalyScore, anomalyTypes, reasons, timestamp) are preserved."
+        "From any Opportunities tab (scalping/swing/breakout/reversal/smc/fvg), clicking an opportunity card opens a dedicated details UI for that symbol.",
+        "The details UI shows, at minimum, the symbol and current price (using the existing opportunity data).",
+        "The user can close the details UI and return to the Opportunities list without losing the currently selected modality tab."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/queries/localSignals.ts",
+          "path": "frontend/src/components/Opportunities.tsx",
           "operation": "modify",
-          "description": "Refactor generateRadarAlerts() to compute adaptive, market-relative baselines (e.g., percentile/median-based volume and move baselines computed from the provided marketData list) and replace fixed thresholds with sensitivity-adjusted gating. Implement corroboration-based earlier detection (smaller price/volatility moves qualify when at least one other anomaly type is present). Ensure anomalyScore represents severity used for sorting (highest first), and confidence is a 0..1 normalized monotonic function of severity. Preserve required alert fields (symbol, percentChange, volumeDelta, direction, confidence, anomalyScore, anomalyTypes, reasons, timestamp) and keep stable sorting by anomalyScore descending."
+          "description": "Convert Opportunities tabs to a controlled value (preserve active modality), add selection state (selectedSymbol + selectedModality), wire opportunity card clicks to open a details side panel, and wire close behavior to keep the current tab selection. Compose existing shadcn-ui primitives already used on the page (e.g., Card/Badge/ScrollArea/Tabs) rather than editing files under frontend/src/components/ui. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update useRadarAlerts() to support passing a Radar sensitivity policy into alert generation (e.g., include sensitivity in the react-query queryKey and pass it to generateRadarAlerts) while keeping the same hook name and return type so the Radar tab renders without runtime errors."
+          "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "operation": "create",
+          "description": "Create a dedicated details UI component rendered as a side panel (responsive overlay on small screens) showing at minimum: symbol and current price from the selected OpportunityItem / current market data. Compose existing shadcn-ui primitives (Card, Badge, ScrollArea where helpful) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add Radar UI filters for anomaly type(s) and severity, persisting selections across reloads without backend changes.",
+      "summary": "Compute and display a deterministic trade recommendation (Long/Short + Entry/TP/SL) for the selected symbol, influenced by the active Opportunities modality and derived from existing live market + analysis data with graceful fallback.",
       "acceptanceCriteria": [
-        "Radar tab includes a filter control to include/exclude alerts by anomaly type (Price Move, Volume Spike, Extreme Volatility, Funding Alert, OI Spike).",
-        "Radar tab includes a severity control (e.g., min anomaly score and/or min confidence) that actually changes the visible list.",
-        "Existing filters (All/Bullish/Bearish/Learning and Min Confidence) continue to work as before.",
-        "Filters do not require backend changes and persist across reloads (e.g., via localStorage) unless explicitly reset by the user."
+        "When an opportunity is selected, the details UI shows a clearly labeled “Trade Recommendation” section.",
+        "The “Trade Recommendation” section shows: Direction (Long/Short), Entry, Take Profit, Stop Loss.",
+        "The recommendation changes when the user changes the modality tab and selects an asset within that modality (i.e., modality influences the output).",
+        "Entry/TP/SL values are computed deterministically from currently available app data for that symbol (no hardcoded per-symbol values).",
+        "If required analysis inputs for a symbol are unavailable, the UI shows a graceful fallback state explaining the recommendation cannot be computed right now (without crashing the Opportunities page)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/RadarDashboard.tsx",
-          "operation": "modify",
-          "description": "Extend the existing Filters card to include (1) an anomaly-type include/exclude control for the five AnomalyType values and (2) a severity filter (e.g., min anomalyScore presets and/or a tighter min-confidence option) that changes the displayed list. Persist filter state to localStorage and restore it on load; add a user-visible reset action that clears the saved filter values. Compose existing shadcn-ui components already used here (e.g., Button/Badge/Card/ScrollArea) to build these controls (do not modify anything under frontend/src/components/ui). Verify the component's usage instructions before implementing."
+          "path": "frontend/src/lib/tradeRecommendation.ts",
+          "operation": "create",
+          "description": "Implement a deterministic trade recommendation engine that accepts (modality, current price, technical analysis data already computed in the app such as trend/confidence/supportZones/resistanceZones/manipulationZones/institutionalOrders) and returns Direction (Long/Short), Entry, Take Profit, Stop Loss, plus a typed error/fallback reason when inputs are insufficient. Ensure modality changes risk/target sizing rules while avoiding any hardcoded per-symbol values."
         },
         {
-          "path": "frontend/src/lib/radarFilters.ts",
+          "path": "frontend/src/hooks/useTradeRecommendation.ts",
           "operation": "create",
-          "description": "Add small, reusable helpers for Radar filter persistence and defaults (localStorage read/write, schema-safe parsing, and reset) to keep RadarDashboard.tsx lean and to ensure filters survive reloads."
+          "description": "Create a hook that derives the selected symbol’s enriched market+analysis object from existing live data (via existing queries/hooks) and calls the deterministic recommendation engine. Expose loading/ready/fallback states suitable for rendering in the Opportunities details panel."
+        },
+        {
+          "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "operation": "modify",
+          "description": "Add a clearly labeled “Trade Recommendation” section showing Direction (Long/Short), Entry, Take Profit, Stop Loss using the new hook. Render a graceful fallback state (non-crashing) when recommendation inputs are missing. Compose existing shadcn-ui primitives (Card/Badge) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Opportunities.tsx",
+          "operation": "modify",
+          "description": "Pass the active modality and selected symbol/opportunity into OpportunityDetailsPanel so the recommendation output is modality-aware and updates when the user selects assets from different modality tabs (without introducing new routes). Compose existing shadcn-ui primitives rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Introduce a persistent Radar Sensitivity setting (Conservative/Balanced/Aggressive) and apply it consistently to both Radar list generation and DynamicAlerts notifications.",
+      "summary": "Display transparent recommendation rationale by reusing existing computed signals (trend, confidence, support/resistance references, institutional/manipulation tags) with no new external APIs.",
       "acceptanceCriteria": [
-        "Radar tab provides a Sensitivity selector with at least three presets (Conservative, Balanced, Aggressive) using clear English labels.",
-        "Changing sensitivity immediately affects which alerts are generated/shown (without needing a hard refresh).",
-        "DynamicAlerts notifications use the same sensitivity policy (e.g., confidence cutoff/cooldown) so notifications match what the Radar is considering “high enough confidence.”",
-        "Sensitivity choice persists across reloads (localStorage is acceptable)."
+        "The recommendation UI displays a short list of “Rationale” or “Signals” that references existing computed indicators (e.g., trend/confidence/nearest support-resistance, or existing reasons/tags already computed by the app).",
+        "Rationale content updates together with the recommendation for the selected symbol/modality.",
+        "No new external APIs are introduced for rationale generation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/radarSensitivity.ts",
-          "operation": "create",
-          "description": "Define the RadarSensitivity preset type (Conservative/Balanced/Aggressive), localStorage persistence utilities, and a shared policy mapping (e.g., confidence cutoff, notification cooldown/dedupe window, and detection aggressiveness multipliers) so Radar generation and DynamicAlerts share the same rules."
-        },
-        {
-          "path": "frontend/src/hooks/useRadarSensitivity.ts",
-          "operation": "create",
-          "description": "Create a lightweight hook to read/update the sensitivity preset (backed by localStorage) and expose the computed sensitivity policy. Use this hook from RadarDashboard and DynamicAlerts so changes apply immediately without refresh."
-        },
-        {
-          "path": "frontend/src/components/RadarDashboard.tsx",
+          "path": "frontend/src/lib/tradeRecommendation.ts",
           "operation": "modify",
-          "description": "Add a Sensitivity selector UI (three clear English preset buttons or a compact selector) within the existing Filters area, wired to the shared useRadarSensitivity hook and persisted via localStorage. Ensure changing sensitivity triggers updated alert generation via useRadarAlerts (through sensitivity-aware queryKey) and does not break existing Trend/Min Confidence/Learning filters. Compose existing shadcn-ui components (e.g., Button/Card/Badge) without modifying frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Extend the recommendation result to include justification metadata (e.g., selected trend/confidence level, nearest support/resistance references used in level selection, and any existing institutional/manipulation/tag signals considered) derived only from the existing analysis inputs."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
           "operation": "modify",
-          "description": "Plumb the selected sensitivity (from radarSensitivity utilities or a hook-safe accessor) into useRadarAlerts() so alert generation and react-query caching/refetching update immediately when sensitivity changes."
-        },
-        {
-          "path": "frontend/src/components/DynamicAlerts.tsx",
-          "operation": "modify",
-          "description": "Apply the same sensitivity policy used by Radar to DynamicAlerts radar notifications (e.g., confidence cutoff and dedupe/cooldown window) so notifications match Radar’s 'high enough confidence' definition. Read sensitivity via the shared hook/util and keep the existing enable-alerts localStorage behavior intact. Compose existing UI patterns; do not modify frontend/src/components/ui. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/queries/localSignals.ts",
-          "operation": "modify",
-          "description": "Update generateRadarAlerts() signature/behavior to accept a sensitivity policy (or preset) and apply it consistently to detection gating (threshold multipliers and corroboration rules) so the Radar list changes immediately when sensitivity changes."
+          "description": "Render a “Rationale”/“Signals” list in the recommendation UI using the justification metadata and existing opportunity reasons/tags from current app data. Ensure it updates alongside the recommendation when symbol/modality changes. Compose existing shadcn-ui primitives (Badge/ScrollArea/Card) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
         }
       ]
     }

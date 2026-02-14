@@ -1,85 +1,59 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T15:15:04.990Z",
-  "summary": "Implemented Radar sensitivity presets with localStorage, added persistent Radar filters (anomaly types + min score), and updated DynamicAlerts to use sensitivity policy (confidence threshold + cooldown). Also introduced adaptive baseline utilities and new anomaly types in localSignals. However, several non-Radar changes (PWA/service worker/manifest/theme/other tabs) appear in the diff and are outside the BuildRequest scope. Some REQ-1/REQ-3 acceptance criteria cannot be fully verified from the truncated diff (notably immediate sensitivity effect on alert generation and confidence/score monotonicity guarantees).",
+  "generatedAt": "2026-02-14T15:14:22.183Z",
+  "summary": "Diff adds an Opportunity details side panel, a trade recommendation hook, and a deterministic recommendation computation module using existing Binance market data + embedded analysis. Core selection→details flow appears implemented, but due to truncation it’s not fully verifiable that the UI renders Entry/TP/SL and Rationale, and that the active modality tab state is preserved and passed into the panel.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Alert confidence is normalized to 0..1 and is monotonic with severity; alerts remain sorted by highest severity/score first; required alert fields are preserved.",
-      "reason": "The diff shows new types and some detection helpers, but the core `generateRadarAlerts` implementation and sorting/normalization behavior are not visible in the provided truncated excerpts, so these AC items cannot be confirmed from evidence.",
+      "requirement": "From any Opportunities tab, clicking an opportunity card opens a dedicated details UI for that symbol; user can close and return without losing selected modality tab.",
+      "reason": "Click-to-open panel is implemented, but the diff snippet is truncated before showing the Tabs being controlled by `activeModality` and before showing `activeModality` being passed into the details panel; therefore preservation of the selected tab and support for all modality tabs cannot be fully verified from provided evidence.",
       "evidence": [
-        "frontend/src/hooks/queries/localSignals.ts (truncated; helper functions shown but not generateRadarAlerts)",
-        "frontend/src/hooks/useQueries.ts (truncated; references generateRadarAlerts but not its behavior)"
+        "frontend/src/components/Opportunities.tsx"
       ]
     },
     {
-      "id": "REQ-1",
-      "requirement": "Earlier detection via smaller price-move/volatility triggers when corroborated by at least one other signal (volume spike, extreme volatility, funding irregularity, open interest spike).",
-      "reason": "Sensitivity policy introduces corroboration settings, and additional anomaly detectors are being added, but the orchestration logic that combines corroboration + thresholds for earlier detection is not shown in the truncated diff, so it cannot be verified.",
+      "id": "REQ-2",
+      "requirement": "Details UI must display a clearly labeled Trade Recommendation section showing Direction, Entry, Take Profit, Stop Loss; recommendation must vary by modality and have graceful fallback when inputs are unavailable.",
+      "reason": "Trade Recommendation section and fallback/error states are present, and computation uses `modality` + market data analysis; however, the panel file is truncated before confirming the UI renders Direction/Entry/TP/SL values (not just the section header), and before confirming how the computed result is displayed.",
       "evidence": [
-        "frontend/src/lib/radarSensitivity.ts (corroboration settings only)",
-        "frontend/src/hooks/queries/localSignals.ts (truncated; shows detector helpers but not how corroboration is enforced)"
+        "frontend/src/components/OpportunityDetailsPanel.tsx (truncated)",
+        "frontend/src/lib/tradeRecommendation.ts (truncated)"
       ]
     },
     {
       "id": "REQ-3",
-      "requirement": "Changing sensitivity immediately affects which alerts are generated/shown (without needing a hard refresh).",
-      "reason": "`useRadarSensitivity` updates local state and localStorage, and `DynamicAlerts` consumes the hook, but `useRadarAlerts` generation appears to use `getCurrentPolicy()` (localStorage read) with no clear reactive link to rerun/regenerate alerts on preset change. No evidence in the diff shows query invalidation or dependency wiring to update alerts immediately when sensitivity changes.",
+      "requirement": "Recommendation UI must display rationale/signals based on existing computed indicators and update with symbol/modality.",
+      "reason": "The computation layer builds a `rationale: string[]` using analysis fields (trend/confidence/strength/support-resistance/institutional/manipulation), but the details panel rendering is truncated before showing that rationale is actually displayed in the UI.",
       "evidence": [
-        "frontend/src/hooks/useRadarSensitivity.ts",
-        "frontend/src/hooks/useQueries.ts (truncated; imports getCurrentPolicy)",
-        "frontend/src/components/DynamicAlerts.tsx (truncated; uses useRadarSensitivity)",
-        "frontend/src/components/RadarDashboard.tsx (truncated; uses useRadarSensitivity)"
+        "frontend/src/lib/tradeRecommendation.ts (truncated)",
+        "frontend/src/components/OpportunityDetailsPanel.tsx (truncated)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "PWA/service worker/manifest and install prompt enhancements (non-goal: PWA installation/standalone-mode fixes).",
-      "reason": "BuildRequest explicitly lists PWA installation/standalone-mode fixes as non-goals, yet the diff summary indicates significant related changes.",
+      "description": "Large set of unrelated app/PWA/UI enhancements (install prompt behavior, service worker v9, manifest changes, new Order Book tab mention, theme/animations, etc.).",
+      "reason": "These changes are not requested by the BuildRequest (which is specifically about Opportunities details + trade recommendations). The only direct evidence is that the repository summary file describes these features, implying additional work outside scope.",
       "evidence": [
-        "frontend/src/App.tsx (service worker registration/update loop)",
-        "frontend/public/sw.js (mentioned in frontend-file-summaries.txt)",
-        "frontend/index.html (mentioned in frontend-file-summaries.txt)",
-        "frontend/public/manifest.json (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/InstallPrompt.tsx (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/Header.tsx (mentioned in frontend-file-summaries.txt)"
+        "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Broad visual/theme redesign and global styling changes outside Radar-specific filter controls (non-goal: general visual theme redesign).",
-      "reason": "Diff summary mentions extensive global CSS/theme/animation changes, which exceed 'Radar-specific filter controls'.",
+      "description": "Project tracking metadata updates marking unrelated feature requests/issue flags (e.g., isFixRequest=true, various AR-* entries).",
+      "reason": "Not requested as part of implementing trade recommendations UI/logic; appears to be internal bookkeeping.",
       "evidence": [
-        "frontend/src/index.css (mentioned in frontend-file-summaries.txt)",
-        "frontend/tailwind.config.js (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/Footer.tsx (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/MarketCard.tsx (mentioned in frontend-file-summaries.txt)"
-      ]
-    },
-    {
-      "description": "Updates to other tabs/pages (MarketOverview, TopRecommendations, ICPAnalysis, Opportunities shortcut) not requested for Radar refinement.",
-      "reason": "BuildRequest scope is Radar detection/filters/sensitivity; other page feature work is not requested.",
-      "evidence": [
-        "frontend/src/components/MarketOverview.tsx (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/TopRecommendations.tsx (mentioned in frontend-file-summaries.txt)",
-        "frontend/src/components/ICPAnalysis.tsx (mentioned in frontend-file-summaries.txt)",
-        "frontend/public/manifest.json (shortcuts incl. Opportunities per frontend-file-summaries.txt)",
-        "frontend/src/App.tsx (URL/tab sync changes)"
+        "project_state.json"
       ]
     }
   ],
-  "confidence": 0.63,
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/DynamicAlerts.tsx",
-    "frontend/src/components/RadarDashboard.tsx",
-    "frontend/src/hooks/queries/localSignals.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useRadarSensitivity.ts",
-    "frontend/src/lib/radarFilters.ts",
-    "frontend/src/lib/radarSensitivity.ts",
+    "frontend/src/components/Opportunities.tsx",
+    "frontend/src/components/OpportunityDetailsPanel.tsx",
+    "frontend/src/hooks/useTradeRecommendation.ts",
+    "frontend/src/lib/tradeRecommendation.ts",
     "project_state.json"
   ]
 }

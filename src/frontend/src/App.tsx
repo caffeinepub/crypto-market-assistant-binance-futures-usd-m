@@ -8,6 +8,8 @@ import TopRecommendations from './components/TopRecommendations';
 import AssetResearch from './components/AssetResearch';
 import RadarDashboard from './components/RadarDashboard';
 import Opportunities from './components/Opportunities';
+import InstitutionalOrders from './components/InstitutionalOrders';
+import OrderBook from './components/OrderBook';
 import InstallPrompt from './components/InstallPrompt';
 import UserPreferences from './components/UserPreferences';
 import DynamicAlerts from './components/DynamicAlerts';
@@ -21,7 +23,7 @@ import { checkResetSuccess } from './lib/resetFromScratch';
 import { toast } from 'sonner';
 import { WifiOff } from 'lucide-react';
 
-type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'aprendizado' | 'pesquisa' | 'preferencias';
+type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'institutional' | 'orderbook' | 'aprendizado' | 'pesquisa' | 'preferencias';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabValue>('mercado');
@@ -82,7 +84,7 @@ function App() {
     const tabParam = params.get('tab');
     
     if (tabParam) {
-      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'opportunities', 'aprendizado', 'pesquisa', 'preferencias'];
+      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'opportunities', 'institutional', 'orderbook', 'aprendizado', 'pesquisa', 'preferencias'];
       if (validTabs.includes(tabParam as TabValue)) {
         setActiveTab(tabParam as TabValue);
       }
@@ -147,14 +149,16 @@ function App() {
           
           <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8">
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)} className="w-full">
-              <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-7 mb-4 sm:mb-8 h-11 sm:h-10 touch-manipulation">
-                <TabsTrigger value="mercado" className="text-xs sm:text-sm">Mercado</TabsTrigger>
-                <TabsTrigger value="radar" className="text-xs sm:text-sm">Radar</TabsTrigger>
-                <TabsTrigger value="recomendacoes" className="text-xs sm:text-sm">Recomendações</TabsTrigger>
-                <TabsTrigger value="opportunities" className="text-xs sm:text-sm">Opportunities</TabsTrigger>
-                <TabsTrigger value="aprendizado" className="text-xs sm:text-sm">Aprendizado</TabsTrigger>
-                <TabsTrigger value="pesquisa" className="text-xs sm:text-sm">Pesquisa</TabsTrigger>
-                <TabsTrigger value="preferencias" className="text-xs sm:text-sm">Preferências</TabsTrigger>
+              <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-3 sm:grid-cols-9 mb-4 sm:mb-8 h-auto sm:h-10 gap-1 touch-manipulation">
+                <TabsTrigger value="mercado" className="text-xs sm:text-sm px-2 py-2">Mercado</TabsTrigger>
+                <TabsTrigger value="radar" className="text-xs sm:text-sm px-2 py-2">Radar</TabsTrigger>
+                <TabsTrigger value="recomendacoes" className="text-xs sm:text-sm px-2 py-2">Recomendações</TabsTrigger>
+                <TabsTrigger value="opportunities" className="text-xs sm:text-sm px-2 py-2">Opportunities</TabsTrigger>
+                <TabsTrigger value="institutional" className="text-xs sm:text-sm px-2 py-2">Institutional</TabsTrigger>
+                <TabsTrigger value="orderbook" className="text-xs sm:text-sm px-2 py-2">Order Book</TabsTrigger>
+                <TabsTrigger value="aprendizado" className="text-xs sm:text-sm px-2 py-2">Aprendizado</TabsTrigger>
+                <TabsTrigger value="pesquisa" className="text-xs sm:text-sm px-2 py-2">Pesquisa</TabsTrigger>
+                <TabsTrigger value="preferencias" className="text-xs sm:text-sm px-2 py-2">Preferências</TabsTrigger>
               </TabsList>
               
               <TabsContent value="mercado" className="space-y-4 sm:space-y-6">
@@ -171,6 +175,14 @@ function App() {
               
               <TabsContent value="opportunities" className="space-y-4 sm:space-y-6">
                 <Opportunities />
+              </TabsContent>
+              
+              <TabsContent value="institutional" className="space-y-4 sm:space-y-6">
+                <InstitutionalOrders />
+              </TabsContent>
+              
+              <TabsContent value="orderbook" className="space-y-4 sm:space-y-6">
+                <OrderBook />
               </TabsContent>
               
               <TabsContent value="aprendizado" className="space-y-4 sm:space-y-6">

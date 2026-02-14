@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-refine-the-radar-anomaly-detection-logic-to-detect-abnormal-moves-earlier-and-reduce-false-positives-by-replacing-the-current-fixed-baselines-and-thresholds-with-adaptive-market-relative-scoring",
-      "featureTitle": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
+      "featureId": "feature-in-the-opportunities-area-allow-the-user-to-select-an-opportunity-asset-from-any-modality-list-and-open-a-details-view-e-g-dialog-drawer-side-panel-for-that-selected-symbol",
+      "featureTitle": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
       "files": [
-        "frontend/src/hooks/queries/localSignals.ts",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/Opportunities.tsx",
+        "frontend/src/components/OpportunityDetailsPanel.tsx"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -22,11 +22,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-smarter-radar-filters-in-the-radar-ui-so-users-can-narrow-alerts-by-anomaly-type-s-and-severity-in-addition-to-the-existing-trend-and-min-confidence-filters",
-      "featureTitle": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
+      "featureId": "feature-generate-and-display-a-trade-recommendation-for-the-selected-opportunity-based-on-the-currently-selected-trade-modality-the-active-opportunities-tab-the-recommendation-must-include-direction-long-or-short-recommended-entry-take-profit-and-stop-loss-values-derived-from-existing-live-market-data-and-the-app-s-existing-analysis-data-e-g-support-resistance-zones-trend-confidence-institutional-manipulation-signals",
+      "featureTitle": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
       "files": [
-        "frontend/src/components/RadarDashboard.tsx",
-        "frontend/src/lib/radarFilters.ts"
+        "frontend/src/components/Opportunities.tsx",
+        "frontend/src/components/OpportunityDetailsPanel.tsx",
+        "frontend/src/hooks/useTradeRecommendation.ts",
+        "frontend/src/lib/tradeRecommendation.ts"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -42,15 +44,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-introduce-a-user-facing-radar-sensitivity-setting-that-tunes-detection-thresholds-e-g-conservative-balanced-aggressive-and-apply-it-consistently-to-both-the-radar-list-and-the-top-of-screen-dynamic-alerts-notifications",
-      "featureTitle": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "featureId": "feature-include-transparent-justification-metadata-in-the-recommendation-ui-by-reusing-existing-signals-already-shown-elsewhere-in-the-app-e-g-trend-confidence-support-resistance-references-institutional-manipulation-tags-so-the-user-can-understand-why-the-app-suggests-long-short-and-the-chosen-levels",
+      "featureTitle": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
       "files": [
-        "frontend/src/components/DynamicAlerts.tsx",
-        "frontend/src/components/RadarDashboard.tsx",
-        "frontend/src/hooks/queries/localSignals.ts",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/hooks/useRadarSensitivity.ts",
-        "frontend/src/lib/radarSensitivity.ts"
+        "frontend/src/components/OpportunityDetailsPanel.tsx",
+        "frontend/src/lib/tradeRecommendation.ts"
       ],
       "components": [
         "http-outcalls@3.0.0",

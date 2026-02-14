@@ -45,7 +45,9 @@ export interface MarketSourceResult {
     errorMessage?: string;
 }
 export interface MarketSnapshot {
+    binanceSpotTicker: MarketSourceResult;
     binanceTrades: MarketSourceResult;
+    binanceSpotDepth: MarketSourceResult;
     coingeckoBTC: MarketSourceResult;
 }
 export interface http_header {
@@ -71,6 +73,8 @@ export interface backendInterface {
     fetchAssetList(): Promise<Array<string>>;
     fetchBinanceFuturesAssets(): Promise<UnifiedSnapshot | null>;
     filterAssetsByDirection(direction: DirectionType): Promise<Array<MarketData>>;
+    getBinanceSpotDepthBTCUSDT(): Promise<string>;
+    getBinanceSpotTickerBTCUSDT(): Promise<string>;
     getBinanceTradesBTCUSDT(): Promise<string>;
     getCoinGeckoBTC(): Promise<string>;
     getCryptoMarketSnapshot(): Promise<MarketSnapshot>;

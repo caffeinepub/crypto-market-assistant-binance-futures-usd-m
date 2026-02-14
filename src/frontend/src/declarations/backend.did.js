@@ -28,7 +28,9 @@ export const MarketSourceResult = IDL.Record({
   'errorMessage' : IDL.Opt(IDL.Text),
 });
 export const MarketSnapshot = IDL.Record({
+  'binanceSpotTicker' : MarketSourceResult,
   'binanceTrades' : MarketSourceResult,
+  'binanceSpotDepth' : MarketSourceResult,
   'coingeckoBTC' : MarketSourceResult,
 });
 export const Theme = IDL.Variant({
@@ -77,6 +79,8 @@ export const idlService = IDL.Service({
       [IDL.Vec(MarketData)],
       [],
     ),
+  'getBinanceSpotDepthBTCUSDT' : IDL.Func([], [IDL.Text], []),
+  'getBinanceSpotTickerBTCUSDT' : IDL.Func([], [IDL.Text], []),
   'getBinanceTradesBTCUSDT' : IDL.Func([], [IDL.Text], []),
   'getCoinGeckoBTC' : IDL.Func([], [IDL.Text], []),
   'getCryptoMarketSnapshot' : IDL.Func([], [MarketSnapshot], []),
@@ -123,7 +127,9 @@ export const idlFactory = ({ IDL }) => {
     'errorMessage' : IDL.Opt(IDL.Text),
   });
   const MarketSnapshot = IDL.Record({
+    'binanceSpotTicker' : MarketSourceResult,
     'binanceTrades' : MarketSourceResult,
+    'binanceSpotDepth' : MarketSourceResult,
     'coingeckoBTC' : MarketSourceResult,
   });
   const Theme = IDL.Variant({ 'darkNeon' : IDL.Null, 'cyberGlow' : IDL.Null });
@@ -166,6 +172,8 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(MarketData)],
         [],
       ),
+    'getBinanceSpotDepthBTCUSDT' : IDL.Func([], [IDL.Text], []),
+    'getBinanceSpotTickerBTCUSDT' : IDL.Func([], [IDL.Text], []),
     'getBinanceTradesBTCUSDT' : IDL.Func([], [IDL.Text], []),
     'getCoinGeckoBTC' : IDL.Func([], [IDL.Text], []),
     'getCryptoMarketSnapshot' : IDL.Func([], [MarketSnapshot], []),

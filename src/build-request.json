@@ -1,77 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Refine Radar anomaly detection with smarter filters and earlier signals",
+  "title": "Add trade recommendations to Opportunities (Long/Short + Entry/TP/SL by modality)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
+      "text": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Vamos refinar o radar . Acho a melhor ação para agora."
+          "Vamos trabalhar na area de oportunidades.. \nApos selecionarmos algum ativo nesta area."
         ]
       },
       "acceptanceCriteria": [
-        "Radar alerts are still produced via the existing react-query hook (useRadarAlerts) and render in the Radar tab without runtime errors.",
-        "The anomaly score uses adaptive baselines derived from the current marketData set (e.g., relative/percentile-based volume baseline instead of a single hard-coded avgVolume constant), so alerts remain meaningful across different market regimes.",
-        "“Earlier detection” is achieved by making the price-move/volatility detection sensitive to smaller moves when corroborated by at least one other signal (e.g., volume spike, extreme volatility, funding irregularity, or open interest spike).",
-        "Alert confidence is normalized to 0..1 and is monotonic with severity (higher anomaly severity yields higher confidence).",
-        "Radar alerts remain sorted by highest severity/score first, and the alert object fields expected by the UI (symbol, percentChange, volumeDelta, direction, confidence, anomalyScore, anomalyTypes, reasons, timestamp) are preserved."
+        "From any Opportunities tab (scalping/swing/breakout/reversal/smc/fvg), clicking an opportunity card opens a dedicated details UI for that symbol.",
+        "The details UI shows, at minimum, the symbol and current price (using the existing opportunity data).",
+        "The user can close the details UI and return to the Opportunities list without losing the currently selected modality tab."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
+      "text": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Vamos refinar o radar . Acho a melhor ação para agora."
+          "Seria bom que uma recomendação de trade fosse oferecida. Baseada na modalidade de trade escolhida.",
+          "O aplicativo deve indicar se a oportunidade é de long ou de short.. e fornecer os valores recomendados de entrada, take profit, stop loss, baseados nos dados e base de dados que temos."
         ]
       },
       "acceptanceCriteria": [
-        "Radar tab includes a filter control to include/exclude alerts by anomaly type (Price Move, Volume Spike, Extreme Volatility, Funding Alert, OI Spike).",
-        "Radar tab includes a severity control (e.g., min anomaly score and/or min confidence) that actually changes the visible list.",
-        "Existing filters (All/Bullish/Bearish/Learning and Min Confidence) continue to work as before.",
-        "Filters do not require backend changes and persist across reloads (e.g., via localStorage) unless explicitly reset by the user."
+        "When an opportunity is selected, the details UI shows a clearly labeled “Trade Recommendation” section.",
+        "The “Trade Recommendation” section shows: Direction (Long/Short), Entry, Take Profit, Stop Loss.",
+        "The recommendation changes when the user changes the modality tab and selects an asset within that modality (i.e., modality influences the output).",
+        "Entry/TP/SL values are computed deterministically from currently available app data for that symbol (no hardcoded per-symbol values).",
+        "If required analysis inputs for a symbol are unavailable, the UI shows a graceful fallback state explaining the recommendation cannot be computed right now (without crashing the Opportunities page)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "text": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Vamos refinar o radar . Acho a melhor ação para agora."
+          "...baseados nos dados e base de dados que temos."
         ]
       },
       "acceptanceCriteria": [
-        "Radar tab provides a Sensitivity selector with at least three presets (Conservative, Balanced, Aggressive) using clear English labels.",
-        "Changing sensitivity immediately affects which alerts are generated/shown (without needing a hard refresh).",
-        "DynamicAlerts notifications use the same sensitivity policy (e.g., confidence cutoff/cooldown) so notifications match what the Radar is considering “high enough confidence.”",
-        "Sensitivity choice persists across reloads (localStorage is acceptable)."
+        "The recommendation UI displays a short list of “Rationale” or “Signals” that references existing computed indicators (e.g., trend/confidence/nearest support-resistance, or existing reasons/tags already computed by the app).",
+        "Rationale content updates together with the recommendation for the selected symbol/modality.",
+        "No new external APIs are introduced for rationale generation."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (read-only components must be composed, not modified).",
-    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Keep all backend Motoko logic in the single actor (backend/main.mo); avoid backend changes unless strictly required for Radar refinement."
+    "Do not edit files under frontend/src/components/ui (read-only UI components); compose them instead.",
+    "Do not edit immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if a stable-state upgrade is required."
   ],
   "nonGoals": [
-    "Implementing the Binance API key / read-only authenticated trade monitoring tab.",
-    "Replacing or redesigning the Sentiment tab data sources.",
-    "PWA installation/standalone-mode fixes.",
-    "General visual theme redesign outside of Radar-specific filter controls."
+    "Fixing the current deployment/publishing failure (not requested in the active scope).",
+    "Adding real-money execution, exchange order placement, or account connectivity.",
+    "Adding third-party authentication providers or external databases."
   ],
   "imageRequirements": {
     "required": [],

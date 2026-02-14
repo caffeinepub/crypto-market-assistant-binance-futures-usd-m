@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,9 +8,12 @@ import { TrendingUp, TrendingDown, Zap, Activity, Target, Eye, Layers } from 'lu
 import { useOpportunities } from '@/hooks/useOpportunities';
 import TabFetchErrorState from './TabFetchErrorState';
 import TabPageCard from './TabPageCard';
+import OpportunityDetailsPanel from './OpportunityDetailsPanel';
 
 export default function Opportunities() {
   const { data, isLoading, error, dataUpdatedAt } = useOpportunities();
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [activeModality, setActiveModality] = useState<string>('scalping');
 
   // Calculate freshness indicator
   const freshnessText = useMemo(() => {
@@ -75,6 +78,14 @@ export default function Opportunities() {
     fvg: 'Fair Value Gaps: imbalance zones for potential fills',
   };
 
+  const handleOpportunityClick = (symbol: string) => {
+    setSelectedSymbol(symbol);
+  };
+
+  const handleClosePanel = () => {
+    setSelectedSymbol(null);
+  };
+
   const renderOpportunityList = (opportunities: typeof data.scalping) => {
     if (opportunities.length === 0) {
       return (
@@ -88,7 +99,11 @@ export default function Opportunities() {
       <ScrollArea className="h-[600px] pr-4">
         <div className="space-y-3">
           {opportunities.map((opp) => (
-            <Card key={opp.symbol} className="border-primary/20 hover:border-primary/40 transition-colors">
+            <Card
+              key={opp.symbol}
+              className="border-primary/20 hover:border-primary/40 transition-colors cursor-pointer"
+              onClick={() => handleOpportunityClick(opp.symbol)}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
@@ -142,7 +157,7 @@ export default function Opportunities() {
           )
         }
       >
-        <Tabs defaultValue="scalping" className="w-full">
+        <Tabs value={activeModality} onValueChange={setActiveModality} className="w-full">
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
             {Object.entries(modalityIcons).map(([key, Icon]) => (
               <TabsTrigger key={key} value={key} className="gap-1">
@@ -173,6 +188,15 @@ export default function Opportunities() {
           })}
         </Tabs>
       </TabPageCard>
+
+      {/* Details Panel */}
+      {selectedSymbol && (
+        <OpportunityDetailsPanel
+          symbol={selectedSymbol}
+          modality={activeModality}
+          onClose={handleClosePanel}
+        />
+      )}
     </div>
   );
 }

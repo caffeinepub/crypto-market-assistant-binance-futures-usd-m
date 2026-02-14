@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T15:15:04.994Z",
+  "generatedAt": "2026-02-14T15:14:22.186Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,49 +12,45 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
+        "summary": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/queries/localSignals.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/Opportunities.tsx",
+          "frontend/src/components/OpportunityDetailsPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/queries/localSignals.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/Opportunities.tsx",
+          "frontend/src/components/OpportunityDetailsPanel.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
+        "summary": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/lib/radarFilters.ts"
+          "frontend/src/lib/tradeRecommendation.ts",
+          "frontend/src/hooks/useTradeRecommendation.ts",
+          "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "frontend/src/components/Opportunities.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/lib/radarFilters.ts"
+          "frontend/src/lib/tradeRecommendation.ts",
+          "frontend/src/hooks/useTradeRecommendation.ts",
+          "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "frontend/src/components/Opportunities.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+        "summary": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/lib/radarSensitivity.ts",
-          "frontend/src/hooks/useRadarSensitivity.ts",
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/DynamicAlerts.tsx",
-          "frontend/src/hooks/queries/localSignals.ts"
+          "frontend/src/lib/tradeRecommendation.ts",
+          "frontend/src/components/OpportunityDetailsPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/lib/radarSensitivity.ts",
-          "frontend/src/hooks/useRadarSensitivity.ts",
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/DynamicAlerts.tsx",
-          "frontend/src/hooks/queries/localSignals.ts"
+          "frontend/src/lib/tradeRecommendation.ts",
+          "frontend/src/components/OpportunityDetailsPanel.tsx"
         ]
       }
     ]
@@ -64,14 +60,10 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/DynamicAlerts.tsx",
-    "frontend/src/components/RadarDashboard.tsx",
-    "frontend/src/hooks/queries/localSignals.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useRadarSensitivity.ts",
-    "frontend/src/lib/radarFilters.ts",
-    "frontend/src/lib/radarSensitivity.ts",
+    "frontend/src/components/Opportunities.tsx",
+    "frontend/src/components/OpportunityDetailsPanel.tsx",
+    "frontend/src/hooks/useTradeRecommendation.ts",
+    "frontend/src/lib/tradeRecommendation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

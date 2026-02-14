@@ -19,7 +19,9 @@ export interface MarketData {
   'symbol' : string,
 }
 export interface MarketSnapshot {
+  'binanceSpotTicker' : MarketSourceResult,
   'binanceTrades' : MarketSourceResult,
+  'binanceSpotDepth' : MarketSourceResult,
   'coingeckoBTC' : MarketSourceResult,
 }
 export interface MarketSourceResult {
@@ -67,6 +69,8 @@ export interface _SERVICE {
   'fetchAssetList' : ActorMethod<[], Array<string>>,
   'fetchBinanceFuturesAssets' : ActorMethod<[], [] | [UnifiedSnapshot]>,
   'filterAssetsByDirection' : ActorMethod<[DirectionType], Array<MarketData>>,
+  'getBinanceSpotDepthBTCUSDT' : ActorMethod<[], string>,
+  'getBinanceSpotTickerBTCUSDT' : ActorMethod<[], string>,
   'getBinanceTradesBTCUSDT' : ActorMethod<[], string>,
   'getCoinGeckoBTC' : ActorMethod<[], string>,
   'getCryptoMarketSnapshot' : ActorMethod<[], MarketSnapshot>,

@@ -1,33 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App de monitoramento/análise de mercado usando dados da Binance Futures, com ciclo de versões (v40 live) e plano de melhorias para próxima versão (v41), priorizando refino do Radar.",
+  "summary": "Trading app with an implemented order book; next focus is the Opportunities area, adding trade recommendations (long/short with entry/TP/SL) based on selected asset, chosen trade modality, and existing data/database.",
   "architectural_notes": [
-    "O app consome dados ao vivo via Binance Futures (USD-M) endpoints públicos.",
-    "Plano menciona uso de chave de API Binance read-only para monitoramento de trades."
+    "Trade recommendations should be computed using the selected asset + chosen trade modality, leveraging existing stored data/database to produce long/short direction and entry/TP/SL levels."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Deployment/publishing is failing with a build/deployment error (compilation/packaging issue) even though the user reports the app tests OK locally."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-refine-the-radar-anomaly-detection-logic-to-detect-abnormal-moves-earlier-and-reduce-false-positives-by-replacing-the-current-fixed-baselines-and-thresholds-with-adaptive-market-relative-scoring",
-      "title": "Refine the Radar anomaly detection logic to detect abnormal moves earlier and reduce false positives by replacing the current fixed baselines and thresholds with adaptive, market-relative scoring.",
+      "id": "feature-in-the-opportunities-area-allow-the-user-to-select-an-opportunity-asset-from-any-modality-list-and-open-a-details-view-e-g-dialog-drawer-side-panel-for-that-selected-symbol",
+      "title": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-smarter-radar-filters-in-the-radar-ui-so-users-can-narrow-alerts-by-anomaly-type-s-and-severity-in-addition-to-the-existing-trend-and-min-confidence-filters",
-      "title": "Add smarter Radar filters in the Radar UI so users can narrow alerts by anomaly type(s) and severity, in addition to the existing trend and min-confidence filters.",
+      "id": "feature-generate-and-display-a-trade-recommendation-for-the-selected-opportunity-based-on-the-currently-selected-trade-modality-the-active-opportunities-tab-the-recommendation-must-include-direction-long-or-short-recommended-entry-take-profit-and-stop-loss-values-derived-from-existing-live-market-data-and-the-app-s-existing-analysis-data-e-g-support-resistance-zones-trend-confidence-institutional-manipulation-signals",
+      "title": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-introduce-a-user-facing-radar-sensitivity-setting-that-tunes-detection-thresholds-e-g-conservative-balanced-aggressive-and-apply-it-consistently-to-both-the-radar-list-and-the-top-of-screen-dynamic-alerts-notifications",
-      "title": "Introduce a user-facing “Radar Sensitivity” setting that tunes detection thresholds (e.g., Conservative / Balanced / Aggressive) and apply it consistently to both the Radar list and the top-of-screen Dynamic Alerts notifications.",
+      "id": "feature-include-transparent-justification-metadata-in-the-recommendation-ui-by-reusing-existing-signals-already-shown-elsewhere-in-the-app-e-g-trend-confidence-support-resistance-references-institutional-manipulation-tags-so-the-user-can-understand-why-the-app-suggests-long-short-and-the-chosen-levels",
+      "title": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
       "reqIds": [
         "REQ-3"
       ],
@@ -37,13 +38,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Refinar o Radar para detectar movimentos anormais mais cedo e aplicar filtros mais inteligentes.",
+      "summary": "Add trade recommendation in Opportunities area after selecting an asset: indicate long/short and recommend entry, take profit, and stop loss based on selected trade modality and existing data/database.",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Refine Radar anomaly detection with smarter filters and earlier signals",
+  "projectName": "Add trade recommendations to Opportunities (Long/Short + Entry/TP/SL by modality)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
