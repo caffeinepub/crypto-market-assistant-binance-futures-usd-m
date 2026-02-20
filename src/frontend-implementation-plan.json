@@ -1,80 +1,94 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Trade recommendations in Opportunities details (Long/Short + Entry/TP/SL by modality)",
+  "title": "Add trade entry/exit points and stop loss calculation to Opportunities",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Enable selecting an opportunity from any modality tab and opening a closable details side panel for the chosen symbol without losing the active tab.",
+      "summary": "Display optimal buy point (entry price) for selected opportunities using existing frontend market data and technical analysis",
       "acceptanceCriteria": [
-        "From any Opportunities tab (scalping/swing/breakout/reversal/smc/fvg), clicking an opportunity card opens a dedicated details UI for that symbol.",
-        "The details UI shows, at minimum, the symbol and current price (using the existing opportunity data).",
-        "The user can close the details UI and return to the Opportunities list without losing the currently selected modality tab."
+        "Selected opportunity shows a clearly labeled entry price",
+        "Entry price is calculated using existing market data without any new backend calls",
+        "Price is displayed in the OpportunityDetailsPanel component"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Opportunities.tsx",
+          "path": "frontend/src/lib/tradeRecommendation.ts",
           "operation": "modify",
-          "description": "Convert Opportunities tabs to a controlled value (preserve active modality), add selection state (selectedSymbol + selectedModality), wire opportunity card clicks to open a details side panel, and wire close behavior to keep the current tab selection. Compose existing shadcn-ui primitives already used on the page (e.g., Card/Badge/ScrollArea/Tabs) rather than editing files under frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Extend the TradeRecommendation type to include an explicit entryPrice field. Update the computeTradeRecommendation function to calculate and return the optimal entry price based on current market price, technical analysis (support/resistance levels from enrichment data), and modality parameters. For scalping, use tighter entry logic near current price; for swing, use support/resistance zones from technical analysis."
         },
         {
           "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
-          "operation": "create",
-          "description": "Create a dedicated details UI component rendered as a side panel (responsive overlay on small screens) showing at minimum: symbol and current price from the selected OpportunityItem / current market data. Compose existing shadcn-ui primitives (Card, Badge, ScrollArea where helpful) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Add a new section displaying the entry price from the trade recommendation. Show the entry price with clear labeling (e.g., 'Entry Point'), format it with appropriate decimal precision, and display it prominently near other trade metrics. Use existing UI patterns from the component (cards, badges, or highlighted text) to ensure visual consistency."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Compute and display a deterministic trade recommendation (Long/Short + Entry/TP/SL) for the selected symbol, influenced by the active Opportunities modality and derived from existing live market + analysis data with graceful fallback.",
+      "summary": "Display take profit target (sell point) for selected opportunities based on volatility, momentum, and technical indicators from frontend analysis",
       "acceptanceCriteria": [
-        "When an opportunity is selected, the details UI shows a clearly labeled “Trade Recommendation” section.",
-        "The “Trade Recommendation” section shows: Direction (Long/Short), Entry, Take Profit, Stop Loss.",
-        "The recommendation changes when the user changes the modality tab and selects an asset within that modality (i.e., modality influences the output).",
-        "Entry/TP/SL values are computed deterministically from currently available app data for that symbol (no hardcoded per-symbol values).",
-        "If required analysis inputs for a symbol are unavailable, the UI shows a graceful fallback state explaining the recommendation cannot be computed right now (without crashing the Opportunities page)."
+        "Take profit target is shown alongside the entry point",
+        "Calculation uses only data already fetched from Binance in the frontend",
+        "Target price reflects the opportunity type (scalping vs swing)"
       ],
       "file_operations": [
         {
           "path": "frontend/src/lib/tradeRecommendation.ts",
-          "operation": "create",
-          "description": "Implement a deterministic trade recommendation engine that accepts (modality, current price, technical analysis data already computed in the app such as trend/confidence/supportZones/resistanceZones/manipulationZones/institutionalOrders) and returns Direction (Long/Short), Entry, Take Profit, Stop Loss, plus a typed error/fallback reason when inputs are insufficient. Ensure modality changes risk/target sizing rules while avoiding any hardcoded per-symbol values."
-        },
-        {
-          "path": "frontend/src/hooks/useTradeRecommendation.ts",
-          "operation": "create",
-          "description": "Create a hook that derives the selected symbol’s enriched market+analysis object from existing live data (via existing queries/hooks) and calls the deterministic recommendation engine. Expose loading/ready/fallback states suitable for rendering in the Opportunities details panel."
+          "operation": "modify",
+          "description": "Enhance the take profit (TP) calculation in computeTradeRecommendation to use volatility metrics from technical analysis (ATR, Bollinger Bands), momentum indicators (RSI, MACD from enrichment data), and modality-specific targets. For scalping opportunities, apply shorter TP targets (e.g., 0.5-1% moves); for swing opportunities, use wider targets (e.g., 2-5% moves) based on resistance levels and volatility. Ensure the calculation respects the opportunity's risk profile and current market conditions."
         },
         {
           "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
           "operation": "modify",
-          "description": "Add a clearly labeled “Trade Recommendation” section showing Direction (Long/Short), Entry, Take Profit, Stop Loss using the new hook. Render a graceful fallback state (non-crashing) when recommendation inputs are missing. Compose existing shadcn-ui primitives (Card/Badge) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/Opportunities.tsx",
-          "operation": "modify",
-          "description": "Pass the active modality and selected symbol/opportunity into OpportunityDetailsPanel so the recommendation output is modality-aware and updates when the user selects assets from different modality tabs (without introducing new routes). Compose existing shadcn-ui primitives rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Add a take profit display section alongside the entry price. Show the TP target with clear labeling (e.g., 'Take Profit Target'), include the potential gain percentage, and use visual indicators (e.g., green badges or highlighted text) to emphasize the profit target. Ensure the display adapts to the opportunity type (scalping vs swing) with appropriate context."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Display transparent recommendation rationale by reusing existing computed signals (trend, confidence, support/resistance references, institutional/manipulation tags) with no new external APIs.",
+      "summary": "Calculate and display stop loss price using ATR, support levels, and percentage-based risk management from frontend technical analysis",
       "acceptanceCriteria": [
-        "The recommendation UI displays a short list of “Rationale” or “Signals” that references existing computed indicators (e.g., trend/confidence/nearest support-resistance, or existing reasons/tags already computed by the app).",
-        "Rationale content updates together with the recommendation for the selected symbol/modality.",
-        "No new external APIs are introduced for rationale generation."
+        "Stop loss price is clearly displayed in the details panel",
+        "Calculation respects the opportunity's risk profile",
+        "No new data sources are introduced; uses existing Binance data from frontend"
       ],
       "file_operations": [
         {
           "path": "frontend/src/lib/tradeRecommendation.ts",
           "operation": "modify",
-          "description": "Extend the recommendation result to include justification metadata (e.g., selected trend/confidence level, nearest support/resistance references used in level selection, and any existing institutional/manipulation/tag signals considered) derived only from the existing analysis inputs."
+          "description": "Refine the stop loss (SL) calculation in computeTradeRecommendation to incorporate ATR-based stops (e.g., 1.5x ATR below entry), support level detection from technical analysis enrichment, and percentage-based fallback logic (e.g., 2% for scalping, 5% for swing). Apply risk management rules that adjust SL based on volatility context, opportunity confidence score, and modality parameters. Ensure the SL price is always below the entry for long positions and above for short positions."
         },
         {
           "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
           "operation": "modify",
-          "description": "Render a “Rationale”/“Signals” list in the recommendation UI using the justification metadata and existing opportunity reasons/tags from current app data. Ensure it updates alongside the recommendation when symbol/modality changes. Compose existing shadcn-ui primitives (Badge/ScrollArea/Card) rather than editing frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Add a stop loss display section in the details panel. Show the SL price with clear labeling (e.g., 'Stop Loss'), include the potential loss percentage, and use visual indicators (e.g., red badges or warning-styled text) to emphasize risk. Display the risk-reward ratio (TP gain vs SL loss) to provide context for the trade setup. Ensure consistency with existing UI patterns for trade metrics."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure all entry/exit/stop loss calculations use only frontend-fetched Binance data without introducing new backend HTTP calls",
+      "acceptanceCriteria": [
+        "No new HTTP outcalls to Binance are added to backend code",
+        "All calculations occur in frontend using existing market data hooks",
+        "Backend remains unchanged and continues only CoinGecko integration"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/tradeRecommendation.ts",
+          "operation": "modify",
+          "description": "Verify that all entry, TP, and SL calculations in computeTradeRecommendation rely exclusively on parameters passed from frontend hooks (market data, technical analysis from analysisEnrichment, modality config). Do not add any new data fetching logic or backend calls. Document in code comments that all required data (price, volume, ATR, support/resistance, momentum indicators) must be provided by the caller from existing Binance frontend hooks (binanceFetch, analysisEnrichment)."
+        },
+        {
+          "path": "frontend/src/hooks/useTradeRecommendation.ts",
+          "operation": "modify",
+          "description": "Ensure the useTradeRecommendation hook passes complete technical analysis data (including ATR, support/resistance, momentum indicators) from the enriched analysis to computeTradeRecommendation. Verify that all data originates from existing Binance market data hooks (useBinanceFuturesQuery, useEnrichedAnalysis) and no new data sources are introduced. Add inline comments confirming the data flow and sources."
+        },
+        {
+          "path": "frontend/src/hooks/queries/analysisEnrichment.ts",
+          "operation": "modify",
+          "description": "Review and ensure the enrichAnalysis function provides all necessary technical indicators (ATR, support/resistance levels, momentum signals) required for entry/exit/SL calculations. Verify that all data comes from the ticker parameter (sourced from Binance) and internal calculations. Add or expose any missing metrics (e.g., explicit support/resistance levels, ATR values) that are needed by tradeRecommendation logic."
         }
       ]
     }

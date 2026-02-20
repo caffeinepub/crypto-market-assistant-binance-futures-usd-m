@@ -1,75 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Add trade recommendations to Opportunities (Long/Short + Entry/TP/SL by modality)",
+  "title": "Add trade entry/exit points and stop loss calculation to Opportunities",
+  "projectName": "Crypto Radar",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
+      "text": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-user-opportunities-feature"
         ],
         "quotes": [
-          "Vamos trabalhar na area de oportunidades.. \nApos selecionarmos algum ativo nesta area."
+          "mostre o melhor ponto de compra"
         ]
       },
       "acceptanceCriteria": [
-        "From any Opportunities tab (scalping/swing/breakout/reversal/smc/fvg), clicking an opportunity card opens a dedicated details UI for that symbol.",
-        "The details UI shows, at minimum, the symbol and current price (using the existing opportunity data).",
-        "The user can close the details UI and return to the Opportunities list without losing the currently selected modality tab."
+        "Selected opportunity shows a clearly labeled entry price",
+        "Entry price is calculated using existing market data without any new backend calls",
+        "Price is displayed in the OpportunityDetailsPanel component"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
+      "text": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-user-opportunities-feature"
         ],
         "quotes": [
-          "Seria bom que uma recomendação de trade fosse oferecida. Baseada na modalidade de trade escolhida.",
-          "O aplicativo deve indicar se a oportunidade é de long ou de short.. e fornecer os valores recomendados de entrada, take profit, stop loss, baseados nos dados e base de dados que temos."
+          "o ponto mais provavel de realização, ou venda"
         ]
       },
       "acceptanceCriteria": [
-        "When an opportunity is selected, the details UI shows a clearly labeled “Trade Recommendation” section.",
-        "The “Trade Recommendation” section shows: Direction (Long/Short), Entry, Take Profit, Stop Loss.",
-        "The recommendation changes when the user changes the modality tab and selects an asset within that modality (i.e., modality influences the output).",
-        "Entry/TP/SL values are computed deterministically from currently available app data for that symbol (no hardcoded per-symbol values).",
-        "If required analysis inputs for a symbol are unavailable, the UI shows a graceful fallback state explaining the recommendation cannot be computed right now (without crashing the Opportunities page)."
+        "Take profit target is shown alongside the entry point",
+        "Calculation uses only data already fetched from Binance in the frontend",
+        "Target price reflects the opportunity type (scalping vs swing)"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
+      "text": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-user-opportunities-feature"
         ],
         "quotes": [
-          "...baseados nos dados e base de dados que temos."
+          "E tambem o stop loss calculado"
         ]
       },
       "acceptanceCriteria": [
-        "The recommendation UI displays a short list of “Rationale” or “Signals” that references existing computed indicators (e.g., trend/confidence/nearest support-resistance, or existing reasons/tags already computed by the app).",
-        "Rationale content updates together with the recommendation for the selected symbol/modality.",
-        "No new external APIs are introduced for rationale generation."
+        "Stop loss price is clearly displayed in the details panel",
+        "Calculation respects the opportunity's risk profile",
+        "No new data sources are introduced; uses existing Binance data from frontend"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-opportunities-feature"
+        ],
+        "quotes": [
+          "Tudo baseado nos dados que o aplicativo mantem como base de dados principal"
+        ]
+      },
+      "acceptanceCriteria": [
+        "No new HTTP outcalls to Binance are added to backend code",
+        "All calculations occur in frontend using existing market data hooks",
+        "Backend remains unchanged and continues only CoinGecko integration"
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only UI components); compose them instead.",
-    "Do not edit immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if a stable-state upgrade is required."
+    "Do not add any HTTP outcalls to Binance in the backend",
+    "Maintain strict separation: Binance data fetching stays in frontend only",
+    "Backend may only call CoinGecko and manage internal storage",
+    "Use existing market data, technical analysis, and learning engine data already available in frontend hooks"
   ],
   "nonGoals": [
-    "Fixing the current deployment/publishing failure (not requested in the active scope).",
-    "Adding real-money execution, exchange order placement, or account connectivity.",
-    "Adding third-party authentication providers or external databases."
+    "Changing the current communication architecture between frontend and backend",
+    "Adding new external data sources beyond Binance (frontend) and CoinGecko (backend)",
+    "Creating new backend endpoints for Binance data",
+    "Modifying service worker or PWA install logic"
   ],
   "imageRequirements": {
     "required": [],

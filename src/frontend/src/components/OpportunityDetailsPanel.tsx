@@ -1,4 +1,4 @@
-import { X, TrendingUp, TrendingDown, Target, AlertCircle } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Target, AlertCircle, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,7 +71,7 @@ export default function OpportunityDetailsPanel({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Trade Recommendation</h3>
+                <h3 className="text-lg font-semibold">Trade Setup</h3>
               </div>
 
               {!isReady && (
@@ -131,66 +131,113 @@ export default function OpportunityDetailsPanel({
                     </CardContent>
                   </Card>
 
-                  {/* Entry, TP, SL */}
+                  {/* Entry, TP, SL Grid */}
                   <div className="grid grid-cols-1 gap-3">
-                    <Card className="border-border">
+                    {/* Entry Point */}
+                    <Card className="border-primary/30 bg-primary/5">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground">Entry Price</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          Entry Point
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-xl font-bold text-primary">
-                          ${result.recommendation.entry.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <p className="text-2xl font-bold text-primary">
+                          ${result.recommendation.entry.toLocaleString(undefined, { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                          })}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Optimal entry based on technical analysis
                         </p>
                       </CardContent>
                     </Card>
 
-                    <Card className="border-green-500/20 bg-green-500/5">
+                    {/* Take Profit */}
+                    <Card className="border-green-500/30 bg-green-500/10">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground">Take Profit</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                          <TrendingUp className="h-3 w-3" />
+                          Take Profit Target
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                          ${result.recommendation.takeProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          ${result.recommendation.takeProfit.toLocaleString(undefined, { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                          })}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1 font-medium">
                           +
                           {(
                             ((result.recommendation.takeProfit - result.recommendation.entry) /
                               result.recommendation.entry) *
                             100
                           ).toFixed(2)}
-                          %
+                          % potential gain
                         </p>
                       </CardContent>
                     </Card>
 
-                    <Card className="border-red-500/20 bg-red-500/5">
+                    {/* Stop Loss */}
+                    <Card className="border-red-500/30 bg-red-500/10">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground">Stop Loss</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                          <TrendingDown className="h-3 w-3" />
+                          Stop Loss
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-xl font-bold text-red-600 dark:text-red-400">
-                          ${result.recommendation.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                          ${result.recommendation.stopLoss.toLocaleString(undefined, { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                          })}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1 font-medium">
                           {(
                             ((result.recommendation.stopLoss - result.recommendation.entry) /
                               result.recommendation.entry) *
                             100
                           ).toFixed(2)}
-                          %
+                          % max loss
                         </p>
                       </CardContent>
                     </Card>
                   </div>
+
+                  {/* Risk/Reward Ratio */}
+                  <Card className="border-border bg-card/50">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Risk/Reward Ratio
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-base px-3 py-1">
+                          1 : {result.recommendation.riskRewardRatio.toFixed(2)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {result.recommendation.riskRewardRatio >= 2 
+                            ? 'Excellent setup' 
+                            : result.recommendation.riskRewardRatio >= 1.5 
+                            ? 'Good setup' 
+                            : 'Moderate setup'}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   <Separator />
 
                   {/* Rationale */}
                   <Card className="border-border">
                     <CardHeader>
-                      <CardTitle className="text-sm font-medium">Rationale & Signals</CardTitle>
-                      <CardDescription>Why this recommendation was generated</CardDescription>
+                      <CardTitle className="text-sm font-medium">Analysis & Rationale</CardTitle>
+                      <CardDescription>Technical signals supporting this setup</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
@@ -208,20 +255,40 @@ export default function OpportunityDetailsPanel({
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Recommendation Confidence
+                        Setup Confidence
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-2xl font-bold">
+                            {(result.recommendation.confidence * 100).toFixed(0)}%
+                          </span>
+                          <Badge
+                            variant={
+                              result.recommendation.confidence >= 0.7
+                                ? 'default'
+                                : result.recommendation.confidence >= 0.5
+                                ? 'secondary'
+                                : 'outline'
+                            }
+                          >
+                            {result.recommendation.confidence >= 0.7
+                              ? 'High'
+                              : result.recommendation.confidence >= 0.5
+                              ? 'Medium'
+                              : 'Low'}
+                          </Badge>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-green-500 to-primary transition-all"
                             style={{ width: `${result.recommendation.confidence * 100}%` }}
                           />
                         </div>
-                        <span className="text-sm font-medium">
-                          {(result.recommendation.confidence * 100).toFixed(0)}%
-                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          Based on technical analysis, market conditions, and AI learning
+                        </p>
                       </div>
                     </CardContent>
                   </Card>

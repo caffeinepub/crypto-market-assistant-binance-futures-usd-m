@@ -1,36 +1,48 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Trading app with an implemented order book; next focus is the Opportunities area, adding trade recommendations (long/short with entry/TP/SL) based on selected asset, chosen trade modality, and existing data/database.",
+  "summary": "PWA crypto analytics app with frontend-only Binance data fetching and backend CoinGecko integration. Adding buy/sell point analysis and stop loss calculation features.",
   "architectural_notes": [
-    "Trade recommendations should be computed using the selected asset + chosen trade modality, leveraging existing stored data/database to produce long/short direction and entry/TP/SL levels."
+    "Frontend fetches all Binance data directly from browser (required due to Binance blocking data center IPs)",
+    "Backend uses only CoinGecko API and internal storage",
+    "All real-time analysis must use frontend data only",
+    "ICP canisters use IPv6 which Binance blocks - no backend Binance calls allowed"
   ],
   "known_issues": [
-    "Deployment/publishing is failing with a build/deployment error (compilation/packaging issue) even though the user reports the app tests OK locally."
+    "Deployment failures occur when backend attempts Binance HTTP calls due to IP blocking",
+    "Must maintain strict separation: Binance in frontend only, CoinGecko in backend only"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-in-the-opportunities-area-allow-the-user-to-select-an-opportunity-asset-from-any-modality-list-and-open-a-details-view-e-g-dialog-drawer-side-panel-for-that-selected-symbol",
-      "title": "In the Opportunities area, allow the user to select an opportunity (asset) from any modality list and open a details view (e.g., dialog/drawer/side panel) for that selected symbol.",
+      "id": "feature-when-a-user-selects-an-asset-from-the-opportunities-list-display-the-optimal-buy-point-entry-price-calculated-from-current-market-data-and-technical-analysis-already-available-in-the-frontend",
+      "title": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-generate-and-display-a-trade-recommendation-for-the-selected-opportunity-based-on-the-currently-selected-trade-modality-the-active-opportunities-tab-the-recommendation-must-include-direction-long-or-short-recommended-entry-take-profit-and-stop-loss-values-derived-from-existing-live-market-data-and-the-app-s-existing-analysis-data-e-g-support-resistance-zones-trend-confidence-institutional-manipulation-signals",
-      "title": "Generate and display a trade recommendation for the selected opportunity based on the currently selected trade modality (the active Opportunities tab). The recommendation must include: direction (Long or Short), recommended Entry, Take Profit, and Stop Loss values, derived from existing live market data and the app’s existing analysis data (e.g., support/resistance zones, trend, confidence, institutional/manipulation signals).",
+      "id": "feature-display-the-most-probable-sell-point-take-profit-target-for-the-selected-asset-based-on-volatility-momentum-and-technical-indicators-already-computed-in-the-frontend",
+      "title": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-include-transparent-justification-metadata-in-the-recommendation-ui-by-reusing-existing-signals-already-shown-elsewhere-in-the-app-e-g-trend-confidence-support-resistance-references-institutional-manipulation-tags-so-the-user-can-understand-why-the-app-suggests-long-short-and-the-chosen-levels",
-      "title": "Include transparent justification metadata in the recommendation UI by reusing existing signals already shown elsewhere in the app (e.g., trend, confidence, support/resistance references, institutional/manipulation tags), so the user can understand why the app suggests Long/Short and the chosen levels.",
+      "id": "feature-calculate-and-display-a-stop-loss-price-for-the-selected-asset-using-risk-management-rules-based-on-atr-support-levels-or-percentage-based-logic-already-available-in-frontend-technical-analysis",
+      "title": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-all-new-entry-exit-stop-loss-calculations-use-only-data-already-fetched-by-the-frontend-from-binance-and-do-not-trigger-any-new-backend-http-calls-to-binance",
+      "title": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -38,13 +50,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add trade recommendation in Opportunities area after selecting an asset: indicate long/short and recommend entry, take profit, and stop loss based on selected trade modality and existing data/database.",
+      "summary": "Show optimal buy point, probable sell point, and calculated stop loss for selected assets based on existing data",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Add trade recommendations to Opportunities (Long/Short + Entry/TP/SL by modality)",
+  "projectName": "Crypto Radar",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
