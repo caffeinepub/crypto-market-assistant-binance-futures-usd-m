@@ -1,93 +1,98 @@
 {
   "kind": "build_request",
-  "title": "Add trade entry/exit points and stop loss calculation to Opportunities",
-  "projectName": "Crypto Radar",
-  "priority": "normal",
+  "title": "Rebuild clean deployment package for version 49",
+  "projectName": "Crypto Market Assistant",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
-      "target": "frontend",
+      "id": "REQ-5",
+      "text": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG), order book analysis, institutional orders detection, and complete PWA features with offline support",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-opportunities-feature"
+          "msg-latest"
         ],
         "quotes": [
-          "mostre o melhor ponto de compra"
+          "Vamos la",
+          "Reconstruir do zero - Gerar uma nova versão limpa (49) sem modificações"
         ]
       },
       "acceptanceCriteria": [
-        "Selected opportunity shows a clearly labeled entry price",
-        "Entry price is calculated using existing market data without any new backend calls",
-        "Price is displayed in the OpportunityDetailsPanel component"
+        "Version 49 successfully deploys to production without deployment errors",
+        "All market data fetching and display functionality works correctly",
+        "Radar dashboard with anomaly detection and filtering operates as expected",
+        "Trading opportunities for all 6 modalities display correctly with details panel",
+        "PWA installs successfully on mobile devices with offline functionality",
+        "Service worker caches assets properly and handles updates",
+        "Internet Identity authentication flow works correctly",
+        "All existing user preferences and AI learning features function properly"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
-      "target": "frontend",
+      "id": "REQ-6",
+      "text": "Verify backend main.mo maintains single-actor architecture with market data caching via UnifiedSnapshot, asset filtering by direction, user preferences storage with Principal-based access, and snapshot staleness management without any direct Binance API calls",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-opportunities-feature"
-        ],
-        "quotes": [
-          "o ponto mais provavel de realização, ou venda"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "Take profit target is shown alongside the entry point",
-        "Calculation uses only data already fetched from Binance in the frontend",
-        "Target price reflects the opportunity type (scalping vs swing)"
+        "Backend compiles without errors or warnings",
+        "All actor methods (getMarketData, getAssetsByDirection, getUserPreferences, setUserPreferences) remain functional",
+        "No HTTP outcalls or external API integrations present in backend code",
+        "Snapshot caching logic with staleness checks operates correctly"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
+      "id": "REQ-7",
+      "text": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling for network issues, CORS blocks, and restricted locations",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-opportunities-feature"
-        ],
-        "quotes": [
-          "E tambem o stop loss calculado"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "Stop loss price is clearly displayed in the details panel",
-        "Calculation respects the opportunity's risk profile",
-        "No new data sources are introduced; uses existing Binance data from frontend"
+        "All Binance API calls in frontend execute successfully",
+        "Technical analysis enrichment with trend strength, support/resistance zones, and manipulation zones functions correctly",
+        "Order book depth data displays properly for both Futures and Spot markets",
+        "Error states show appropriate messages for different failure types",
+        "Learning engine integration records predictions and updates accuracy metrics"
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
+      "id": "REQ-8",
+      "text": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-opportunities-feature"
-        ],
-        "quotes": [
-          "Tudo baseado nos dados que o aplicativo mantem como base de dados principal"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "No new HTTP outcalls to Binance are added to backend code",
-        "All calculations occur in frontend using existing market data hooks",
-        "Backend remains unchanged and continues only CoinGecko integration"
+        "No changes made to useInternetIdentity.ts, useActor.ts, or main.tsx files",
+        "UI components in frontend/src/components/ui remain untouched",
+        "Internet Identity flow continues to work with existing implementation",
+        "Actor creation and query invalidation logic remains unchanged"
       ]
     }
   ],
   "constraints": [
-    "Do not add any HTTP outcalls to Binance in the backend",
-    "Maintain strict separation: Binance data fetching stays in frontend only",
-    "Backend may only call CoinGecko and manage internal storage",
-    "Use existing market data, technical analysis, and learning engine data already available in frontend hooks"
+    "Do not modify any files in frontend/src/components/ui directory",
+    "Do not edit useInternetIdentity.ts, useActor.ts, or main.tsx files",
+    "Backend must remain single-actor architecture with no HTTP outcalls",
+    "Do not change existing Binance Futures USD-M API endpoints or fetch logic",
+    "Preserve all PWA manifest, service worker, and offline caching functionality",
+    "Do not alter the learning engine's IndexedDB schema or prediction tracking logic"
   ],
   "nonGoals": [
-    "Changing the current communication architecture between frontend and backend",
-    "Adding new external data sources beyond Binance (frontend) and CoinGecko (backend)",
-    "Creating new backend endpoints for Binance data",
-    "Modifying service worker or PWA install logic"
+    "Adding new features or functionality beyond what exists in version 48",
+    "Changing the technology stack or introducing new frameworks",
+    "Modifying the UI design, color scheme, or visual theme",
+    "Adding new trading modalities beyond the existing 6 types",
+    "Implementing new backend API methods or data structures",
+    "Changing error handling patterns or user-facing error messages"
   ],
   "imageRequirements": {
     "required": [],

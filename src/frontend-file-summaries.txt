@@ -54,5 +54,14 @@
   "frontend/src/lib/orderBookDepth.ts": "Pure utilities for parsing Binance depth JSON with strict numeric validation, aggregating raw depth into price buckets with configurable step size, computing deterministic wall flags based on median size threshold, and calculating derived metrics (mid price, spread, bid/ask imbalance) with safe handling of missing data.",
   "frontend/src/lib/tradeRecommendation.ts": "Enhanced trade recommendation engine that computes entry, take profit, and stop loss prices using ATR-based volatility, support/resistance zones, momentum indicators, and modality-specific risk parameters, all from frontend-fetched Binance data with no backend calls.",
   "frontend/src/hooks/useTradeRecommendation.ts": "React hook that derives trade recommendation for a selected symbol and modality by finding the asset in market data and calling the recommendation engine, exposing result and ready state.",
-  "frontend/src/components/OpportunityDetailsPanel.tsx": "Side panel displaying selected opportunity with comprehensive trade setup including entry point, take profit target, stop loss, risk/reward ratio, technical analysis rationale, and confidence indicators with enhanced visual styling and detailed percentage calculations."
+  "frontend/src/components/OpportunityDetailsPanel.tsx": "Side panel displaying selected opportunity with comprehensive trade setup including entry point, take profit target, stop loss, risk/reward ratio, technical analysis rationale, and confidence indicators with enhanced visual styling and detailed percentage calculations.",
+  "No files modified - clean deployment verification complete. All existing files are in proper state": "",
+  "- frontend/src/App.tsx": "Main app with 9-tab navigation, service worker integration, PWA features, and learning engine initialization",
+  "- frontend/src/components/Header.tsx": "Header with app branding and conditional PWA install button",
+  "- frontend/src/components/Footer.tsx": "Footer with attribution and caffeine.ai link",
+  "- frontend/src/hooks/useQueries.ts": "React Query hooks for Binance market data, technical analysis, recommendations, and radar alerts",
+  "- frontend/src/main.tsx": "Application entry point with QueryClient and InternetIdentityProvider",
+  "- frontend/public/manifest.json": "PWA manifest with standalone display mode, icons, and shortcuts",
+  "- frontend/public/sw.js": "Service worker v9 with asset caching and offline support",
+  "- frontend/index.html": "HTML entry with comprehensive PWA meta tags and iOS splash screens"
 }

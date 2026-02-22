@@ -1,12 +1,16 @@
 # Specification
 
 ## Summary
-**Goal:** Add trade entry/exit points and stop loss calculation to the Opportunities feature using existing frontend data.
+**Goal:** Rebuild clean deployment package for version 49 that preserves all existing functionality from version 48.
 
 **Planned changes:**
-- Display optimal buy point (entry price) for selected opportunities in OpportunityDetailsPanel
-- Show take profit target (sell point) based on volatility and momentum indicators
-- Calculate and display stop loss price using ATR or support levels
-- All calculations use only existing Binance data fetched by frontend hooks without new backend calls
+- Generate clean version 49 deployment package without modifications
+- Verify backend single-actor architecture with UnifiedSnapshot caching remains intact
+- Ensure all frontend Binance Futures USD-M data fetching continues to work
+- Preserve immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, UI components)
+- Maintain all PWA features including service worker, offline support, and manifest configuration
+- Keep all 6 trading modalities (scalping, swing, breakout, reversal, SMC, FVG) functional
+- Preserve Internet Identity authentication flow
+- Maintain learning engine with IndexedDB prediction tracking
 
-**User-visible outcome:** When selecting an opportunity, users see the recommended entry price, take profit target, and stop loss level calculated from current market data.
+**User-visible outcome:** Users can deploy version 49 to production with all existing features working correctly including market overview, recommendations, radar dashboard, trading opportunities across all modalities, order book analysis, institutional orders detection, and full PWA functionality with offline support.

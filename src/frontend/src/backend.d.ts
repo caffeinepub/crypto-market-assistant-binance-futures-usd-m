@@ -7,16 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface MarketData {
-    direction: DirectionType;
-    volume: number;
-    price: number;
-    symbol: string;
-}
-export interface UnifiedSnapshot {
-    marketData: Array<MarketData>;
-    timestamp: bigint;
-}
 export interface UserPreferences {
     theme: Theme;
     language: string;
@@ -27,6 +17,25 @@ export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
+}
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface MarketData {
+    direction: DirectionType;
+    volume: number;
+    price: number;
+    symbol: string;
+}
+export interface UnifiedSnapshot {
+    marketData: Array<MarketData>;
+    timestamp: bigint;
 }
 export interface UserPreferencesInput {
     theme: Theme;
@@ -50,14 +59,10 @@ export interface MarketSnapshot {
     binanceSpotDepth: MarketSourceResult;
     coingeckoBTC: MarketSourceResult;
 }
-export interface http_header {
-    value: string;
+export interface UserProfile {
+    notificationsEnabled: boolean;
     name: string;
-}
-export interface http_request_result {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
+    email?: string;
 }
 export enum DirectionType {
     up = "up",
@@ -67,7 +72,13 @@ export enum Theme {
     darkNeon = "darkNeon",
     cyberGlow = "cyberGlow"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     configurePollingIntervals(coinsInterval: bigint, binanceInterval: bigint): Promise<void>;
     fetchAssetData(symbol: string): Promise<MarketData | null>;
     fetchAssetList(): Promise<Array<string>>;
@@ -76,11 +87,16 @@ export interface backendInterface {
     getBinanceSpotDepthBTCUSDT(): Promise<string>;
     getBinanceSpotTickerBTCUSDT(): Promise<string>;
     getBinanceTradesBTCUSDT(): Promise<string>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getCoinGeckoBTC(): Promise<string>;
     getCryptoMarketSnapshot(): Promise<MarketSnapshot>;
     getUserPreferences(user: Principal): Promise<UserPreferences | null>;
     getUserPreferencesWithPreferences(user: Principal): Promise<UserPreferences | null>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
     recordAssetData(data: MarketData): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setUserPreferences(input: UserPreferencesInput): Promise<UserPreferences>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
 }

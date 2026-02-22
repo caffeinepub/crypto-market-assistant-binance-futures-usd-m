@@ -4,12 +4,19 @@ import List "mo:core/List";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
+import Runtime "mo:core/Runtime";
 import OutCall "http-outcalls/outcall";
 import DirectionType "DirectionType";
 import MarketData "MarketData";
 import UserPreferences "UserPreferences";
+import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
 
 actor {
+  // Initialize the access control system
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
   type UnifiedSnapshot = {
     marketData : [MarketData.MarketData];
     timestamp : Int;
@@ -27,8 +34,15 @@ actor {
     provider : Text;
   };
 
+  public type UserProfile = {
+    name : Text;
+    email : ?Text;
+    notificationsEnabled : Bool;
+  };
+
   let persistentMarketData = Map.empty<Text, MarketData.MarketData>();
   let persistentUserPreferences = Map.empty<Principal, UserPreferences.UserPreferences>();
+  let userProfiles = Map.empty<Principal, UserProfile>();
   var lastSnapshotCache : ?SnapshotCache = null;
 
   var refreshIntervalCoins : Int = 600_000_000_000;
@@ -52,7 +66,31 @@ actor {
     currentTime - lastUpdated > refreshInterval;
   };
 
-  public func fetchAssetData(symbol : Text) : async ?MarketData.MarketData {
+  // User Profile Management - Required by frontend
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  // Market Data Functions - Public read access, admin write access
+  public query func fetchAssetData(symbol : Text) : async ?MarketData.MarketData {
+    // Public read access - no auth required
     switch (persistentMarketData.get(symbol)) {
       case (?cachedData) {
         ?cachedData;
@@ -63,11 +101,16 @@ actor {
     };
   };
 
-  public func recordAssetData(data : MarketData.MarketData) : async () {
+  public shared ({ caller }) func recordAssetData(data : MarketData.MarketData) : async () {
+    // Admin-only: Protects data integrity
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can record asset data");
+    };
     persistentMarketData.add(data.symbol, data);
   };
 
-  public func fetchAssetList() : async [Text] {
+  public query func fetchAssetList() : async [Text] {
+    // Public read access - no auth required
     let assetList = Map.empty<Text, ()>();
     for (data in persistentMarketData.values()) {
       assetList.add(data.symbol, ());
@@ -76,10 +119,12 @@ actor {
   };
 
   public query ({ caller }) func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    // Transform function for HTTP outcalls - no auth required (system function)
     OutCall.transform(input);
   };
 
-  public func fetchBinanceFuturesAssets() : async ?UnifiedSnapshot {
+  public query func fetchBinanceFuturesAssets() : async ?UnifiedSnapshot {
+    // Public read access - no auth required
     if (true) {
       return null;
     };
@@ -119,7 +164,8 @@ actor {
     };
   };
 
-  public func filterAssetsByDirection(direction : DirectionType.DirectionType) : async [MarketData.MarketData] {
+  public query func filterAssetsByDirection(direction : DirectionType.DirectionType) : async [MarketData.MarketData] {
+    // Public read access - no auth required
     let filtered = List.empty<MarketData.MarketData>();
     for ((symbol, data) in persistentMarketData.entries()) {
       if (data.direction == direction) {
@@ -129,7 +175,16 @@ actor {
     filtered.toArray();
   };
 
-  public func setUserPreferences(input : UserPreferences.UserPreferencesInput) : async UserPreferences.UserPreferences {
+  // User Preferences Management - User must own preferences
+  public shared ({ caller }) func setUserPreferences(input : UserPreferences.UserPreferencesInput) : async UserPreferences.UserPreferences {
+    // Users can only set their own preferences, admins can set any
+    if (caller != input.user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only set your own preferences");
+    };
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can set preferences");
+    };
+    
     let prefs : UserPreferences.UserPreferences = {
       favourites = input.favourites;
       theme = input.theme;
@@ -141,29 +196,55 @@ actor {
   };
 
   public query ({ caller }) func getUserPreferences(user : Principal) : async ?UserPreferences.UserPreferences {
+    // Users can only view their own preferences, admins can view any
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own preferences");
+    };
     persistentUserPreferences.get(user);
   };
 
-  public func getUserPreferencesWithPreferences(user : Principal) : async ?UserPreferences.UserPreferences {
+  public shared ({ caller }) func getUserPreferencesWithPreferences(user : Principal) : async ?UserPreferences.UserPreferences {
+    // Users can only view their own preferences, admins can view any
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own preferences");
+    };
     persistentUserPreferences.get(user);
   };
 
+  // Configuration Management - Admin only
   public shared ({ caller }) func configurePollingIntervals(coinsInterval : Nat, binanceInterval : Nat) : async () {
+    // Admin-only: System configuration
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can configure polling intervals");
+    };
     refreshIntervalCoins := coinsInterval.toInt() * 1_000_000_000;
     refreshIntervalBinance := binanceInterval.toInt() * 1_000_000_000;
   };
 
+  // External API Calls - User access required to prevent abuse
   public shared ({ caller }) func getCoinGeckoBTC() : async Text {
+    // Requires user permission to prevent anonymous abuse
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch external data");
+    };
     let url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
     await OutCall.httpGetRequest(url, [], transform);
   };
 
   public shared ({ caller }) func getBinanceTradesBTCUSDT() : async Text {
+    // Requires user permission to prevent anonymous abuse
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch external data");
+    };
     let url = "https://api.binance.com/api/v3/trades?symbol=BTCUSDT&limit=50";
     await OutCall.httpGetRequest(url, [], transform);
   };
 
   public shared ({ caller }) func getBinanceSpotTickerBTCUSDT() : async Text {
+    // Requires user permission to prevent anonymous abuse
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch external data");
+    };
     let url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
     await OutCall.httpGetRequest(url, [], transform);
   };
@@ -202,11 +283,20 @@ actor {
   };
 
   public shared ({ caller }) func getBinanceSpotDepthBTCUSDT() : async Text {
+    // Requires user permission to prevent anonymous abuse
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch external data");
+    };
     let url = "https://api.binance.com/api/v3/depth?symbol=BTCUSDT";
     await OutCall.httpGetRequest(url, [], transform);
   };
 
   public shared ({ caller }) func getCryptoMarketSnapshot() : async MarketSnapshot {
+    // Requires user permission to prevent anonymous abuse of multiple API calls
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch market snapshots");
+    };
+    
     let coinGeckoRes = await callWithFallback(getCoinGeckoBTC, "");
     let binanceTradesRes = await callWithFallback(getBinanceTradesBTCUSDT, "");
     let binanceSpotTickerRes = await callWithFallback(getBinanceSpotTickerBTCUSDT, "");

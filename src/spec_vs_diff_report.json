@@ -1,45 +1,58 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T16:46:26.709Z",
-  "summary": "The implementation successfully adds trade entry/exit points and stop loss calculations to the OpportunityDetailsPanel component using only frontend Binance data. All four requirements appear to be implemented with proper separation of concerns maintained.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-21T12:48:16.278Z",
+  "summary": "The diff shows minimal changes focused on access control and URL parameter handling. REQ-8's protected files (useInternetIdentity.ts, main.tsx, UI components) were not modified, which is correct. However, useActor.ts was modified with new admin token initialization logic. The diff lacks evidence of preserving version 48 functionality (REQ-5), verifying backend architecture completeness (REQ-6), or maintaining frontend Binance API integration (REQ-7).",
+  "missing_requirements": [
+    {
+      "id": "REQ-5",
+      "requirement": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities, order book analysis, institutional orders detection, and complete PWA features with offline support",
+      "reason": "No evidence in the diff of PWA manifest changes, service worker modifications, or any frontend component updates related to market overview, radar dashboard, trading modalities, order book, or institutional orders. The diff shows only backend access control changes and URL parameter utilities.",
+      "evidence": []
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Verify backend main.mo maintains single-actor architecture with UnifiedSnapshot caching, asset filtering by direction, user preferences storage, and snapshot staleness management",
+      "reason": "While backend/main.mo shows UnifiedSnapshot structure and staleness checking logic, the diff is truncated before showing complete implementations of getMarketData, getAssetsByDirection, getUserPreferences, and setUserPreferences methods required by acceptance criteria.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling",
+      "reason": "No frontend files related to Binance API integration, technical analysis, order book fetching, or learning engine appear in the diff. Cannot verify these critical features are preserved.",
+      "evidence": []
+    }
+  ],
   "hallucinated_features": [
     {
-      "description": "Trade direction (Long/Short) calculation and display",
-      "reason": "The implementation includes direction determination logic and displays 'Long' or 'Short' positions, which was not requested in any of the four requirements. The BuildRequest only asked for entry price, take profit target, and stop loss calculation.",
+      "description": "Admin token initialization with caffeineAdminToken URL parameter in useActor.ts",
+      "reason": "The BuildRequest explicitly lists useActor.ts as an immutable file under REQ-8 constraints ('Do not edit useInternetIdentity.ts, useActor.ts, or main.tsx files'). The modification adds getSecretParameter and _initializeAccessControlWithSecret logic not mentioned in requirements.",
       "evidence": [
-        "frontend/src/lib/tradeRecommendation.ts",
-        "frontend/src/components/OpportunityDetailsPanel.tsx"
+        "frontend/src/hooks/useActor.ts"
       ]
     },
     {
-      "description": "Confidence scoring and risk/reward ratio calculations",
-      "reason": "The tradeRecommendation.ts module calculates and returns confidence scores and riskRewardRatio values, which were not part of the specified requirements. The requirements focused on price points (entry, exit, stop loss) only.",
+      "description": "New URL parameter utility module with session storage and admin token handling",
+      "reason": "The urlParams.ts utility with getSecretParameter, storeSessionParameter, and clearParamFromHash functions was not requested. The BuildRequest focuses on preserving existing functionality, not adding new parameter handling infrastructure.",
       "evidence": [
-        "frontend/src/lib/tradeRecommendation.ts"
+        "frontend/src/utils/urlParams.ts"
       ]
     },
     {
-      "description": "Detailed rationale array with multiple technical justifications",
-      "reason": "The implementation generates an array of rationale strings explaining the recommendation based on trend, confidence, strength, and institutional orders. While helpful, this detailed explanation system was not requested in the requirements.",
+      "description": "Access control system with admin/user permissions in backend",
+      "reason": "Backend/main.mo now includes AccessControl, MixinAuthorization imports, and permission checks (hasPermission, isAdmin) that were not mentioned in the BuildRequest. REQ-6 only requires preserving existing snapshot caching and user preferences, not adding authorization layers.",
       "evidence": [
-        "frontend/src/lib/tradeRecommendation.ts"
-      ]
-    },
-    {
-      "description": "Modality-specific parameter configuration system",
-      "reason": "The code implements a comprehensive MODALITY_PARAMS object with six different modality types (scalping, swing, breakout, reversal, smc, fvg) each with specific risk/reward parameters. While REQ-2 mentions 'Target price reflects the opportunity type', the extensive parameter system goes beyond what was specified.",
-      "evidence": [
-        "frontend/src/lib/tradeRecommendation.ts"
+        "backend/main.mo"
       ]
     }
   ],
-  "confidence": 0.85,
+  "confidence": 0.75,
   "changed_files": [
-    "frontend-file-summaries.txt",
-    "frontend/src/components/OpportunityDetailsPanel.tsx",
-    "frontend/src/lib/tradeRecommendation.ts",
+    "backend/main.mo",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

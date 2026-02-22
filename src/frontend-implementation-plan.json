@@ -1,94 +1,226 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add trade entry/exit points and stop loss calculation to Opportunities",
+  "title": "Rebuild clean deployment package for version 49",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Display optimal buy point (entry price) for selected opportunities using existing frontend market data and technical analysis",
+      "id": "REQ-5",
+      "summary": "Generate a clean version 49 deployment package preserving all existing functionality including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities, order book analysis, institutional orders detection, and complete PWA features with offline support",
       "acceptanceCriteria": [
-        "Selected opportunity shows a clearly labeled entry price",
-        "Entry price is calculated using existing market data without any new backend calls",
-        "Price is displayed in the OpportunityDetailsPanel component"
+        "Version 49 successfully deploys to production without deployment errors",
+        "All market data fetching and display functionality works correctly",
+        "Radar dashboard with anomaly detection and filtering operates as expected",
+        "Trading opportunities for all 6 modalities display correctly with details panel",
+        "PWA installs successfully on mobile devices with offline functionality",
+        "Service worker caches assets properly and handles updates",
+        "Internet Identity authentication flow works correctly",
+        "All existing user preferences and AI learning features function properly"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/tradeRecommendation.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Extend the TradeRecommendation type to include an explicit entryPrice field. Update the computeTradeRecommendation function to calculate and return the optimal entry price based on current market price, technical analysis (support/resistance levels from enrichment data), and modality parameters. For scalping, use tighter entry logic near current price; for swing, use support/resistance zones from technical analysis."
+          "description": "Verify and preserve all existing routing logic for tabs (mercado, recomendacoes, radar, opportunities, pesquisa, preferencias), service worker registration with update detection, learning engine initialization, and online/offline status handling. Ensure tab navigation with URL parameters remains intact and update prompts display correctly."
+        },
+        {
+          "path": "frontend/src/components/MarketOverview.tsx",
+          "operation": "modify",
+          "description": "Verify market overview grid displays correctly with selection functionality and detailed analysis panel. Ensure predictive confidence, AI performance indicators, and learning statistics render properly for selected markets."
+        },
+        {
+          "path": "frontend/src/components/TopRecommendations.tsx",
+          "operation": "modify",
+          "description": "Verify top 10 recommendations display with confidence scores, learning levels, and institutional analysis. Ensure loading states, error handling, and scrollable cards with badges for high confidence and AI learning status work correctly."
+        },
+        {
+          "path": "frontend/src/components/RadarDashboard.tsx",
+          "operation": "modify",
+          "description": "Verify radar dashboard monitoring functionality with filtering by trend, confidence, and anomaly types. Ensure sensitivity presets, new alert tracking, learning data enrichment, and localStorage filter persistence operate correctly."
+        },
+        {
+          "path": "frontend/src/components/Opportunities.tsx",
+          "operation": "modify",
+          "description": "Verify trading opportunities display organized by all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG) in tabbed interface. Ensure cards show symbol, score, and metrics correctly with click handlers to open details panel."
         },
         {
           "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
           "operation": "modify",
-          "description": "Add a new section displaying the entry price from the trade recommendation. Show the entry price with clear labeling (e.g., 'Entry Point'), format it with appropriate decimal precision, and display it prominently near other trade metrics. Use existing UI patterns from the component (cards, badges, or highlighted text) to ensure visual consistency."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Display take profit target (sell point) for selected opportunities based on volatility, momentum, and technical indicators from frontend analysis",
-      "acceptanceCriteria": [
-        "Take profit target is shown alongside the entry point",
-        "Calculation uses only data already fetched from Binance in the frontend",
-        "Target price reflects the opportunity type (scalping vs swing)"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/lib/tradeRecommendation.ts",
-          "operation": "modify",
-          "description": "Enhance the take profit (TP) calculation in computeTradeRecommendation to use volatility metrics from technical analysis (ATR, Bollinger Bands), momentum indicators (RSI, MACD from enrichment data), and modality-specific targets. For scalping opportunities, apply shorter TP targets (e.g., 0.5-1% moves); for swing opportunities, use wider targets (e.g., 2-5% moves) based on resistance levels and volatility. Ensure the calculation respects the opportunity's risk profile and current market conditions."
+          "description": "Verify side panel displays detailed trade setup information for selected symbol/modality including current price, entry/exit/stop-loss levels, and risk/reward calculations from useTradeRecommendation hook."
         },
         {
-          "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "path": "frontend/src/components/OrderBook.tsx",
           "operation": "modify",
-          "description": "Add a take profit display section alongside the entry price. Show the TP target with clear labeling (e.g., 'Take Profit Target'), include the potential gain percentage, and use visual indicators (e.g., green badges or highlighted text) to emphasize the profit target. Ensure the display adapts to the opportunity type (scalping vs swing) with appropriate context."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Calculate and display stop loss price using ATR, support levels, and percentage-based risk management from frontend technical analysis",
-      "acceptanceCriteria": [
-        "Stop loss price is clearly displayed in the details panel",
-        "Calculation respects the opportunity's risk profile",
-        "No new data sources are introduced; uses existing Binance data from frontend"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/lib/tradeRecommendation.ts",
-          "operation": "modify",
-          "description": "Refine the stop loss (SL) calculation in computeTradeRecommendation to incorporate ATR-based stops (e.g., 1.5x ATR below entry), support level detection from technical analysis enrichment, and percentage-based fallback logic (e.g., 2% for scalping, 5% for swing). Apply risk management rules that adjust SL based on volatility context, opportunity confidence score, and modality parameters. Ensure the SL price is always below the entry for long positions and above for short positions."
+          "description": "Verify order book depth data display for both futures and spot markets with configurable aggregation levels, bid/ask tables, refresh functionality, and proper error categorization for network/API issues."
         },
         {
-          "path": "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "path": "frontend/src/components/InstitutionalOrders.tsx",
           "operation": "modify",
-          "description": "Add a stop loss display section in the details panel. Show the SL price with clear labeling (e.g., 'Stop Loss'), include the potential loss percentage, and use visual indicators (e.g., red badges or warning-styled text) to emphasize risk. Display the risk-reward ratio (TP gain vs SL loss) to provide context for the trade setup. Ensure consistency with existing UI patterns for trade metrics."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Ensure all entry/exit/stop loss calculations use only frontend-fetched Binance data without introducing new backend HTTP calls",
-      "acceptanceCriteria": [
-        "No new HTTP outcalls to Binance are added to backend code",
-        "All calculations occur in frontend using existing market data hooks",
-        "Backend remains unchanged and continues only CoinGecko integration"
-      ],
-      "file_operations": [
+          "description": "Verify institutional buy/sell orders display for BTC on both Futures (USD-M) and Spot markets. Ensure refresh functionality, error categorization, and formatted price/timestamp displays with loading skeletons work correctly."
+        },
         {
-          "path": "frontend/src/lib/tradeRecommendation.ts",
+          "path": "frontend/src/components/AssetResearch.tsx",
           "operation": "modify",
-          "description": "Verify that all entry, TP, and SL calculations in computeTradeRecommendation rely exclusively on parameters passed from frontend hooks (market data, technical analysis from analysisEnrichment, modality config). Do not add any new data fetching logic or backend calls. Document in code comments that all required data (price, volume, ATR, support/resistance, momentum indicators) must be provided by the caller from existing Binance frontend hooks (binanceFetch, analysisEnrichment)."
+          "description": "Verify asset search and research component fetches Binance Futures symbols correctly, provides autocomplete search, and displays detailed asset information with predictive confidence panels. Ensure market data query integration and symbol selection handling work properly."
+        },
+        {
+          "path": "frontend/src/components/UserPreferences.tsx",
+          "operation": "modify",
+          "description": "Verify user preferences management including favorite assets, theme selection (Dark Neon/Cyber Glow), alert toggles, and AI learning prioritization. Ensure PWA install status, diagnostics view, and reset dialog with localStorage persistence function correctly."
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "operation": "modify",
+          "description": "Verify service worker v9 implements static asset caching, runtime caching, old cache cleanup, and critical asset verification for offline PWA functionality. Ensure version increment is maintained and cache strategies work correctly."
+        },
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Verify PWA manifest with standalone display mode, multiple icon sizes including maskable variants, screenshots, and shortcuts to key app sections (Mercado, Radar, Recomendações, Opportunities, Pesquisa) are correctly configured."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Verify HTML entry point contains comprehensive PWA meta tags, iOS splash screens for all device sizes, app icons in multiple sizes, and standalone mode configuration for mobile installation. Wire generated splash screen images from frontend/public/assets/generated/ios-splash-*.png as link tags with appropriate media queries for each iOS device resolution."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Verify hook fetches and enriches Binance Futures market data with advanced technical analysis, generates recommendations and radar alerts, integrates with learning engine for prediction tracking, and manages data status with React Query."
+        },
+        {
+          "path": "frontend/src/hooks/useOpportunities.ts",
+          "operation": "modify",
+          "description": "Verify hook computes trading opportunities grouped by all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG) by applying deterministic selection rules to live Binance market data."
         },
         {
           "path": "frontend/src/hooks/useTradeRecommendation.ts",
           "operation": "modify",
-          "description": "Ensure the useTradeRecommendation hook passes complete technical analysis data (including ATR, support/resistance, momentum indicators) from the enriched analysis to computeTradeRecommendation. Verify that all data originates from existing Binance market data hooks (useBinanceFuturesQuery, useEnrichedAnalysis) and no new data sources are introduced. Add inline comments confirming the data flow and sources."
+          "description": "Verify hook computes trade recommendations for selected symbol and modality by finding asset in market data and calling computeTradeRecommendation function."
+        },
+        {
+          "path": "frontend/src/hooks/usePWAInstall.ts",
+          "operation": "modify",
+          "description": "Verify hook manages PWA installation state by capturing beforeinstallprompt event, detecting iOS devices, tracking dismissal state, and providing methods to trigger or dismiss install prompt."
+        },
+        {
+          "path": "frontend/src/hooks/useServiceWorkerUpdate.ts",
+          "operation": "modify",
+          "description": "Verify hook detects when new service worker is available, tracks waiting worker, and provides method to skip waiting and reload page to activate update."
+        },
+        {
+          "path": "frontend/src/lib/learningEngine.ts",
+          "operation": "modify",
+          "description": "Verify continuous learning engine stores prediction records and asset learning statistics in IndexedDB, adjusting indicator weights based on prediction accuracy over time."
+        },
+        {
+          "path": "frontend/src/lib/resetFromScratch.ts",
+          "operation": "modify",
+          "description": "Verify utility orchestrates complete app data reset by clearing IndexedDB, localStorage, CacheStorage, and unregistering service workers with success flag tracking."
+        },
+        {
+          "path": "frontend/src/hooks/queries/binanceFetch.ts",
+          "operation": "modify",
+          "description": "Verify browser-based fetching functions for Binance Futures USD-M API including market data and specific asset queries. Ensure error classification for network issues, CORS blocks, and restricted location responses works correctly."
+        },
+        {
+          "path": "frontend/src/hooks/queries/institutionalOrders.ts",
+          "operation": "modify",
+          "description": "Verify detection of institutional trading signals from BTC market data using volume patterns and price action. Ensure React Query hooks for both Futures and Spot markets with backend fallback support function correctly."
+        },
+        {
+          "path": "frontend/src/hooks/queries/orderBookDepth.ts",
+          "operation": "modify",
+          "description": "Verify React Query hooks fetch and parse order book depth data from Binance Futures and Spot APIs. Ensure error classification, aggregation, and metrics computation with backend fallback support work correctly."
         },
         {
           "path": "frontend/src/hooks/queries/analysisEnrichment.ts",
           "operation": "modify",
-          "description": "Review and ensure the enrichAnalysis function provides all necessary technical indicators (ATR, support/resistance levels, momentum signals) required for entry/exit/SL calculations. Verify that all data comes from the ticker parameter (sourced from Binance) and internal calculations. Add or expose any missing metrics (e.g., explicit support/resistance levels, ATR values) that are needed by tradeRecommendation logic."
+          "description": "Verify calculation of advanced technical analysis including trend strength, support/resistance zones, manipulation zones, and institutional order detection. Ensure learning engine integration optimizes confidence scores and generates descriptive tags based on Smart Money Concepts."
+        },
+        {
+          "path": "frontend/src/lib/tradeRecommendation.ts",
+          "operation": "modify",
+          "description": "Verify trade recommendation computation of entry/exit/stop-loss levels based on all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG) using only frontend-fetched Binance market data without backend calls."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling",
+      "acceptanceCriteria": [
+        "All Binance API calls in frontend execute successfully",
+        "Technical analysis enrichment with trend strength, support/resistance zones, and manipulation zones functions correctly",
+        "Order book depth data displays properly for both Futures and Spot markets",
+        "Error states show appropriate messages for different failure types",
+        "Learning engine integration records predictions and updates accuracy metrics"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/queries/binanceFetch.ts",
+          "operation": "modify",
+          "description": "Verify all Binance Futures USD-M API fetch functions remain intact with proper error classification for network issues, CORS blocks, and restricted location responses. Ensure market data queries and specific asset queries work correctly."
+        },
+        {
+          "path": "frontend/src/hooks/queries/binanceFuturesMetrics.ts",
+          "operation": "modify",
+          "description": "Verify fetching of Binance Futures funding rates and open interest data with safe partial-failure handling. Ensure in-memory session-based metrics history storage for detecting changes over time works correctly."
+        },
+        {
+          "path": "frontend/src/hooks/queries/orderBookDepth.ts",
+          "operation": "modify",
+          "description": "Verify order book depth data fetching from Binance Futures and Spot APIs with error classification, aggregation, and metrics computation. Ensure backend fallback support is preserved."
+        },
+        {
+          "path": "frontend/src/hooks/queries/institutionalOrders.ts",
+          "operation": "modify",
+          "description": "Verify institutional order detection from BTC market data using volume patterns and price action. Ensure React Query hooks for both Futures and Spot markets with backend fallback work correctly."
+        },
+        {
+          "path": "frontend/src/hooks/queries/analysisEnrichment.ts",
+          "operation": "modify",
+          "description": "Verify technical analysis enrichment calculates trend strength, support/resistance zones, manipulation zones, and institutional order detection correctly. Ensure learning engine integration optimizes confidence scores and generates Smart Money Concepts-based tags."
+        },
+        {
+          "path": "frontend/src/hooks/queries/learningIntegration.ts",
+          "operation": "modify",
+          "description": "Verify learning engine integration records predictions and updates results based on market data. Ensure prioritization of favorite symbols with adjusted confidence thresholds works correctly."
+        },
+        {
+          "path": "frontend/src/components/DataStatusIndicator.tsx",
+          "operation": "modify",
+          "description": "Verify fixed-position status indicator displays data freshness, errors, and fetching state correctly. Ensure alerts for stale data, blocked access, or connection issues with retry functionality and last update timestamps render properly."
+        },
+        {
+          "path": "frontend/src/components/TabFetchErrorState.tsx",
+          "operation": "modify",
+          "description": "Verify error state component for tab content displays error details with special handling for PWA cache mismatches. Ensure reload button and user-friendly error messages with technical details in alerts work correctly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
+      "acceptanceCriteria": [
+        "No changes made to useInternetIdentity.ts, useActor.ts, or main.tsx files",
+        "UI components in frontend/src/components/ui remain untouched",
+        "Internet Identity flow continues to work with existing implementation",
+        "Actor creation and query invalidation logic remains unchanged"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Verify no changes are made to this file. Ensure React context and hook for Internet Identity authentication manages login/logout flows, identity persistence, and delegation validity checks with configurable AuthClient options correctly."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Verify no changes are made to this file. Ensure management of backend actor creation and caching using React Query, automatic recreation when Internet Identity changes, and invalidation of dependent queries work correctly. Use the authorization component to handle first-admin initialization automatically."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Verify no changes are made to this file. Ensure React application entry point sets up QueryClient, InternetIdentityProvider, and renders root App component correctly."
         }
       ]
     }

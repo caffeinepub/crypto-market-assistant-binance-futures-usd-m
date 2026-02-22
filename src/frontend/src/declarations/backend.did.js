@@ -8,6 +8,11 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const DirectionType = IDL.Variant({
   'up' : IDL.Null,
   'down' : IDL.Null,
@@ -21,6 +26,11 @@ export const MarketData = IDL.Record({
 export const UnifiedSnapshot = IDL.Record({
   'marketData' : IDL.Vec(MarketData),
   'timestamp' : IDL.Int,
+});
+export const UserProfile = IDL.Record({
+  'notificationsEnabled' : IDL.Bool,
+  'name' : IDL.Text,
+  'email' : IDL.Opt(IDL.Text),
 });
 export const MarketSourceResult = IDL.Record({
   'ok' : IDL.Bool,
@@ -70,18 +80,26 @@ export const TransformationOutput = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'configurePollingIntervals' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
-  'fetchAssetData' : IDL.Func([IDL.Text], [IDL.Opt(MarketData)], []),
-  'fetchAssetList' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
-  'fetchBinanceFuturesAssets' : IDL.Func([], [IDL.Opt(UnifiedSnapshot)], []),
+  'fetchAssetData' : IDL.Func([IDL.Text], [IDL.Opt(MarketData)], ['query']),
+  'fetchAssetList' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+  'fetchBinanceFuturesAssets' : IDL.Func(
+      [],
+      [IDL.Opt(UnifiedSnapshot)],
+      ['query'],
+    ),
   'filterAssetsByDirection' : IDL.Func(
       [DirectionType],
       [IDL.Vec(MarketData)],
-      [],
+      ['query'],
     ),
   'getBinanceSpotDepthBTCUSDT' : IDL.Func([], [IDL.Text], []),
   'getBinanceSpotTickerBTCUSDT' : IDL.Func([], [IDL.Text], []),
   'getBinanceTradesBTCUSDT' : IDL.Func([], [IDL.Text], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCoinGeckoBTC' : IDL.Func([], [IDL.Text], []),
   'getCryptoMarketSnapshot' : IDL.Func([], [MarketSnapshot], []),
   'getUserPreferences' : IDL.Func(
@@ -94,7 +112,14 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserPreferences)],
       [],
     ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'recordAssetData' : IDL.Func([MarketData], [], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'setUserPreferences' : IDL.Func(
       [UserPreferencesInput],
       [UserPreferences],
@@ -110,6 +135,11 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const DirectionType = IDL.Variant({ 'up' : IDL.Null, 'down' : IDL.Null });
   const MarketData = IDL.Record({
     'direction' : DirectionType,
@@ -120,6 +150,11 @@ export const idlFactory = ({ IDL }) => {
   const UnifiedSnapshot = IDL.Record({
     'marketData' : IDL.Vec(MarketData),
     'timestamp' : IDL.Int,
+  });
+  const UserProfile = IDL.Record({
+    'notificationsEnabled' : IDL.Bool,
+    'name' : IDL.Text,
+    'email' : IDL.Opt(IDL.Text),
   });
   const MarketSourceResult = IDL.Record({
     'ok' : IDL.Bool,
@@ -163,18 +198,26 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'configurePollingIntervals' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
-    'fetchAssetData' : IDL.Func([IDL.Text], [IDL.Opt(MarketData)], []),
-    'fetchAssetList' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
-    'fetchBinanceFuturesAssets' : IDL.Func([], [IDL.Opt(UnifiedSnapshot)], []),
+    'fetchAssetData' : IDL.Func([IDL.Text], [IDL.Opt(MarketData)], ['query']),
+    'fetchAssetList' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    'fetchBinanceFuturesAssets' : IDL.Func(
+        [],
+        [IDL.Opt(UnifiedSnapshot)],
+        ['query'],
+      ),
     'filterAssetsByDirection' : IDL.Func(
         [DirectionType],
         [IDL.Vec(MarketData)],
-        [],
+        ['query'],
       ),
     'getBinanceSpotDepthBTCUSDT' : IDL.Func([], [IDL.Text], []),
     'getBinanceSpotTickerBTCUSDT' : IDL.Func([], [IDL.Text], []),
     'getBinanceTradesBTCUSDT' : IDL.Func([], [IDL.Text], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCoinGeckoBTC' : IDL.Func([], [IDL.Text], []),
     'getCryptoMarketSnapshot' : IDL.Func([], [MarketSnapshot], []),
     'getUserPreferences' : IDL.Func(
@@ -187,7 +230,14 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserPreferences)],
         [],
       ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'recordAssetData' : IDL.Func([MarketData], [], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'setUserPreferences' : IDL.Func(
         [UserPreferencesInput],
         [UserPreferences],

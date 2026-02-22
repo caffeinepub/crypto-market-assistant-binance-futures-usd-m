@@ -1,78 +1,100 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T16:46:26.712Z",
+  "generatedAt": "2026-02-21T12:48:16.281Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 4,
-    "implemented": 4,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
-        "status": "implemented",
+        "id": "REQ-5",
+        "summary": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG), order book analysis, institutional orders detection, and complete PWA features with offline support",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
-          "frontend/src/components/OpportunityDetailsPanel.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/components/MarketOverview.tsx",
+          "frontend/src/components/TopRecommendations.tsx",
+          "frontend/src/components/RadarDashboard.tsx",
+          "frontend/src/components/Opportunities.tsx",
+          "frontend/src/components/OpportunityDetailsPanel.tsx",
+          "frontend/src/components/OrderBook.tsx",
+          "frontend/src/components/InstitutionalOrders.tsx",
+          "frontend/src/components/AssetResearch.tsx",
+          "frontend/src/components/UserPreferences.tsx",
+          "frontend/public/sw.js",
+          "frontend/public/manifest.json",
+          "frontend/index.html",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/hooks/useOpportunities.ts",
           "frontend/src/hooks/useTradeRecommendation.ts",
-          "frontend/src/hooks/queries/analysisEnrichment.ts"
+          "frontend/src/hooks/usePWAInstall.ts",
+          "frontend/src/hooks/useServiceWorkerUpdate.ts",
+          "frontend/src/lib/learningEngine.ts",
+          "frontend/src/lib/resetFromScratch.ts",
+          "frontend/src/hooks/queries/binanceFetch.ts",
+          "frontend/src/hooks/queries/institutionalOrders.ts",
+          "frontend/src/hooks/queries/orderBookDepth.ts",
+          "frontend/src/hooks/queries/analysisEnrichment.ts",
+          "frontend/src/lib/tradeRecommendation.ts"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Verify backend main.mo maintains single-actor architecture with market data caching via UnifiedSnapshot, asset filtering by direction, user preferences storage with Principal-based access, and snapshot staleness management without any direct Binance API calls",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling for network issues, CORS blocks, and restricted locations",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/queries/binanceFetch.ts",
+          "frontend/src/hooks/queries/binanceFuturesMetrics.ts",
+          "frontend/src/hooks/queries/orderBookDepth.ts",
+          "frontend/src/hooks/queries/institutionalOrders.ts",
+          "frontend/src/hooks/queries/analysisEnrichment.ts",
+          "frontend/src/hooks/queries/learningIntegration.ts",
+          "frontend/src/components/DataStatusIndicator.tsx",
+          "frontend/src/components/TabFetchErrorState.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useInternetIdentity.ts",
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/main.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/lib/tradeRecommendation.ts"
+          "frontend/src/hooks/useActor.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/authorization/MixinAuthorization.mo",
+    "backend/authorization/access-control.mo",
+    "backend/main.mo",
     "build-request.json",
     "caffeine.lock.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/OpportunityDetailsPanel.tsx",
-    "frontend/src/config.ts",
-    "frontend/src/lib/tradeRecommendation.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -57,6 +57,14 @@ export interface UserPreferencesInput {
   'favourites' : Array<MarketData>,
   'enableAlerts' : boolean,
 }
+export interface UserProfile {
+  'notificationsEnabled' : boolean,
+  'name' : string,
+  'email' : [] | [string],
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface http_header { 'value' : string, 'name' : string }
 export interface http_request_result {
   'status' : bigint,
@@ -64,6 +72,8 @@ export interface http_request_result {
   'headers' : Array<http_header>,
 }
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'configurePollingIntervals' : ActorMethod<[bigint, bigint], undefined>,
   'fetchAssetData' : ActorMethod<[string], [] | [MarketData]>,
   'fetchAssetList' : ActorMethod<[], Array<string>>,
@@ -72,6 +82,8 @@ export interface _SERVICE {
   'getBinanceSpotDepthBTCUSDT' : ActorMethod<[], string>,
   'getBinanceSpotTickerBTCUSDT' : ActorMethod<[], string>,
   'getBinanceTradesBTCUSDT' : ActorMethod<[], string>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCoinGeckoBTC' : ActorMethod<[], string>,
   'getCryptoMarketSnapshot' : ActorMethod<[], MarketSnapshot>,
   'getUserPreferences' : ActorMethod<[Principal], [] | [UserPreferences]>,
@@ -79,7 +91,10 @@ export interface _SERVICE {
     [Principal],
     [] | [UserPreferences]
   >,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
   'recordAssetData' : ActorMethod<[MarketData], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setUserPreferences' : ActorMethod<[UserPreferencesInput], UserPreferences>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }

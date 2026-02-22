@@ -1,48 +1,21 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "PWA crypto analytics app with frontend-only Binance data fetching and backend CoinGecko integration. Adding buy/sell point analysis and stop loss calculation features.",
+  "projectStateVersion": 5,
+  "summary": "Versão 47 com sistema de ponto de compra/venda e stop loss, backend sem chamadas à Binance",
   "architectural_notes": [
-    "Frontend fetches all Binance data directly from browser (required due to Binance blocking data center IPs)",
-    "Backend uses only CoinGecko API and internal storage",
-    "All real-time analysis must use frontend data only",
-    "ICP canisters use IPv6 which Binance blocks - no backend Binance calls allowed"
+    "Backend não faz chamadas diretas à Binance"
   ],
   "known_issues": [
-    "Deployment failures occur when backend attempts Binance HTTP calls due to IP blocking",
-    "Must maintain strict separation: Binance in frontend only, CoinGecko in backend only"
+    "Erro de deployment na Versão 47 - código correto mas falha ao publicar",
+    "Versão 48 também apresenta erro de deployment consistente - código compila mas falha ao publicar ao ar"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-when-a-user-selects-an-asset-from-the-opportunities-list-display-the-optimal-buy-point-entry-price-calculated-from-current-market-data-and-technical-analysis-already-available-in-the-frontend",
-      "title": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
+      "id": "feature-preserve-all-immutable-frontend-paths-without-modifications-useinternetidentity-ts-hook-for-authentication-useactor-ts-for-backend-actor-management-main-tsx-application-entry-point-and-all-components-in-frontend-src-components-ui-directory",
+      "title": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
       "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-display-the-most-probable-sell-point-take-profit-target-for-the-selected-asset-based-on-volatility-momentum-and-technical-indicators-already-computed-in-the-frontend",
-      "title": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-calculate-and-display-a-stop-loss-price-for-the-selected-asset-using-risk-management-rules-based-on-atr-support-levels-or-percentage-based-logic-already-available-in-frontend-technical-analysis",
-      "title": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-all-new-entry-exit-stop-loss-calculations-use-only-data-already-fetched-by-the-frontend-from-binance-and-do-not-trigger-any-new-backend-http-calls-to-binance",
-      "title": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
-      "reqIds": [
-        "REQ-4"
+        "REQ-8"
       ],
       "version": 1
     }
@@ -50,12 +23,62 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Show optimal buy point, probable sell point, and calculated stop loss for selected assets based on existing data",
-      "reqIds": [],
+      "summary": "Generate a clean deployment package that preserves all existing functionality including market overview, recommendations, radar dashboard, trading opportunities, order book analysis, and PWA features",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure backend main.mo maintains the single-actor architecture with market data caching, snapshot management, asset filtering, and user preferences storage without any Binance API calls",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Preserve all frontend Binance Futures USD-M data fetching, technical analysis enrichment, and trading recommendation logic without modifications",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Maintain all immutable frontend paths including Internet Identity hooks, actor management, main entry point, and UI components without any edits",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG), order book analysis, institutional orders detection, and complete PWA features with offline support",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Verify backend main.mo maintains single-actor architecture with market data caching via UnifiedSnapshot, asset filtering by direction, user preferences storage with Principal-based access, and snapshot staleness management without any direct Binance API calls",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling for network issues, CORS blocks, and restricted locations",
+      "reqIds": [
+        "REQ-7"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Crypto Radar",
+  "projectName": "Crypto Market Assistant",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

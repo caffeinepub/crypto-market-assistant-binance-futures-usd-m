@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-when-a-user-selects-an-asset-from-the-opportunities-list-display-the-optimal-buy-point-entry-price-calculated-from-current-market-data-and-technical-analysis-already-available-in-the-frontend",
-      "featureTitle": "When a user selects an asset from the Opportunities list, display the optimal buy point (entry price) calculated from current market data and technical analysis already available in the frontend",
+      "featureId": "feature-preserve-all-immutable-frontend-paths-without-modifications-useinternetidentity-ts-hook-for-authentication-useactor-ts-for-backend-actor-management-main-tsx-application-entry-point-and-all-components-in-frontend-src-components-ui-directory",
+      "featureTitle": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
       "files": [
-        "frontend/src/components/OpportunityDetailsPanel.tsx",
-        "frontend/src/lib/tradeRecommendation.ts"
+        "frontend/src/hooks/useActor.ts"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -14,69 +13,11 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-display-the-most-probable-sell-point-take-profit-target-for-the-selected-asset-based-on-volatility-momentum-and-technical-indicators-already-computed-in-the-frontend",
-      "featureTitle": "Display the most probable sell point (take profit target) for the selected asset based on volatility, momentum, and technical indicators already computed in the frontend",
-      "files": [
-        "frontend/src/components/OpportunityDetailsPanel.tsx",
-        "frontend/src/lib/tradeRecommendation.ts"
-      ],
-      "components": [
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-calculate-and-display-a-stop-loss-price-for-the-selected-asset-using-risk-management-rules-based-on-atr-support-levels-or-percentage-based-logic-already-available-in-frontend-technical-analysis",
-      "featureTitle": "Calculate and display a stop loss price for the selected asset using risk management rules based on ATR, support levels, or percentage-based logic already available in frontend technical analysis",
-      "files": [
-        "frontend/src/components/OpportunityDetailsPanel.tsx",
-        "frontend/src/lib/tradeRecommendation.ts"
-      ],
-      "components": [
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-all-new-entry-exit-stop-loss-calculations-use-only-data-already-fetched-by-the-frontend-from-binance-and-do-not-trigger-any-new-backend-http-calls-to-binance",
-      "featureTitle": "Ensure all new entry/exit/stop loss calculations use only data already fetched by the frontend from Binance and do not trigger any new backend HTTP calls to Binance",
-      "files": [
-        "frontend/src/lib/tradeRecommendation.ts"
-      ],
-      "components": [
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
+        "REQ-8"
       ],
       "confidence": "high"
     }
