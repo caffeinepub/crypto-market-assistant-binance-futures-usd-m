@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-preserve-all-immutable-frontend-paths-without-modifications-useinternetidentity-ts-hook-for-authentication-useactor-ts-for-backend-actor-management-main-tsx-application-entry-point-and-all-components-in-frontend-src-components-ui-directory",
-      "featureTitle": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
+      "featureId": "feature-create-a-new-trade-monitoring-view-accessible-from-the-main-navigation-tabs-that-allows-users-to-manually-input-trade-details-including-asset-symbol-e-g-btcusdt-leverage-used-1x-125x-position-direction-long-or-short-and-entry-price-point",
+      "featureTitle": "Create a new Trade Monitoring view accessible from the main navigation tabs that allows users to manually input trade details including: asset symbol (e.g., BTCUSDT), leverage used (1x-125x), position direction (Long or Short), and entry price point.",
       "files": [
-        "frontend/src/hooks/useActor.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/components/TradeInputForm.tsx",
+        "frontend/src/components/TradeMonitoring.tsx"
       ],
       "components": [
         "http-outcalls@3.0.0",
@@ -17,7 +19,114 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-8"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-after-user-submits-trade-details-display-real-time-monitoring-panel-showing-current-price-unrealized-pnl-percentage-based-on-entry-point-and-direction-and-liquidation-price-calculated-using-the-specified-leverage",
+      "featureTitle": "After user submits trade details, display real-time monitoring panel showing current price, unrealized PnL percentage based on entry point and direction, and liquidation price calculated using the specified leverage.",
+      "files": [
+        "frontend/src/components/TradeMonitoringPanel.tsx",
+        "frontend/src/hooks/useMonitoredTrade.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-generate-and-display-suggested-price-targets-based-on-current-market-data-and-technical-analysis-show-3-take-profit-zones-tp1-at-1-2-from-entry-tp2-at-3-5-tp3-at-5-10-adjusted-for-position-direction-with-percentage-gains-calculated-for-each-zone",
+      "featureTitle": "Generate and display suggested price targets based on current market data and technical analysis: show 3 take-profit zones (TP1 at 1-2% from entry, TP2 at 3-5%, TP3 at 5-10%) adjusted for position direction, with percentage gains calculated for each zone.",
+      "files": [
+        "frontend/src/components/TakeProfitZones.tsx",
+        "frontend/src/lib/takeProfitCalculation.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-calculate-and-display-recommended-stop-loss-price-based-on-risk-management-principles-suggest-stop-loss-at-1-2-below-entry-for-long-positions-above-for-short-with-adjustments-based-on-asset-volatility-and-support-resistance-levels-from-technical-analysis",
+      "featureTitle": "Calculate and display recommended stop-loss price based on risk management principles: suggest stop-loss at 1-2% below entry for Long positions (above for Short), with adjustments based on asset volatility and support/resistance levels from technical analysis.",
+      "files": [
+        "frontend/src/components/StopLossRecommendation.tsx",
+        "frontend/src/lib/stopLossCalculation.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-allow-users-to-save-and-track-multiple-monitored-trades-simultaneously-with-persistent-storage-showing-a-list-of-active-positions-with-quick-summary-cards-displaying-symbol-direction-entry-current-pnl-and-time-elapsed-since-entry",
+      "featureTitle": "Allow users to save and track multiple monitored trades simultaneously with persistent storage, showing a list of active positions with quick summary cards displaying symbol, direction, entry, current PnL, and time elapsed since entry.",
+      "files": [
+        "frontend/src/components/MonitoredTradeCard.tsx",
+        "frontend/src/components/TradeMonitoring.tsx",
+        "frontend/src/hooks/useMonitoredTrades.ts",
+        "frontend/src/lib/tradeStorage.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-integrate-the-trade-monitoring-feature-with-existing-market-data-hooks-usequeries-to-fetch-real-time-price-updates-from-binance-futures-api-directly-in-the-frontend-maintaining-consistency-with-the-established-frontend-only-data-fetching-pattern",
+      "featureTitle": "Integrate the Trade Monitoring feature with existing market data hooks (useQueries) to fetch real-time price updates from Binance Futures API directly in the frontend, maintaining consistency with the established frontend-only data fetching pattern.",
+      "files": [
+        "frontend/src/hooks/queries/binanceFetch.ts",
+        "frontend/src/hooks/useMonitoredTrade.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

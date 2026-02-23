@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { DirectionType } from '../useQueries';
-import { fetchBinanceFuturesBTC, fetchBinanceSpotBTC } from './binanceFetch';
+import { fetchBinanceBTCFutures, fetchBinanceBTCSpot } from './binanceFetch';
 import { useActor } from '../useActor';
 
 export interface InstitutionalSignal {
@@ -82,7 +82,7 @@ export function useInstitutionalOrdersFutures() {
     queryKey: ['institutional-orders-futures'],
     queryFn: async (): Promise<InstitutionalOrdersData> => {
       try {
-        const data = await fetchBinanceFuturesBTC();
+        const data = await fetchBinanceBTCFutures();
         
         const price = parseFloat(data.lastPrice);
         const open = parseFloat(data.openPrice);
@@ -122,7 +122,7 @@ export function useInstitutionalOrdersSpot() {
       
       // First attempt: direct browser fetch
       try {
-        data = await fetchBinanceSpotBTC();
+        data = await fetchBinanceBTCSpot();
       } catch (browserError) {
         console.warn('Browser fetch failed for Spot, attempting backend fallback:', browserError);
         

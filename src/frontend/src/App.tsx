@@ -1,19 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import MarketOverview from './components/MarketOverview';
-import TopRecommendations from './components/TopRecommendations';
-import AssetResearch from './components/AssetResearch';
-import RadarDashboard from './components/RadarDashboard';
-import Opportunities from './components/Opportunities';
-import InstitutionalOrders from './components/InstitutionalOrders';
-import OrderBook from './components/OrderBook';
 import InstallPrompt from './components/InstallPrompt';
-import UserPreferences from './components/UserPreferences';
 import DynamicAlerts from './components/DynamicAlerts';
-import AIPerformancePanel from './components/AIPerformancePanel';
 import DataStatusIndicator from './components/DataStatusIndicator';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
@@ -21,9 +12,33 @@ import { useServiceWorkerUpdate } from './hooks/useServiceWorkerUpdate';
 import { learningEngine } from './lib/learningEngine';
 import { checkResetSuccess } from './lib/resetFromScratch';
 import { toast } from 'sonner';
-import { WifiOff } from 'lucide-react';
+import { WifiOff, Loader2 } from 'lucide-react';
 
-type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'institutional' | 'orderbook' | 'aprendizado' | 'pesquisa' | 'preferencias';
+// Lazy load heavy components to reduce initial bundle size
+const MarketOverview = lazy(() => import('./components/MarketOverview'));
+const TopRecommendations = lazy(() => import('./components/TopRecommendations'));
+const AssetResearch = lazy(() => import('./components/AssetResearch'));
+const RadarDashboard = lazy(() => import('./components/RadarDashboard'));
+const Opportunities = lazy(() => import('./components/Opportunities'));
+const InstitutionalOrders = lazy(() => import('./components/InstitutionalOrders'));
+const OrderBook = lazy(() => import('./components/OrderBook'));
+const AIPerformancePanel = lazy(() => import('./components/AIPerformancePanel'));
+const UserPreferences = lazy(() => import('./components/UserPreferences'));
+const TradeMonitoring = lazy(() => import('./components/TradeMonitoring'));
+
+type TabValue = 'mercado' | 'radar' | 'recomendacoes' | 'opportunities' | 'institutional' | 'orderbook' | 'monitoring' | 'aprendizado' | 'pesquisa' | 'preferencias';
+
+// Loading fallback component
+function TabLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabValue>('mercado');
@@ -57,24 +72,17 @@ function App() {
     initLearning();
   }, []);
 
-  // Register service worker for PWA
+  // Register service worker for PWA - simplified to avoid deployment conflicts
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((registration) => {
-            console.log('SW registered:', registration);
-            
-            // Check for updates periodically
-            setInterval(() => {
-              registration.update();
-            }, 60000); // Check every minute
-          })
-          .catch((error) => {
-            console.log('SW registration failed:', error);
-          });
-      });
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered:', registration);
+        })
+        .catch((error) => {
+          console.log('SW registration failed:', error);
+        });
     }
   }, []);
 
@@ -84,7 +92,7 @@ function App() {
     const tabParam = params.get('tab');
     
     if (tabParam) {
-      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'opportunities', 'institutional', 'orderbook', 'aprendizado', 'pesquisa', 'preferencias'];
+      const validTabs: TabValue[] = ['mercado', 'radar', 'recomendacoes', 'opportunities', 'institutional', 'orderbook', 'monitoring', 'aprendizado', 'pesquisa', 'preferencias'];
       if (validTabs.includes(tabParam as TabValue)) {
         setActiveTab(tabParam as TabValue);
       }
@@ -149,53 +157,78 @@ function App() {
           
           <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8">
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)} className="w-full">
-              <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-3 sm:grid-cols-9 mb-4 sm:mb-8 h-auto sm:h-10 gap-1 touch-manipulation">
+              <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-3 sm:grid-cols-10 mb-4 sm:mb-8 h-auto sm:h-10 gap-1 touch-manipulation">
                 <TabsTrigger value="mercado" className="text-xs sm:text-sm px-2 py-2">Mercado</TabsTrigger>
                 <TabsTrigger value="radar" className="text-xs sm:text-sm px-2 py-2">Radar</TabsTrigger>
                 <TabsTrigger value="recomendacoes" className="text-xs sm:text-sm px-2 py-2">Recomendações</TabsTrigger>
                 <TabsTrigger value="opportunities" className="text-xs sm:text-sm px-2 py-2">Opportunities</TabsTrigger>
                 <TabsTrigger value="institutional" className="text-xs sm:text-sm px-2 py-2">Institutional</TabsTrigger>
                 <TabsTrigger value="orderbook" className="text-xs sm:text-sm px-2 py-2">Order Book</TabsTrigger>
+                <TabsTrigger value="monitoring" className="text-xs sm:text-sm px-2 py-2">Monitoring</TabsTrigger>
                 <TabsTrigger value="aprendizado" className="text-xs sm:text-sm px-2 py-2">Aprendizado</TabsTrigger>
                 <TabsTrigger value="pesquisa" className="text-xs sm:text-sm px-2 py-2">Pesquisa</TabsTrigger>
                 <TabsTrigger value="preferencias" className="text-xs sm:text-sm px-2 py-2">Preferências</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="mercado" className="space-y-4 sm:space-y-6">
-                <MarketOverview />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="mercado" className="space-y-4 sm:space-y-6">
+                  <MarketOverview />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="radar" className="space-y-4 sm:space-y-6">
-                <RadarDashboard />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="radar" className="space-y-4 sm:space-y-6">
+                  <RadarDashboard />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="recomendacoes" className="space-y-4 sm:space-y-6 overflow-x-hidden">
-                <TopRecommendations />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="recomendacoes" className="space-y-4 sm:space-y-6 overflow-x-hidden">
+                  <TopRecommendations />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="opportunities" className="space-y-4 sm:space-y-6">
-                <Opportunities />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="opportunities" className="space-y-4 sm:space-y-6">
+                  <Opportunities />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="institutional" className="space-y-4 sm:space-y-6">
-                <InstitutionalOrders />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="institutional" className="space-y-4 sm:space-y-6">
+                  <InstitutionalOrders />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="orderbook" className="space-y-4 sm:space-y-6">
-                <OrderBook />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="orderbook" className="space-y-4 sm:space-y-6">
+                  <OrderBook />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="aprendizado" className="space-y-4 sm:space-y-6">
-                <AIPerformancePanel />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="monitoring" className="space-y-4 sm:space-y-6">
+                  <TradeMonitoring />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="pesquisa" className="space-y-4 sm:space-y-6">
-                <AssetResearch />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="aprendizado" className="space-y-4 sm:space-y-6">
+                  <AIPerformancePanel />
+                </TabsContent>
+              </Suspense>
               
-              <TabsContent value="preferencias" className="space-y-4 sm:space-y-6">
-                <UserPreferences />
-              </TabsContent>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="pesquisa" className="space-y-4 sm:space-y-6">
+                  <AssetResearch />
+                </TabsContent>
+              </Suspense>
+              
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabsContent value="preferencias" className="space-y-4 sm:space-y-6">
+                  <UserPreferences />
+                </TabsContent>
+              </Suspense>
             </Tabs>
           </main>
           <Footer />

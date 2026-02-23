@@ -1,21 +1,62 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
-  "summary": "Versão 47 com sistema de ponto de compra/venda e stop loss, backend sem chamadas à Binance",
+  "projectStateVersion": 3,
+  "summary": "Cryptocurrency trading analysis and monitoring application with AI-powered recommendations, market radar, and manual trade monitoring",
   "architectural_notes": [
-    "Backend não faz chamadas diretas à Binance"
+    "Trade monitoring implemented frontend-only due to Binance API blocking ICP backend nodes",
+    "Manual trade entry system bypasses need for Binance API keys while providing risk management guidance"
   ],
   "known_issues": [
-    "Erro de deployment na Versão 47 - código correto mas falha ao publicar",
-    "Versão 48 também apresenta erro de deployment consistente - código compila mas falha ao publicar ao ar"
+    "Deployment errors occurred repeatedly in versions 47-50 due to Internet Computer infrastructure instability, resolved in final v50 deployment",
+    "Backend cannot make HTTP calls to Binance API - all market data and trade monitoring must be frontend-only"
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-preserve-all-immutable-frontend-paths-without-modifications-useinternetidentity-ts-hook-for-authentication-useactor-ts-for-backend-actor-management-main-tsx-application-entry-point-and-all-components-in-frontend-src-components-ui-directory",
-      "title": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
+      "id": "feature-create-a-new-trade-monitoring-view-accessible-from-the-main-navigation-tabs-that-allows-users-to-manually-input-trade-details-including-asset-symbol-e-g-btcusdt-leverage-used-1x-125x-position-direction-long-or-short-and-entry-price-point",
+      "title": "Create a new Trade Monitoring view accessible from the main navigation tabs that allows users to manually input trade details including: asset symbol (e.g., BTCUSDT), leverage used (1x-125x), position direction (Long or Short), and entry price point.",
       "reqIds": [
-        "REQ-8"
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-user-submits-trade-details-display-real-time-monitoring-panel-showing-current-price-unrealized-pnl-percentage-based-on-entry-point-and-direction-and-liquidation-price-calculated-using-the-specified-leverage",
+      "title": "After user submits trade details, display real-time monitoring panel showing current price, unrealized PnL percentage based on entry point and direction, and liquidation price calculated using the specified leverage.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-and-display-suggested-price-targets-based-on-current-market-data-and-technical-analysis-show-3-take-profit-zones-tp1-at-1-2-from-entry-tp2-at-3-5-tp3-at-5-10-adjusted-for-position-direction-with-percentage-gains-calculated-for-each-zone",
+      "title": "Generate and display suggested price targets based on current market data and technical analysis: show 3 take-profit zones (TP1 at 1-2% from entry, TP2 at 3-5%, TP3 at 5-10%) adjusted for position direction, with percentage gains calculated for each zone.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-calculate-and-display-recommended-stop-loss-price-based-on-risk-management-principles-suggest-stop-loss-at-1-2-below-entry-for-long-positions-above-for-short-with-adjustments-based-on-asset-volatility-and-support-resistance-levels-from-technical-analysis",
+      "title": "Calculate and display recommended stop-loss price based on risk management principles: suggest stop-loss at 1-2% below entry for Long positions (above for Short), with adjustments based on asset volatility and support/resistance levels from technical analysis.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-allow-users-to-save-and-track-multiple-monitored-trades-simultaneously-with-persistent-storage-showing-a-list-of-active-positions-with-quick-summary-cards-displaying-symbol-direction-entry-current-pnl-and-time-elapsed-since-entry",
+      "title": "Allow users to save and track multiple monitored trades simultaneously with persistent storage, showing a list of active positions with quick summary cards displaying symbol, direction, entry, current PnL, and time elapsed since entry.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-the-trade-monitoring-feature-with-existing-market-data-hooks-usequeries-to-fetch-real-time-price-updates-from-binance-futures-api-directly-in-the-frontend-maintaining-consistency-with-the-established-frontend-only-data-fetching-pattern",
+      "title": "Integrate the Trade Monitoring feature with existing market data hooks (useQueries) to fetch real-time price updates from Binance Futures API directly in the frontend, maintaining consistency with the established frontend-only data fetching pattern.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -23,62 +64,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Generate a clean deployment package that preserves all existing functionality including market overview, recommendations, radar dashboard, trading opportunities, order book analysis, and PWA features",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Ensure backend main.mo maintains the single-actor architecture with market data caching, snapshot management, asset filtering, and user preferences storage without any Binance API calls",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Preserve all frontend Binance Futures USD-M data fetching, technical analysis enrichment, and trading recommendation logic without modifications",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Maintain all immutable frontend paths including Internet Identity hooks, actor management, main entry point, and UI components without any edits",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG), order book analysis, institutional orders detection, and complete PWA features with offline support",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Verify backend main.mo maintains single-actor architecture with market data caching via UnifiedSnapshot, asset filtering by direction, user preferences storage with Principal-based access, and snapshot staleness management without any direct Binance API calls",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling for network issues, CORS blocks, and restricted locations",
-      "reqIds": [
-        "REQ-7"
-      ],
+      "summary": "Manual trade monitoring: user inputs asset, leverage, direction (long/short), entry point; app suggests price targets, take-profit zones, and recommended stop-loss",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Crypto Market Assistant",
+  "projectName": "Crypto Assistant",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

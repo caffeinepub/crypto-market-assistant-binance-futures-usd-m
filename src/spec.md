@@ -1,16 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Rebuild clean deployment package for version 49 that preserves all existing functionality from version 48.
+**Goal:** Add manual trade monitoring functionality that allows users to track their crypto trades with entry point tracking, real-time PnL calculations, suggested take-profit zones, and stop-loss recommendations.
 
 **Planned changes:**
-- Generate clean version 49 deployment package without modifications
-- Verify backend single-actor architecture with UnifiedSnapshot caching remains intact
-- Ensure all frontend Binance Futures USD-M data fetching continues to work
-- Preserve immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, UI components)
-- Maintain all PWA features including service worker, offline support, and manifest configuration
-- Keep all 6 trading modalities (scalping, swing, breakout, reversal, SMC, FVG) functional
-- Preserve Internet Identity authentication flow
-- Maintain learning engine with IndexedDB prediction tracking
+- Add new Trade Monitoring tab to main navigation with form for manual trade entry (asset symbol, leverage 1x-125x, Long/Short direction, entry price)
+- Display real-time monitoring panel showing current price, unrealized PnL percentage, and calculated liquidation price based on leverage
+- Generate and show 3 suggested take-profit zones (TP1 at 1-2%, TP2 at 3-5%, TP3 at 5-10% from entry) adjusted for position direction
+- Calculate and display recommended stop-loss price at 1-2% from entry with volatility adjustments
+- Enable saving and tracking multiple monitored trades simultaneously with persistent storage in localStorage/IndexedDB
+- Integrate with existing useQueries hooks for real-time Binance Futures price updates (frontend-only, no backend calls)
 
-**User-visible outcome:** Users can deploy version 49 to production with all existing features working correctly including market overview, recommendations, radar dashboard, trading opportunities across all modalities, order book analysis, institutional orders detection, and full PWA functionality with offline support.
+**User-visible outcome:** Users can manually input trade details, monitor real-time PnL and liquidation risk, view AI-suggested take-profit zones and stop-loss recommendations, and track multiple active positions simultaneously with all data persisting across sessions.

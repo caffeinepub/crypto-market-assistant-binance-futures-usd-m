@@ -1,52 +1,112 @@
 {
   "kind": "build_request",
-  "title": "Rebuild clean deployment package for version 49",
-  "projectName": "Crypto Market Assistant",
-  "priority": "high",
+  "title": "Add Manual Trade Monitoring with Entry Point Tracking",
+  "projectName": "Crypto Assistant",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-5",
-      "text": "Generate a clean version 49 deployment package that preserves all existing functionality from version 48 including market overview, recommendations, radar dashboard, trading opportunities with all 6 modalities (scalping, swing, breakout, reversal, SMC, FVG), order book analysis, institutional orders detection, and complete PWA features with offline support",
-      "target": "both",
+      "id": "REQ-1",
+      "text": "Create a new Trade Monitoring view accessible from the main navigation tabs that allows users to manually input trade details including: asset symbol (e.g., BTCUSDT), leverage used (1x-125x), position direction (Long or Short), and entry price point.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Vamos la",
-          "Reconstruir do zero - Gerar uma nova versão limpa (49) sem modificações"
+          "adicionar uma opção.. de monitoramento... escolhendo o ativo e colocando o ponto de entrada.. manualmente",
+          "O usuário informa o ativo. A alavancagem usada. Se foi long ou short."
         ]
       },
       "acceptanceCriteria": [
-        "Version 49 successfully deploys to production without deployment errors",
-        "All market data fetching and display functionality works correctly",
-        "Radar dashboard with anomaly detection and filtering operates as expected",
-        "Trading opportunities for all 6 modalities display correctly with details panel",
-        "PWA installs successfully on mobile devices with offline functionality",
-        "Service worker caches assets properly and handles updates",
-        "Internet Identity authentication flow works correctly",
-        "All existing user preferences and AI learning features function properly"
+        "New tab/view added to main navigation for Trade Monitoring",
+        "Form accepts asset symbol with validation against Binance Futures USDT pairs",
+        "Leverage selector supports range from 1x to 125x",
+        "Direction toggle for Long/Short positions",
+        "Entry price input field with numeric validation",
+        "Form validation prevents submission with incomplete data"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "After user submits trade details, display real-time monitoring panel showing current price, unrealized PnL percentage based on entry point and direction, and liquidation price calculated using the specified leverage.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "para o monitoramento ser feito"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Panel displays current market price fetched from Binance",
+        "PnL calculation is accurate for both Long and Short positions",
+        "Liquidation price calculated correctly based on leverage (formula: Long liquidation = entry * (1 - 1/leverage), Short liquidation = entry * (1 + 1/leverage))",
+        "Real-time price updates every 3-5 seconds",
+        "Visual indicators (colors) change based on profit/loss status"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Generate and display suggested price targets based on current market data and technical analysis: show 3 take-profit zones (TP1 at 1-2% from entry, TP2 at 3-5%, TP3 at 5-10%) adjusted for position direction, with percentage gains calculated for each zone.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "E o aplicativo... indica.. direções..  possiveis. Areas de realização."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Display 3 distinct take-profit zones (TP1, TP2, TP3)",
+        "TP calculations respect position direction (above entry for Long, below for Short)",
+        "Show both absolute price and percentage gain for each TP zone",
+        "TP zones adjust based on asset volatility using ATR or recent price movement data",
+        "Visual markers indicate current price position relative to TP zones"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Calculate and display recommended stop-loss price based on risk management principles: suggest stop-loss at 1-2% below entry for Long positions (above for Short), with adjustments based on asset volatility and support/resistance levels from technical analysis.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Stop Loss recomendado"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Stop-loss recommendation displayed with absolute price and percentage distance from entry",
+        "Direction-aware calculation (below entry for Long, above for Short)",
+        "Base stop-loss at 1-2% adjusted for high/low volatility assets",
+        "Consider nearby support/resistance zones from technical analysis when available",
+        "Show risk-reward ratio (potential gain to TP zones vs stop-loss risk)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Allow users to save and track multiple monitored trades simultaneously with persistent storage, showing a list of active positions with quick summary cards displaying symbol, direction, entry, current PnL, and time elapsed since entry.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can save multiple trade setups without limit",
+        "Trades persist in localStorage or IndexedDB across sessions",
+        "List view shows all active monitored trades with summary information",
+        "Each trade card displays: symbol, long/short badge, entry price, current PnL, elapsed time",
+        "Users can select a trade to view full monitoring details",
+        "Option to close/remove completed trades from monitoring list"
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Verify backend main.mo maintains single-actor architecture with market data caching via UnifiedSnapshot, asset filtering by direction, user preferences storage with Principal-based access, and snapshot staleness management without any direct Binance API calls",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend compiles without errors or warnings",
-        "All actor methods (getMarketData, getAssetsByDirection, getUserPreferences, setUserPreferences) remain functional",
-        "No HTTP outcalls or external API integrations present in backend code",
-        "Snapshot caching logic with staleness checks operates correctly"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Ensure all frontend Binance Futures USD-M data fetching remains intact including market data queries, order book depth analysis, funding rates, open interest metrics, and institutional order detection with proper error handling for network issues, CORS blocks, and restricted locations",
+      "text": "Integrate the Trade Monitoring feature with existing market data hooks (useQueries) to fetch real-time price updates from Binance Futures API directly in the frontend, maintaining consistency with the established frontend-only data fetching pattern.",
       "target": "frontend",
       "source": {
         "messageIds": [
@@ -54,45 +114,27 @@
         ]
       },
       "acceptanceCriteria": [
-        "All Binance API calls in frontend execute successfully",
-        "Technical analysis enrichment with trend strength, support/resistance zones, and manipulation zones functions correctly",
-        "Order book depth data displays properly for both Futures and Spot markets",
-        "Error states show appropriate messages for different failure types",
-        "Learning engine integration records predictions and updates accuracy metrics"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Preserve all immutable frontend paths without modifications: useInternetIdentity.ts hook for authentication, useActor.ts for backend actor management, main.tsx application entry point, and all components in frontend/src/components/ui directory",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ]
-      },
-      "acceptanceCriteria": [
-        "No changes made to useInternetIdentity.ts, useActor.ts, or main.tsx files",
-        "UI components in frontend/src/components/ui remain untouched",
-        "Internet Identity flow continues to work with existing implementation",
-        "Actor creation and query invalidation logic remains unchanged"
+        "Reuses existing Binance Futures USD-M data fetching logic",
+        "No backend HTTP calls required (frontend-only implementation)",
+        "Price updates leverage React Query caching and refetch policies",
+        "Error handling for Binance API blocks/restrictions",
+        "Graceful degradation when market data is unavailable"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files in frontend/src/components/ui directory",
-    "Do not edit useInternetIdentity.ts, useActor.ts, or main.tsx files",
-    "Backend must remain single-actor architecture with no HTTP outcalls",
-    "Do not change existing Binance Futures USD-M API endpoints or fetch logic",
-    "Preserve all PWA manifest, service worker, and offline caching functionality",
-    "Do not alter the learning engine's IndexedDB schema or prediction tracking logic"
+    "All Binance API calls must be made directly from the frontend browser - backend cannot be used for external HTTP requests",
+    "Do not modify immutable frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui directory",
+    "Trade monitoring calculations (PnL, liquidation, stop-loss) must work without requiring API keys or authenticated Binance access",
+    "Use existing market data structures and hooks from useQueries.ts for consistency"
   ],
   "nonGoals": [
-    "Adding new features or functionality beyond what exists in version 48",
-    "Changing the technology stack or introducing new frameworks",
-    "Modifying the UI design, color scheme, or visual theme",
-    "Adding new trading modalities beyond the existing 6 types",
-    "Implementing new backend API methods or data structures",
-    "Changing error handling patterns or user-facing error messages"
+    "Actual trade execution or order placement on Binance",
+    "Integration with Binance API keys for account-level data",
+    "Backend storage or processing of trade monitoring data",
+    "Real-time WebSocket connections for price streaming",
+    "Automated trade management or bot functionality",
+    "Portfolio performance analytics across multiple trades"
   ],
   "imageRequirements": {
     "required": [],

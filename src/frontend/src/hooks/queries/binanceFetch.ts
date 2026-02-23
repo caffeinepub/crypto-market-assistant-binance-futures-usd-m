@@ -1,185 +1,182 @@
-import { BinanceTicker } from '../useQueries';
+// Browser-based Binance data fetching module with support for Futures USD-M market data,
+// individual asset lookup, BTC Futures fetch, and BTC Spot fetch with improved error
+// classification that categorizes network errors, CORS/blocked responses, HTTP status codes,
+// and rate limits for actionable user messaging.
+
+export interface BinanceTicker {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  lastPrice: string;
+  lastQty: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  count: number;
+}
+
+export type ErrorCategory = 'network' | 'blocked' | 'rate-limit' | 'server' | 'unknown';
+
+export interface ClassifiedError extends Error {
+  category: ErrorCategory;
+  originalError?: unknown;
+}
 
 /**
- * Browser-based Binance Futures USD-M data fetching
- * Primary data source for real-time market data
+ * Classify fetch errors into actionable categories
  */
+function classifyError(error: unknown): ClassifiedError {
+  const baseMessage = error instanceof Error ? error.message : String(error);
+
+  // Network errors (no connection, DNS failure, etc.)
+  if (
+    baseMessage.includes('Failed to fetch') ||
+    baseMessage.includes('NetworkError') ||
+    baseMessage.includes('Network request failed')
+  ) {
+    const classified = new Error(
+      'Network error: Unable to reach Binance API. Check your internet connection.'
+    ) as ClassifiedError;
+    classified.category = 'network';
+    classified.originalError = error;
+    return classified;
+  }
+
+  // CORS / Blocked by Binance
+  if (
+    baseMessage.includes('CORS') ||
+    baseMessage.includes('blocked') ||
+    baseMessage.includes('403') ||
+    baseMessage.includes('Forbidden')
+  ) {
+    const classified = new Error(
+      'Binance API blocked: Access restricted from your region or browser. Try using a VPN or different network.'
+    ) as ClassifiedError;
+    classified.category = 'blocked';
+    classified.originalError = error;
+    return classified;
+  }
+
+  // Rate limiting
+  if (baseMessage.includes('429') || baseMessage.includes('Too Many Requests')) {
+    const classified = new Error(
+      'Rate limit exceeded: Too many requests to Binance API. Please wait a moment and try again.'
+    ) as ClassifiedError;
+    classified.category = 'rate-limit';
+    classified.originalError = error;
+    return classified;
+  }
+
+  // Server errors (5xx)
+  if (baseMessage.includes('500') || baseMessage.includes('502') || baseMessage.includes('503')) {
+    const classified = new Error(
+      'Binance server error: The API is temporarily unavailable. Please try again later.'
+    ) as ClassifiedError;
+    classified.category = 'server';
+    classified.originalError = error;
+    return classified;
+  }
+
+  // Unknown error
+  const classified = new Error(`Binance API error: ${baseMessage}`) as ClassifiedError;
+  classified.category = 'unknown';
+  classified.originalError = error;
+  return classified;
+}
 
 /**
- * Fetch all Binance Futures USD-M market data directly from Binance API
- * This is the primary data source for the application
+ * Fetch all Binance Futures USD-M 24hr ticker data
  */
 export async function fetchBinanceMarketData(): Promise<BinanceTicker[]> {
   try {
     const response = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr', {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
-      throw new Error(`Binance API error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
-    // Check if the response is an error object (e.g., restricted location)
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      if ('code' in data && 'msg' in data) {
-        // This is a Binance error response
-        throw new Error(`Binance API blocked: ${data.msg || 'Service unavailable from restricted location'}`);
-      }
-    }
-    
-    if (!Array.isArray(data)) {
-      throw new Error('Invalid response format from Binance API');
-    }
-    
-    return data;
+    return data as BinanceTicker[];
   } catch (error) {
-    console.error('Error fetching Binance market data:', error);
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to reach Binance API. Check your internet connection.');
-    }
-    throw error;
+    throw classifyError(error);
   }
 }
 
 /**
- * Fetch specific asset data from Binance Futures
- * Used for asset search functionality
+ * Fetch a single Binance Futures USD-M ticker by symbol
  */
-export async function fetchBinanceAsset(symbol: string): Promise<BinanceTicker> {
+export async function fetchBinanceFuturesTicker(symbol: string): Promise<BinanceTicker> {
   try {
     const response = await fetch(`https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=${symbol}`, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
-      if (response.status === 400) {
-        throw new Error(`Asset ${symbol} not found on Binance Futures`);
-      }
-      throw new Error(`Binance API error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
-    // Check if the response is an error object (e.g., restricted location)
-    if (data && typeof data === 'object' && 'code' in data && 'msg' in data) {
-      // This is a Binance error response
-      throw new Error(`Binance API blocked: ${data.msg || 'Service unavailable from restricted location'}`);
-    }
-    
-    return data;
+    return data as BinanceTicker;
   } catch (error) {
-    console.error(`Error fetching asset ${symbol}:`, error);
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to reach Binance API. Check your internet connection.');
-    }
-    throw error;
+    throw classifyError(error);
   }
 }
 
 /**
- * Fetch BTCUSDT data from Binance Futures
+ * Fetch a single asset by symbol (alias for fetchBinanceFuturesTicker)
  */
-export async function fetchBinanceFuturesBTC(): Promise<BinanceTicker> {
-  return fetchBinanceAsset('BTCUSDT');
+export async function fetchBinanceAsset(symbol: string): Promise<BinanceTicker> {
+  return fetchBinanceFuturesTicker(symbol);
 }
 
 /**
- * Classify error type for better user messaging
+ * Fetch BTC Futures ticker
  */
-function classifySpotError(error: unknown): string {
-  if (error instanceof TypeError) {
-    if (error.message.includes('fetch') || error.message.includes('network')) {
-      return 'Network error: Unable to reach Binance Spot API. Check your internet connection.';
-    }
-    return 'Network error: Failed to connect to Binance Spot API.';
-  }
-  
-  if (error instanceof Error) {
-    const msg = error.message.toLowerCase();
-    
-    // Check for CORS or blocked responses
-    if (msg.includes('cors') || msg.includes('blocked')) {
-      return 'Binance Spot API blocked: CORS or network restriction detected.';
-    }
-    
-    // Check for restricted location
-    if (msg.includes('restricted') || msg.includes('unavailable')) {
-      return 'Binance Spot API blocked: Service unavailable from your location.';
-    }
-    
-    // Check for HTTP status errors
-    if (msg.includes('403') || msg.includes('forbidden')) {
-      return 'Binance Spot API blocked: Access forbidden (HTTP 403).';
-    }
-    
-    if (msg.includes('429')) {
-      return 'Binance Spot API error: Rate limit exceeded (HTTP 429).';
-    }
-    
-    if (msg.includes('500') || msg.includes('502') || msg.includes('503')) {
-      return 'Binance Spot API error: Server error. Try again later.';
-    }
-    
-    // Return the original error message if it's already descriptive
-    if (error.message.startsWith('Binance')) {
-      return error.message;
-    }
-    
-    return `Binance Spot API error: ${error.message}`;
-  }
-  
-  return 'Unknown error fetching Binance Spot data.';
+export async function fetchBinanceBTCFutures(): Promise<BinanceTicker> {
+  return fetchBinanceFuturesTicker('BTCUSDT');
 }
 
 /**
- * Fetch BTCUSDT data from Binance Spot with improved error classification
+ * Fetch BTC Spot ticker
  */
-export async function fetchBinanceSpotBTC(): Promise<BinanceTicker> {
+export async function fetchBinanceBTCSpot(): Promise<BinanceTicker> {
   try {
     const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT', {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
-      const statusText = response.statusText || 'Unknown error';
-      throw new Error(`Binance Spot API error: HTTP ${response.status} ${statusText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
-    // Check if the response is an error object
-    if (data && typeof data === 'object' && 'code' in data && 'msg' in data) {
-      throw new Error(`Binance Spot API blocked: ${data.msg || 'Service unavailable'}`);
-    }
-    
-    // Validate that we have the required fields
-    if (!data.lastPrice || !data.openPrice || !data.highPrice || !data.lowPrice) {
-      throw new Error('Invalid response format from Binance Spot API: missing required price fields');
-    }
-    
-    return data;
+    return data as BinanceTicker;
   } catch (error) {
-    const classifiedError = classifySpotError(error);
-    throw new Error(classifiedError);
+    throw classifyError(error);
   }
 }
 
 /**
- * Filter for major USD-M trading pairs
+ * Filter for major USDT pairs only
  */
-export function filterMajorPairs(data: BinanceTicker[]): BinanceTicker[] {
-  const majorPairs = [
+export function filterMajorPairs(tickers: BinanceTicker[]): BinanceTicker[] {
+  const majorSymbols = [
     'BTCUSDT',
     'ETHUSDT',
     'BNBUSDT',
@@ -189,17 +186,19 @@ export function filterMajorPairs(data: BinanceTicker[]): BinanceTicker[] {
     'DOGEUSDT',
     'MATICUSDT',
     'DOTUSDT',
+    'LTCUSDT',
     'AVAXUSDT',
     'LINKUSDT',
-    'UNIUSDT',
     'ATOMUSDT',
-    'LTCUSDT',
+    'UNIUSDT',
+    'ETCUSDT',
+    'XLMUSDT',
     'NEARUSDT',
+    'ALGOUSDT',
     'APTUSDT',
     'ARBUSDT',
     'OPUSDT',
-    'ICPUSDT',
   ];
 
-  return data.filter((ticker) => majorPairs.includes(ticker.symbol));
+  return tickers.filter((ticker) => majorSymbols.includes(ticker.symbol));
 }
