@@ -1,0 +1,198 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Remove ICP, Radar, Order Book, and Monitor tabs",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Remove the ICP Analysis tab from the application",
+      "acceptanceCriteria": [
+        "No ICP tab appears in the tab bar",
+        "ICPAnalysis component is not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove the lazy-loaded import for ICPAnalysis component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
+        },
+        {
+          "path": "frontend/src/components/ICPAnalysis.tsx",
+          "operation": "delete",
+          "description": "Delete the ICPAnalysis component file as it is no longer used."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Remove the Radar tab from the application",
+      "acceptanceCriteria": [
+        "No Radar tab appears in the tab bar",
+        "RadarDashboard component is not imported or rendered anywhere",
+        "DynamicAlerts component tied solely to radar is removed or disabled",
+        "App builds without references to the removed tab"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove the lazy-loaded import for RadarDashboard component, remove its tab definition from the tabs array, remove its route entry, and remove the DynamicAlerts component usage if it is exclusively tied to the radar feature."
+        },
+        {
+          "path": "frontend/src/components/RadarDashboard.tsx",
+          "operation": "delete",
+          "description": "Delete the RadarDashboard component file as it is no longer used."
+        },
+        {
+          "path": "frontend/src/components/DynamicAlerts.tsx",
+          "operation": "delete",
+          "description": "Delete the DynamicAlerts component file if it is exclusively used by the Radar tab. If it is also used by other tabs, modify those tabs to remove references instead."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Remove the Order Book tab from the application",
+      "acceptanceCriteria": [
+        "No Order Book tab appears in the tab bar",
+        "OrderBook component is not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove the lazy-loaded import for OrderBook component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
+        },
+        {
+          "path": "frontend/src/components/OrderBook.tsx",
+          "operation": "delete",
+          "description": "Delete the OrderBook component file as it is no longer used."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Remove the Trade Monitor tab from the application",
+      "acceptanceCriteria": [
+        "No Monitor tab appears in the tab bar",
+        "TradeMonitoring and all child components exclusive to this tab are not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove the lazy-loaded import for TradeMonitoring component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
+        },
+        {
+          "path": "frontend/src/components/TradeMonitoring.tsx",
+          "operation": "delete",
+          "description": "Delete the TradeMonitoring component file as it is no longer used."
+        },
+        {
+          "path": "frontend/src/components/MonitoredTradeCard.tsx",
+          "operation": "delete",
+          "description": "Delete the MonitoredTradeCard component file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/components/TradeMonitoringPanel.tsx",
+          "operation": "delete",
+          "description": "Delete the TradeMonitoringPanel component file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/components/StopLossRecommendation.tsx",
+          "operation": "delete",
+          "description": "Delete the StopLossRecommendation component file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/components/TakeProfitZones.tsx",
+          "operation": "delete",
+          "description": "Delete the TakeProfitZones component file as it is exclusively used by the Trade Monitor tab."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Remove hooks, query files, and libraries exclusively used by removed tabs",
+      "acceptanceCriteria": [
+        "No dead imports remain in the bundle for the removed tabs",
+        "All removed files' imports are cleaned up from any remaining components",
+        "Frontend builds and runs without errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/queries/orderBookDepth.ts",
+          "operation": "delete",
+          "description": "Delete the orderBookDepth query file as it is exclusively used by the OrderBook tab."
+        },
+        {
+          "path": "frontend/src/hooks/useMonitoredTrade.ts",
+          "operation": "delete",
+          "description": "Delete the useMonitoredTrade hook as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/hooks/useMonitoredTrades.ts",
+          "operation": "delete",
+          "description": "Delete the useMonitoredTrades hook as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/hooks/useRadarSensitivity.ts",
+          "operation": "delete",
+          "description": "Delete the useRadarSensitivity hook as it is exclusively used by the Radar tab."
+        },
+        {
+          "path": "frontend/src/lib/orderBookDepth.ts",
+          "operation": "delete",
+          "description": "Delete the orderBookDepth library file as it is exclusively used by the OrderBook tab."
+        },
+        {
+          "path": "frontend/src/lib/radarFilters.ts",
+          "operation": "delete",
+          "description": "Delete the radarFilters library file as it is exclusively used by the Radar tab."
+        },
+        {
+          "path": "frontend/src/lib/radarSensitivity.ts",
+          "operation": "delete",
+          "description": "Delete the radarSensitivity library file as it is exclusively used by the Radar tab."
+        },
+        {
+          "path": "frontend/src/lib/stopLossCalculation.ts",
+          "operation": "delete",
+          "description": "Delete the stopLossCalculation library file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/lib/takeProfitCalculation.ts",
+          "operation": "delete",
+          "description": "Delete the takeProfitCalculation library file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/lib/tradeStorage.ts",
+          "operation": "delete",
+          "description": "Delete the tradeStorage library file as it is exclusively used by the Trade Monitor tab."
+        },
+        {
+          "path": "frontend/src/hooks/queries/localSignals.ts",
+          "operation": "modify",
+          "description": "Review and remove any radar-specific signal generation logic if it is only used by the Radar tab. If the file contains shared logic used by other tabs, keep those portions and only remove radar-exclusive functions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Update PWA manifest to remove shortcuts for removed tabs",
+      "acceptanceCriteria": [
+        "manifest.json shortcuts no longer reference removed tabs",
+        "Remaining shortcuts are valid and point to existing tabs"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Remove any shortcuts array entries that reference the ICP, Radar, Order Book, or Monitor tabs. Verify remaining shortcuts point to valid tabs still in the application."
+        }
+      ]
+    }
+  ]
+}

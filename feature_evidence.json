@@ -1,0 +1,144 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-remove-the-icp-analysis-tab-icpanalysis-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "featureTitle": "Remove the ICP Analysis tab (ICPAnalysis component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/ICPAnalysis.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-radar-tab-radardashboard-component-and-dynamicalerts-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "featureTitle": "Remove the Radar tab (RadarDashboard component and DynamicAlerts) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/DynamicAlerts.tsx",
+        "frontend/src/components/RadarDashboard.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-order-book-tab-orderbook-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "featureTitle": "Remove the Order Book tab (OrderBook component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/OrderBook.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-trade-monitor-tab-trademonitoring-component-monitoredtradecard-trademonitoringpanel-stoplossrecommendation-takeprofitzones-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "featureTitle": "Remove the Trade Monitor tab (TradeMonitoring component, MonitoredTradeCard, TradeMonitoringPanel, StopLossRecommendation, TakeProfitZones) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/MonitoredTradeCard.tsx",
+        "frontend/src/components/StopLossRecommendation.tsx",
+        "frontend/src/components/TakeProfitZones.tsx",
+        "frontend/src/components/TradeMonitoring.tsx",
+        "frontend/src/components/TradeMonitoringPanel.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-all-hooks-query-files-and-libraries-that-are-exclusively-used-by-the-removed-tabs-icp-radar-order-book-monitor-and-are-not-referenced-by-any-remaining-tab-this-includes-but-may-not-be-limited-to-orderbookdepth-ts-hook-and-lib-usemonitoredtrade-ts-usemonitoredtrades-ts-useradarsensitivity-ts-radarfilters-ts-radarsensitivity-ts-stoplosscalculation-ts-takeprofitcalculation-ts-tradestorage-ts-and-related-query-files",
+      "featureTitle": "Remove all hooks, query files, and libraries that are exclusively used by the removed tabs (ICP, Radar, Order Book, Monitor) and are not referenced by any remaining tab. This includes but may not be limited to: orderBookDepth.ts (hook and lib), useMonitoredTrade.ts, useMonitoredTrades.ts, useRadarSensitivity.ts, radarFilters.ts, radarSensitivity.ts, stopLossCalculation.ts, takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+      "files": [
+        "frontend/src/hooks/queries/localSignals.ts",
+        "frontend/src/hooks/queries/orderBookDepth.ts",
+        "frontend/src/hooks/useMonitoredTrade.ts",
+        "frontend/src/hooks/useMonitoredTrades.ts",
+        "frontend/src/hooks/useRadarSensitivity.ts",
+        "frontend/src/lib/orderBookDepth.ts",
+        "frontend/src/lib/radarFilters.ts",
+        "frontend/src/lib/radarSensitivity.ts",
+        "frontend/src/lib/stopLossCalculation.ts",
+        "frontend/src/lib/takeProfitCalculation.ts",
+        "frontend/src/lib/tradeStorage.ts"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-pwa-manifest-frontend-public-manifest-json-to-remove-any-shortcuts-pointing-to-the-removed-tabs-icp-radar-order-book-monitor",
+      "featureTitle": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+      "files": [
+        "frontend/public/manifest.json"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

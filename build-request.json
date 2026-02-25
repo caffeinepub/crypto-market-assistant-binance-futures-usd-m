@@ -1,0 +1,130 @@
+{
+  "kind": "build_request",
+  "title": "Remove ICP, Radar, Order Book, and Monitor tabs",
+  "projectName": "Crypto Futures AI",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Remove the ICP Analysis tab (ICPAnalysis component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No ICP tab appears in the tab bar",
+        "ICPAnalysis component is not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Remove the Radar tab (RadarDashboard component and DynamicAlerts) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No Radar tab appears in the tab bar",
+        "RadarDashboard component is not imported or rendered anywhere",
+        "DynamicAlerts component tied solely to radar is removed or disabled",
+        "App builds without references to the removed tab"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Remove the Order Book tab (OrderBook component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No Order Book tab appears in the tab bar",
+        "OrderBook component is not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Remove the Trade Monitor tab (TradeMonitoring component, MonitoredTradeCard, TradeMonitoringPanel, StopLossRecommendation, TakeProfitZones) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No Monitor tab appears in the tab bar",
+        "TradeMonitoring and all child components exclusive to this tab are not imported or rendered anywhere",
+        "App builds without references to the removed tab"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Remove all hooks, query files, and libraries that are exclusively used by the removed tabs (ICP, Radar, Order Book, Monitor) and are not referenced by any remaining tab. This includes but may not be limited to: orderBookDepth.ts (hook and lib), useMonitoredTrade.ts, useMonitoredTrades.ts, useRadarSensitivity.ts, radarFilters.ts, radarSensitivity.ts, stopLossCalculation.ts, takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No dead imports remain in the bundle for the removed tabs",
+        "All removed files' imports are cleaned up from any remaining components",
+        "Frontend builds and runs without errors"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-14"
+        ],
+        "quotes": [
+          "Icp, radar, order book e monitor. Podem ser removidas."
+        ]
+      },
+      "acceptanceCriteria": [
+        "manifest.json shortcuts no longer reference removed tabs",
+        "Remaining shortcuts are valid and point to existing tabs"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not remove or modify any tabs other than ICP, Radar, Order Book, and Monitor",
+    "Do not alter backend/main.mo unless a removed tab had exclusive backend endpoints — in that case, retain shared endpoints",
+    "Do not edit files listed in frontend.immutablePaths"
+  ],
+  "nonGoals": [
+    "Adding new tabs or features",
+    "Redesigning the UI layout of remaining tabs",
+    "Modifying backend data models or storage logic"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

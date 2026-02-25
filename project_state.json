@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Paper trading app with AI on 558 USD-M pairs (Binance Futures). Removing ICP, Radar, Order Book, and Monitor tabs to reduce bundle size and fix deployment errors.",
+  "architectural_notes": [
+    "App is deployed on Internet Computer (ICP) as a canister; bundle size and memory limits are deployment constraints.",
+    "Data source: Binance USD-M Perpetual Futures API (fapi.binance.com) — frontend/browser only.",
+    "Signal scoring uses RSI, MACD, EMA cross, Volume Spike, Funding Rate, Bollinger Bands, and Open Interest with defined weights."
+  ],
+  "known_issues": [
+    "Repeated deployment errors on ICP — likely caused by large bundle size or canister memory limits."
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-remove-the-icp-analysis-tab-icpanalysis-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "title": "Remove the ICP Analysis tab (ICPAnalysis component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-radar-tab-radardashboard-component-and-dynamicalerts-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "title": "Remove the Radar tab (RadarDashboard component and DynamicAlerts) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-order-book-tab-orderbook-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "title": "Remove the Order Book tab (OrderBook component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-trade-monitor-tab-trademonitoring-component-monitoredtradecard-trademonitoringpanel-stoplossrecommendation-takeprofitzones-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
+      "title": "Remove the Trade Monitor tab (TradeMonitoring component, MonitoredTradeCard, TradeMonitoringPanel, StopLossRecommendation, TakeProfitZones) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-all-hooks-query-files-and-libraries-that-are-exclusively-used-by-the-removed-tabs-icp-radar-order-book-monitor-and-are-not-referenced-by-any-remaining-tab-this-includes-but-may-not-be-limited-to-orderbookdepth-ts-hook-and-lib-usemonitoredtrade-ts-usemonitoredtrades-ts-useradarsensitivity-ts-radarfilters-ts-radarsensitivity-ts-stoplosscalculation-ts-takeprofitcalculation-ts-tradestorage-ts-and-related-query-files",
+      "title": "Remove all hooks, query files, and libraries that are exclusively used by the removed tabs (ICP, Radar, Order Book, Monitor) and are not referenced by any remaining tab. This includes but may not be limited to: orderBookDepth.ts (hook and lib), useMonitoredTrade.ts, useMonitoredTrades.ts, useRadarSensitivity.ts, radarFilters.ts, radarSensitivity.ts, stopLossCalculation.ts, takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-pwa-manifest-frontend-public-manifest-json-to-remove-any-shortcuts-pointing-to-the-removed-tabs-icp-radar-order-book-monitor",
+      "title": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Remove ICP, Radar, Order Book, and Monitor tabs from the app",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Paper Trading AI (USD-M)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

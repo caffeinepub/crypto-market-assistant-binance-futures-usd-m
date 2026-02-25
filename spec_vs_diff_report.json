@@ -1,0 +1,53 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-25T12:45:52.645Z",
+  "summary": "The diff shows modifications to 25 files covering removal of ICP, Radar, Order Book, and Monitor tab components and related hooks/libs. App.tsx no longer references the removed tabs. However, no files were actually deleted (removed=0), and the diff indicates the component files were modified rather than removed. Key hook/lib files appear modified. REQ-6 (manifest.json) is not evidenced in the diff.",
+  "missing_requirements": [
+    {
+      "id": "REQ-5",
+      "requirement": "Remove all hooks, query files, and libraries exclusively used by removed tabs including takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+      "reason": "The diff does not show takeProfitCalculation.ts, tradeStorage.ts, or related query files being removed or modified. Additionally, no files are listed as removed (removed=0), meaning the exclusive files may still exist in the codebase even if emptied/gutted.",
+      "evidence": [
+        "frontend/src/lib/stopLossCalculation.ts",
+        "frontend/src/hooks/useMonitoredTrade.ts",
+        "frontend/src/hooks/useMonitoredTrades.ts"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+      "reason": "The diff does not include frontend/public/manifest.json among the modified files. There is no evidence that manifest shortcuts were updated.",
+      "evidence": []
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.72,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/public/manifest.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/DynamicAlerts.tsx",
+    "frontend/src/components/ICPAnalysis.tsx",
+    "frontend/src/components/MonitoredTradeCard.tsx",
+    "frontend/src/components/OrderBook.tsx",
+    "frontend/src/components/RadarDashboard.tsx",
+    "frontend/src/components/StopLossRecommendation.tsx",
+    "frontend/src/components/TakeProfitZones.tsx",
+    "frontend/src/components/TradeMonitoring.tsx",
+    "frontend/src/components/TradeMonitoringPanel.tsx",
+    "frontend/src/hooks/queries/localSignals.ts",
+    "frontend/src/hooks/queries/orderBookDepth.ts",
+    "frontend/src/hooks/useMonitoredTrade.ts",
+    "frontend/src/hooks/useMonitoredTrades.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useRadarSensitivity.ts",
+    "frontend/src/lib/orderBookDepth.ts",
+    "frontend/src/lib/radarFilters.ts",
+    "frontend/src/lib/radarSensitivity.ts",
+    "frontend/src/lib/stopLossCalculation.ts",
+    "frontend/src/lib/takeProfitCalculation.ts",
+    "frontend/src/lib/tradeStorage.ts",
+    "project_state.json"
+  ]
+}
