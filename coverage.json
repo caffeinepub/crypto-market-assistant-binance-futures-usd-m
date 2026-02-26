@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T12:45:52.648Z",
+  "generatedAt": "2026-02-26T21:42:23.692Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,106 +12,122 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove the ICP Analysis tab (ICPAnalysis component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+        "summary": "Implement a real-time market data dashboard that fetches Binance Futures USD-M ticker data (price, 24h change, volume, funding rate, open interest) via public API calls from the frontend browser, displaying data in a professional trading terminal style with dark neon theme.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/ICPAnalysis.tsx"
+          "frontend/src/hooks/queries/binanceFetch.ts",
+          "frontend/src/hooks/useBinanceCandlestickData.ts",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/hooks/queries/binanceFuturesMetrics.ts",
+          "frontend/src/components/MarketDataDashboard.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/ICPAnalysis.tsx"
+          "frontend/src/hooks/queries/binanceFetch.ts",
+          "frontend/src/hooks/useBinanceCandlestickData.ts",
+          "frontend/src/components/CandlestickChart.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Remove the Radar tab (RadarDashboard component and DynamicAlerts) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+        "summary": "Implement Smart Money Concepts (SMC) indicators on the candlestick chart and analysis panels, based on the SMC trading books provided as knowledge base. Include: Order Blocks (bullish/bearish), Fair Value Gaps (FVG), Break of Structure (BOS), Change of Character (CHoCH), liquidity zones (buy-side and sell-side liquidity), swing highs/lows, and Premium/Discount zones.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/components/DynamicAlerts.tsx"
+          "frontend/src/lib/smcIndicators.ts",
+          "frontend/src/hooks/useSMCAnalysis.ts",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/SMCSignalPanel.tsx",
+          "frontend/src/components/MarketDataDashboard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/RadarDashboard.tsx",
-          "frontend/src/components/DynamicAlerts.tsx"
+          "frontend/src/lib/smcIndicators.ts",
+          "frontend/src/hooks/useSMCAnalysis.ts",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/SMCSignalPanel.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Remove the Order Book tab (OrderBook component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+        "summary": "Implement classic technical indicators panel alongside the SMC analysis, including RSI (14), MACD (12/26/9), Exponential Moving Averages (EMA 20, 50, 200), Simple Moving Averages (SMA 50, 200), and Bollinger Bands (20, 2). Display computed values in a compact panel below the chart and overlay MAs and Bollinger Bands directly on the candlestick chart.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/OrderBook.tsx"
+          "frontend/src/lib/technicalIndicators.ts",
+          "frontend/src/hooks/useTechnicalIndicators.ts",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/IndicatorSubCharts.tsx",
+          "frontend/src/components/TechnicalIndicatorSummary.tsx",
+          "frontend/src/components/MarketDataDashboard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/OrderBook.tsx"
+          "frontend/src/lib/technicalIndicators.ts",
+          "frontend/src/hooks/useTechnicalIndicators.ts",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/IndicatorSubCharts.tsx",
+          "frontend/src/components/TechnicalIndicatorSummary.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Remove the Trade Monitor tab (TradeMonitoring component, MonitoredTradeCard, TradeMonitoringPanel, StopLossRecommendation, TakeProfitZones) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+        "summary": "Implement browser-side Binance API Key and Secret Key authentication to retrieve the user's open futures positions and account balance. Store the API credentials securely in the browser's localStorage (never sent to the backend). Use HMAC-SHA256 signing in the browser to sign requests to the Binance private REST API endpoints for account and position data.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/TradeMonitoring.tsx",
-          "frontend/src/components/MonitoredTradeCard.tsx",
-          "frontend/src/components/TradeMonitoringPanel.tsx",
-          "frontend/src/components/StopLossRecommendation.tsx",
-          "frontend/src/components/TakeProfitZones.tsx"
+          "frontend/src/lib/binanceAuth.ts",
+          "frontend/src/hooks/useBinanceAuth.ts",
+          "frontend/src/hooks/queries/binancePrivateAPI.ts",
+          "frontend/src/hooks/useBinanceAccount.ts",
+          "frontend/src/components/BinanceCredentialsForm.tsx",
+          "frontend/src/components/BinanceAccountSummary.tsx",
+          "frontend/src/components/UserPreferences.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/TradeMonitoring.tsx",
-          "frontend/src/components/MonitoredTradeCard.tsx",
-          "frontend/src/components/TradeMonitoringPanel.tsx",
-          "frontend/src/components/StopLossRecommendation.tsx",
-          "frontend/src/components/TakeProfitZones.tsx"
+          "frontend/src/lib/binanceAuth.ts",
+          "frontend/src/hooks/useBinanceAuth.ts",
+          "frontend/src/hooks/queries/binancePrivateAPI.ts",
+          "frontend/src/hooks/useBinanceAccount.ts",
+          "frontend/src/components/BinanceCredentialsForm.tsx",
+          "frontend/src/components/BinanceAccountSummary.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Remove all hooks, query files, and libraries that are exclusively used by the removed tabs (ICP, Radar, Order Book, Monitor) and are not referenced by any remaining tab. This includes but may not be limited to: orderBookDepth.ts (hook and lib), useMonitoredTrade.ts, useMonitoredTrades.ts, useRadarSensitivity.ts, radarFilters.ts, radarSensitivity.ts, stopLossCalculation.ts, takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+        "summary": "Implement near real-time monitoring of open Binance Futures positions with automatic polling every 5–10 seconds. Display each position with entry price, current mark price, unrealized PnL (in USDT and percentage), liquidation price, leverage, and side (Long/Short). Show visual P&L alerts when a position gains or loses more than a configurable threshold.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/queries/orderBookDepth.ts",
-          "frontend/src/hooks/useMonitoredTrade.ts",
-          "frontend/src/hooks/useMonitoredTrades.ts",
-          "frontend/src/hooks/useRadarSensitivity.ts",
-          "frontend/src/lib/orderBookDepth.ts",
-          "frontend/src/lib/radarFilters.ts",
-          "frontend/src/lib/radarSensitivity.ts",
-          "frontend/src/lib/stopLossCalculation.ts",
-          "frontend/src/lib/takeProfitCalculation.ts",
-          "frontend/src/lib/tradeStorage.ts",
-          "frontend/src/hooks/queries/localSignals.ts"
+          "frontend/src/hooks/queries/binancePrivateAPI.ts",
+          "frontend/src/hooks/useBinancePositions.ts",
+          "frontend/src/lib/positionAlerts.ts",
+          "frontend/src/components/PositionCard.tsx",
+          "frontend/src/components/PositionsPanel.tsx",
+          "frontend/src/components/MarketDataDashboard.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/queries/orderBookDepth.ts",
-          "frontend/src/hooks/useMonitoredTrade.ts",
-          "frontend/src/hooks/useMonitoredTrades.ts",
-          "frontend/src/hooks/useRadarSensitivity.ts",
-          "frontend/src/lib/orderBookDepth.ts",
-          "frontend/src/lib/radarFilters.ts",
-          "frontend/src/lib/radarSensitivity.ts",
-          "frontend/src/lib/stopLossCalculation.ts",
-          "frontend/src/lib/takeProfitCalculation.ts",
-          "frontend/src/lib/tradeStorage.ts",
-          "frontend/src/hooks/queries/localSignals.ts"
+          "frontend/src/hooks/queries/binancePrivateAPI.ts",
+          "frontend/src/hooks/useBinancePositions.ts",
+          "frontend/src/lib/positionAlerts.ts"
         ]
       },
       {
         "id": "REQ-6",
-        "summary": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+        "summary": "Apply a consistent professional trading terminal visual theme across the entire application. Use a dark background with high-contrast neon accent colors (green for bullish/profit, red for bearish/loss, amber/yellow for neutral signals). Typography should be monospace or semi-monospace for data values, with clean sans-serif for labels. Layout should follow a multi-panel trading dashboard structure.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/manifest.json"
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/components/MarketDataDashboard.tsx",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/PositionCard.tsx",
+          "frontend/src/components/SMCSignalPanel.tsx",
+          "frontend/src/components/TechnicalIndicatorSummary.tsx",
+          "frontend/src/components/BinanceAccountSummary.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/manifest.json"
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/components/CandlestickChart.tsx",
+          "frontend/src/components/SMCSignalPanel.tsx",
+          "frontend/src/components/TechnicalIndicatorSummary.tsx",
+          "frontend/src/components/BinanceAccountSummary.tsx"
         ]
       }
     ]
@@ -121,29 +137,26 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/manifest.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/DynamicAlerts.tsx",
-    "frontend/src/components/ICPAnalysis.tsx",
-    "frontend/src/components/MonitoredTradeCard.tsx",
-    "frontend/src/components/OrderBook.tsx",
-    "frontend/src/components/RadarDashboard.tsx",
-    "frontend/src/components/StopLossRecommendation.tsx",
-    "frontend/src/components/TakeProfitZones.tsx",
-    "frontend/src/components/TradeMonitoring.tsx",
-    "frontend/src/components/TradeMonitoringPanel.tsx",
-    "frontend/src/hooks/queries/localSignals.ts",
-    "frontend/src/hooks/queries/orderBookDepth.ts",
-    "frontend/src/hooks/useMonitoredTrade.ts",
-    "frontend/src/hooks/useMonitoredTrades.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useRadarSensitivity.ts",
-    "frontend/src/lib/orderBookDepth.ts",
-    "frontend/src/lib/radarFilters.ts",
-    "frontend/src/lib/radarSensitivity.ts",
-    "frontend/src/lib/stopLossCalculation.ts",
-    "frontend/src/lib/takeProfitCalculation.ts",
-    "frontend/src/lib/tradeStorage.ts",
+    "frontend/src/components/BinanceAccountSummary.tsx",
+    "frontend/src/components/BinanceCredentialsForm.tsx",
+    "frontend/src/components/CandlestickChart.tsx",
+    "frontend/src/components/IndicatorSubCharts.tsx",
+    "frontend/src/components/SMCSignalPanel.tsx",
+    "frontend/src/components/TechnicalIndicatorSummary.tsx",
+    "frontend/src/hooks/queries/binanceFetch.ts",
+    "frontend/src/hooks/queries/binancePrivateAPI.ts",
+    "frontend/src/hooks/useBinanceAccount.ts",
+    "frontend/src/hooks/useBinanceAuth.ts",
+    "frontend/src/hooks/useBinanceCandlestickData.ts",
+    "frontend/src/hooks/useBinancePositions.ts",
+    "frontend/src/hooks/useSMCAnalysis.ts",
+    "frontend/src/hooks/useTechnicalIndicators.ts",
+    "frontend/src/index.css",
+    "frontend/src/lib/binanceAuth.ts",
+    "frontend/src/lib/positionAlerts.ts",
+    "frontend/src/lib/smcIndicators.ts",
+    "frontend/src/lib/technicalIndicators.ts",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,196 +1,281 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove ICP, Radar, Order Book, and Monitor tabs",
+  "title": "SMC-Based Crypto Trading Platform with Binance Integration and Position Monitoring",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove the ICP Analysis tab from the application",
+      "summary": "Implement real-time market data dashboard with Binance Futures USD-M ticker data",
       "acceptanceCriteria": [
-        "No ICP tab appears in the tab bar",
-        "ICPAnalysis component is not imported or rendered anywhere",
-        "App builds without references to the removed tab"
+        "Market data is fetched from Binance public REST API endpoints directly in the browser",
+        "Price, 24h change percentage, volume, funding rate, and open interest are displayed per symbol",
+        "Data refreshes automatically at a configurable interval (default 10 seconds)",
+        "Candlestick chart is rendered for selected symbol with zoom and timeframe selection (1m, 5m, 15m, 1h, 4h, 1d)",
+        "Loading and error states are handled gracefully with user-facing messages"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/hooks/queries/binanceFetch.ts",
           "operation": "modify",
-          "description": "Remove the lazy-loaded import for ICPAnalysis component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
+          "description": "Extend the existing Binance fetch utilities to support candlestick (klines) data with timeframe parameters. Add fetchBinanceKlines function that fetches OHLCV data for a given symbol and interval from Binance Futures USD-M public API endpoint /fapi/v1/klines. Include proper error handling using the existing error classification structure."
         },
         {
-          "path": "frontend/src/components/ICPAnalysis.tsx",
-          "operation": "delete",
-          "description": "Delete the ICPAnalysis component file as it is no longer used."
+          "path": "frontend/src/hooks/useBinanceCandlestickData.ts",
+          "operation": "create",
+          "description": "Create React Query hook that fetches and caches candlestick data for a selected symbol and timeframe. Support timeframe selection (1m, 5m, 15m, 1h, 4h, 1d) with automatic polling every 10 seconds (configurable). Return typed candlestick data array with timestamp, open, high, low, close, volume. Handle loading and error states."
+        },
+        {
+          "path": "frontend/src/components/CandlestickChart.tsx",
+          "operation": "create",
+          "description": "Create a candlestick chart component using a lightweight charting library (e.g., lightweight-charts). Display OHLCV data from useBinanceCandlestickData hook. Include timeframe selector buttons (1m, 5m, 15m, 1h, 4h, 1d). Support zoom and pan interactions. Apply dark neon theme colors (green for bullish candles, red for bearish). Show loading skeleton and error state."
+        },
+        {
+          "path": "frontend/src/hooks/queries/binanceFuturesMetrics.ts",
+          "operation": "modify",
+          "description": "Extend existing funding rate and open interest fetching to support per-symbol queries. Ensure the hook can fetch these metrics for any selected symbol, not just BTC. Maintain the existing partial-failure handling and session history."
+        },
+        {
+          "path": "frontend/src/components/MarketDataDashboard.tsx",
+          "operation": "create",
+          "description": "Create a new market data dashboard page component that combines the candlestick chart, market ticker data (price, 24h change, volume from existing hooks), and funding rate/open interest panels. Use a multi-panel grid layout: chart in the center, ticker info at the top, funding/OI metrics at the bottom. Include symbol selector that updates all panels. Wire this component into the app router."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new tab navigation item for the Market Data Dashboard. Lazy-load the MarketDataDashboard component. Wire the route so users can navigate to the dashboard from the main tab bar. Maintain existing tab structure (Market, Recommendations, AI Paper Trading, Research, Institutional, Preferences)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Remove the Radar tab from the application",
+      "summary": "Implement Smart Money Concepts (SMC) indicators on candlestick chart and analysis panels",
       "acceptanceCriteria": [
-        "No Radar tab appears in the tab bar",
-        "RadarDashboard component is not imported or rendered anywhere",
-        "DynamicAlerts component tied solely to radar is removed or disabled",
-        "App builds without references to the removed tab"
+        "Order Blocks are detected and highlighted on the candlestick chart (bullish in green, bearish in red)",
+        "Fair Value Gaps (FVG) are visually shaded between their high and low boundaries on the chart",
+        "BOS and CHoCH labels appear at the correct candle where structure breaks or changes",
+        "Liquidity zones (equal highs/lows, swing highs/lows) are marked with dashed horizontal lines",
+        "Premium and Discount zones relative to the current range are shaded on the chart",
+        "A side panel summarizes all detected SMC signals for the selected symbol with bullish/bearish bias"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/lib/smcIndicators.ts",
+          "operation": "create",
+          "description": "Create a library module that calculates Smart Money Concepts indicators from candlestick data. Implement detection algorithms for: Order Blocks (bullish/bearish based on strong rejection candles), Fair Value Gaps (gaps between consecutive candles), Break of Structure (BOS - new high/low beyond previous swing), Change of Character (CHoCH - reversal in swing direction), liquidity zones (equal highs/lows, swing points), Premium/Discount zones (Fibonacci 50% and above/below). Return typed structures for each indicator with price levels, timestamps, and signal type."
+        },
+        {
+          "path": "frontend/src/hooks/useSMCAnalysis.ts",
+          "operation": "create",
+          "description": "Create React hook that computes SMC indicators from candlestick data using the smcIndicators library. Accept symbol and candlestick data as input. Return all detected SMC signals: orderBlocks, fairValueGaps, breakOfStructure, changeOfCharacter, liquidityZones, premiumDiscountZones. Memoize calculations to avoid recomputation on every render. Return a bullish/bearish bias summary based on the aggregate signals."
+        },
+        {
+          "path": "frontend/src/components/CandlestickChart.tsx",
           "operation": "modify",
-          "description": "Remove the lazy-loaded import for RadarDashboard component, remove its tab definition from the tabs array, remove its route entry, and remove the DynamicAlerts component usage if it is exclusively tied to the radar feature."
+          "description": "Enhance the candlestick chart to overlay SMC indicators. Render Order Blocks as semi-transparent rectangles (green for bullish, red for bearish) at the detected price zones. Shade Fair Value Gaps between their high and low boundaries. Add text labels for BOS and CHoCH at the corresponding candles. Draw dashed horizontal lines for liquidity zones. Shade Premium zones (above 50% Fibonacci) in one color and Discount zones (below 50%) in another. All overlays must use neon theme colors consistent with the dark theme."
         },
         {
-          "path": "frontend/src/components/RadarDashboard.tsx",
-          "operation": "delete",
-          "description": "Delete the RadarDashboard component file as it is no longer used."
+          "path": "frontend/src/components/SMCSignalPanel.tsx",
+          "operation": "create",
+          "description": "Create a side panel component that displays a summary of detected SMC signals for the selected symbol. Show count and list of: Order Blocks (bullish/bearish), Fair Value Gaps, recent BOS/CHoCH events, liquidity zones, and Premium/Discount zone boundaries. Display an overall bullish/bearish bias indicator. Use compact card layout with scrollable list. Apply dark neon theme styling."
         },
         {
-          "path": "frontend/src/components/DynamicAlerts.tsx",
-          "operation": "delete",
-          "description": "Delete the DynamicAlerts component file if it is exclusively used by the Radar tab. If it is also used by other tabs, modify those tabs to remove references instead."
+          "path": "frontend/src/components/MarketDataDashboard.tsx",
+          "operation": "modify",
+          "description": "Integrate the SMCSignalPanel into the market data dashboard layout. Position the panel on the right side of the chart. Pass the selected symbol and SMC analysis data from the useSMCAnalysis hook to the panel. Ensure the panel updates when the selected symbol or timeframe changes."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Remove the Order Book tab from the application",
+      "summary": "Implement classic technical indicators panel with RSI, MACD, EMAs, SMAs, and Bollinger Bands",
       "acceptanceCriteria": [
-        "No Order Book tab appears in the tab bar",
-        "OrderBook component is not imported or rendered anywhere",
-        "App builds without references to the removed tab"
+        "RSI (14) is calculated from OHLCV data and displayed as a sub-chart with overbought (70) and oversold (30) lines",
+        "MACD histogram, signal line, and MACD line are displayed in a separate sub-chart",
+        "EMA 20, 50, 200 and SMA 50, 200 lines are overlaid on the candlestick chart in distinct colors",
+        "Bollinger Bands (upper, middle, lower) are overlaid on the candlestick chart",
+        "Current indicator values (RSI value, MACD crossover status, MA alignment) are summarized in a compact panel"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Remove the lazy-loaded import for OrderBook component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
+          "path": "frontend/src/lib/technicalIndicators.ts",
+          "operation": "create",
+          "description": "Create a library module that calculates classic technical indicators from candlestick OHLCV data. Implement: RSI(14), MACD(12,26,9) with histogram and signal line, EMA(20, 50, 200), SMA(50, 200), Bollinger Bands(20, 2) with upper/middle/lower bands. Return typed arrays aligned with candlestick timestamps. Use standard formulas for each indicator."
         },
         {
-          "path": "frontend/src/components/OrderBook.tsx",
-          "operation": "delete",
-          "description": "Delete the OrderBook component file as it is no longer used."
+          "path": "frontend/src/hooks/useTechnicalIndicators.ts",
+          "operation": "create",
+          "description": "Create React hook that computes technical indicators from candlestick data using the technicalIndicators library. Accept candlestick data as input. Return computed RSI, MACD, EMA, SMA, and Bollinger Bands arrays. Memoize calculations. Return current values (latest RSI, MACD crossover status, MA alignment bullish/bearish) as a summary object."
+        },
+        {
+          "path": "frontend/src/components/CandlestickChart.tsx",
+          "operation": "modify",
+          "description": "Overlay moving averages (EMA 20, 50, 200 and SMA 50, 200) and Bollinger Bands on the candlestick chart. Use distinct neon colors for each line (e.g., cyan for EMA20, yellow for EMA50, magenta for EMA200, etc.). Draw Bollinger Bands as semi-transparent bands around the middle line. Ensure all overlays are clearly visible against the dark background."
+        },
+        {
+          "path": "frontend/src/components/IndicatorSubCharts.tsx",
+          "operation": "create",
+          "description": "Create a component that renders sub-charts for RSI and MACD below the main candlestick chart. RSI sub-chart displays the RSI line with horizontal reference lines at 70 (overbought) and 30 (oversold). MACD sub-chart displays the MACD line, signal line, and histogram. Use a charting library that supports multi-pane layouts. Apply dark neon theme colors. Synchronize the x-axis (time) with the main candlestick chart."
+        },
+        {
+          "path": "frontend/src/components/TechnicalIndicatorSummary.tsx",
+          "operation": "create",
+          "description": "Create a compact panel component that displays current technical indicator values and status. Show: RSI value with overbought/oversold badge, MACD crossover status (bullish/bearish), MA alignment (aligned up/down or mixed), Bollinger Band position (price near upper/middle/lower band). Use badge components with color-coded signals. Layout as a horizontal strip or compact card."
+        },
+        {
+          "path": "frontend/src/components/MarketDataDashboard.tsx",
+          "operation": "modify",
+          "description": "Integrate IndicatorSubCharts below the main candlestick chart and TechnicalIndicatorSummary above or beside the chart. Pass computed technical indicator data from useTechnicalIndicators hook to these components. Ensure the layout remains responsive and all panels are visible without excessive scrolling."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Remove the Trade Monitor tab from the application",
+      "summary": "Implement browser-side Binance API Key authentication with HMAC-SHA256 signing",
       "acceptanceCriteria": [
-        "No Monitor tab appears in the tab bar",
-        "TradeMonitoring and all child components exclusive to this tab are not imported or rendered anywhere",
-        "App builds without references to the removed tab"
+        "A settings/credentials form allows users to enter and save their Binance API Key and Secret Key to localStorage",
+        "Credentials are never transmitted to the ICP backend canister",
+        "HMAC-SHA256 request signing is implemented in the browser using the Web Crypto API or a lightweight JS library",
+        "On successful authentication, the user's open USD-M Futures positions are retrieved from the Binance private API",
+        "Account total balance (USDT) and unrealized PnL are displayed in the authenticated section",
+        "An error state is shown if the API key is invalid, expired, or has insufficient permissions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/lib/binanceAuth.ts",
+          "operation": "create",
+          "description": "Create a library module for managing Binance API credentials in the browser. Provide functions to: save API Key and Secret Key to localStorage, retrieve credentials from localStorage, clear credentials. Implement HMAC-SHA256 request signing using the Web Crypto API. Provide a signRequest function that takes query parameters and timestamp, signs with the secret key, and returns the signature. Include helper to generate signed URLs for Binance private API endpoints."
+        },
+        {
+          "path": "frontend/src/hooks/useBinanceAuth.ts",
+          "operation": "create",
+          "description": "Create React hook that manages Binance API authentication state. Provide: hasCredentials (boolean), saveCredentials(apiKey, secretKey), clearCredentials(). Store credentials in localStorage. Return the credentials object (without exposing the secret in component state). Trigger a re-render when credentials are saved or cleared."
+        },
+        {
+          "path": "frontend/src/hooks/queries/binancePrivateAPI.ts",
+          "operation": "create",
+          "description": "Create utility functions for making authenticated requests to Binance private API endpoints. Implement: fetchAccountBalance (GET /fapi/v2/account), fetchOpenPositions (GET /fapi/v2/positionRisk). Use the signRequest function from binanceAuth to sign each request with HMAC-SHA256. Add timestamp and signature to query parameters. Handle errors: 401/403 for invalid credentials, 429 for rate limits, network errors. Return typed response data or throw structured errors."
+        },
+        {
+          "path": "frontend/src/hooks/useBinanceAccount.ts",
+          "operation": "create",
+          "description": "Create React Query hook that fetches the user's Binance Futures account balance and summary. Use fetchAccountBalance from binancePrivateAPI. Require credentials from useBinanceAuth. Return: totalWalletBalance (USDT), availableBalance, totalUnrealizedProfit. Enable the query only when credentials are present. Handle authentication errors and show user-facing error messages."
+        },
+        {
+          "path": "frontend/src/components/BinanceCredentialsForm.tsx",
+          "operation": "create",
+          "description": "Create a form component for entering Binance API Key and Secret Key. Include two password input fields (with show/hide toggle), a save button, and a clear button. On save, call saveCredentials from useBinanceAuth hook. Show a success message after saving. Display a warning that credentials are stored in browser localStorage only and never sent to the backend. Apply dark neon theme styling with form validation."
+        },
+        {
+          "path": "frontend/src/components/BinanceAccountSummary.tsx",
+          "operation": "create",
+          "description": "Create a component that displays the user's Binance account balance and unrealized PnL. Use useBinanceAccount hook to fetch data. Show: Total Balance (USDT), Available Balance, Unrealized PnL (with color-coded green/red). Display loading skeleton while fetching. Show error state if credentials are invalid or API call fails (with specific error message for auth failures). Include a button to refresh the data manually."
+        },
+        {
+          "path": "frontend/src/components/UserPreferences.tsx",
           "operation": "modify",
-          "description": "Remove the lazy-loaded import for TradeMonitoring component, remove its tab definition from the tabs array, and remove its route entry from the routing logic."
-        },
-        {
-          "path": "frontend/src/components/TradeMonitoring.tsx",
-          "operation": "delete",
-          "description": "Delete the TradeMonitoring component file as it is no longer used."
-        },
-        {
-          "path": "frontend/src/components/MonitoredTradeCard.tsx",
-          "operation": "delete",
-          "description": "Delete the MonitoredTradeCard component file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/components/TradeMonitoringPanel.tsx",
-          "operation": "delete",
-          "description": "Delete the TradeMonitoringPanel component file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/components/StopLossRecommendation.tsx",
-          "operation": "delete",
-          "description": "Delete the StopLossRecommendation component file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/components/TakeProfitZones.tsx",
-          "operation": "delete",
-          "description": "Delete the TakeProfitZones component file as it is exclusively used by the Trade Monitor tab."
+          "description": "Add a Binance API Settings section to the existing user preferences page. Include the BinanceCredentialsForm component and conditionally render BinanceAccountSummary if credentials are present. Layout as a collapsible card or accordion item within the preferences page. Maintain existing theme and alert settings."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Remove hooks, query files, and libraries exclusively used by removed tabs",
+      "summary": "Implement near real-time monitoring of open Binance Futures positions with automatic polling",
       "acceptanceCriteria": [
-        "No dead imports remain in the bundle for the removed tabs",
-        "All removed files' imports are cleaned up from any remaining components",
-        "Frontend builds and runs without errors"
+        "Position data is polled from the Binance private API every 5–10 seconds using the signed credentials",
+        "Each open position card shows: symbol, side (Long/Short), entry price, mark price, unrealized PnL (USDT and %), liquidation price, and leverage",
+        "PnL is color-coded: green for profit, red for loss",
+        "A visual alert badge or animation appears when unrealized PnL exceeds ±5% (configurable threshold)",
+        "Polling stops gracefully if credentials are cleared or API returns an auth error",
+        "Last updated timestamp is shown on the positions panel"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/queries/orderBookDepth.ts",
-          "operation": "delete",
-          "description": "Delete the orderBookDepth query file as it is exclusively used by the OrderBook tab."
-        },
-        {
-          "path": "frontend/src/hooks/useMonitoredTrade.ts",
-          "operation": "delete",
-          "description": "Delete the useMonitoredTrade hook as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/hooks/useMonitoredTrades.ts",
-          "operation": "delete",
-          "description": "Delete the useMonitoredTrades hook as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/hooks/useRadarSensitivity.ts",
-          "operation": "delete",
-          "description": "Delete the useRadarSensitivity hook as it is exclusively used by the Radar tab."
-        },
-        {
-          "path": "frontend/src/lib/orderBookDepth.ts",
-          "operation": "delete",
-          "description": "Delete the orderBookDepth library file as it is exclusively used by the OrderBook tab."
-        },
-        {
-          "path": "frontend/src/lib/radarFilters.ts",
-          "operation": "delete",
-          "description": "Delete the radarFilters library file as it is exclusively used by the Radar tab."
-        },
-        {
-          "path": "frontend/src/lib/radarSensitivity.ts",
-          "operation": "delete",
-          "description": "Delete the radarSensitivity library file as it is exclusively used by the Radar tab."
-        },
-        {
-          "path": "frontend/src/lib/stopLossCalculation.ts",
-          "operation": "delete",
-          "description": "Delete the stopLossCalculation library file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/lib/takeProfitCalculation.ts",
-          "operation": "delete",
-          "description": "Delete the takeProfitCalculation library file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/lib/tradeStorage.ts",
-          "operation": "delete",
-          "description": "Delete the tradeStorage library file as it is exclusively used by the Trade Monitor tab."
-        },
-        {
-          "path": "frontend/src/hooks/queries/localSignals.ts",
+          "path": "frontend/src/hooks/queries/binancePrivateAPI.ts",
           "operation": "modify",
-          "description": "Review and remove any radar-specific signal generation logic if it is only used by the Radar tab. If the file contains shared logic used by other tabs, keep those portions and only remove radar-exclusive functions."
+          "description": "Ensure fetchOpenPositions function returns detailed position data: symbol, positionSide (LONG/SHORT), entryPrice, markPrice, unRealizedProfit, liquidationPrice, leverage, positionAmt. Parse and validate all fields from the Binance API response. Filter out positions with zero position amount (closed positions)."
+        },
+        {
+          "path": "frontend/src/hooks/useBinancePositions.ts",
+          "operation": "create",
+          "description": "Create React Query hook that fetches open Binance Futures positions with automatic polling every 8 seconds (configurable via refetchInterval). Use fetchOpenPositions from binancePrivateAPI. Enable query only when credentials are present. Stop polling if credentials are cleared or auth error occurs. Return array of open positions with computed PnL percentage. Include lastUpdated timestamp."
+        },
+        {
+          "path": "frontend/src/lib/positionAlerts.ts",
+          "operation": "create",
+          "description": "Create utility functions to detect position alerts. Implement: shouldShowPnLAlert(position, threshold) that returns true if unrealized PnL percentage exceeds the configurable threshold (default ±5%). Store the alert threshold in localStorage with a default value. Provide getter/setter functions for the threshold."
+        },
+        {
+          "path": "frontend/src/components/PositionCard.tsx",
+          "operation": "create",
+          "description": "Create a card component that displays a single open position. Show: symbol badge, side (Long/Short) with color-coded background (green for long, red for short), entry price, current mark price, unrealized PnL in USDT and percentage (color-coded), liquidation price, leverage badge. If shouldShowPnLAlert returns true, display a pulsing alert badge or border animation. Use monospace font for numeric values. Apply dark neon theme styling."
+        },
+        {
+          "path": "frontend/src/components/PositionsPanel.tsx",
+          "operation": "create",
+          "description": "Create a panel component that displays all open positions. Use useBinancePositions hook to fetch and poll position data. Render a grid or list of PositionCard components. Show a header with total positions count and last updated timestamp. Display loading skeleton during initial fetch. Show error state if API call fails or credentials are missing. Include a manual refresh button. If no credentials are set, show a message prompting the user to configure API keys in settings."
+        },
+        {
+          "path": "frontend/src/components/MarketDataDashboard.tsx",
+          "operation": "modify",
+          "description": "Integrate the PositionsPanel into the market data dashboard layout. Position it at the bottom or as a sidebar panel. Ensure it's visible alongside the chart and SMC signal panel. The positions panel should update independently via polling without blocking other UI interactions."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure the Market Data Dashboard tab is properly wired and accessible from the main tab navigation. Verify that the PositionsPanel appears when users navigate to the dashboard. Maintain existing lazy-loading behavior for performance."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Update PWA manifest to remove shortcuts for removed tabs",
+      "summary": "Apply consistent professional trading terminal visual theme across the entire application",
       "acceptanceCriteria": [
-        "manifest.json shortcuts no longer reference removed tabs",
-        "Remaining shortcuts are valid and point to existing tabs"
+        "All pages use a dark background (#0a0a0a or equivalent) with neon green, red, and amber accent colors",
+        "Numeric price and PnL data are displayed in monospace font",
+        "The dashboard layout uses a multi-panel grid: chart area (center), SMC signals panel (right), positions panel (bottom or side)",
+        "Bullish signals and profits are consistently green; bearish signals and losses are consistently red",
+        "The theme is applied consistently across all tabs and components"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/manifest.json",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Remove any shortcuts array entries that reference the ICP, Radar, Order Book, or Monitor tabs. Verify remaining shortcuts point to valid tabs still in the application."
+          "description": "Enhance the existing dark-neon theme to ensure a consistent trading terminal aesthetic. Add CSS custom properties for: trading chart colors (bullish green, bearish red, neutral amber), monospace font stack for numeric data, panel backgrounds with subtle transparency, neon accent borders. Ensure the base dark background is #0a0a0a or equivalent. Update existing color tokens to match professional trading terminal standards. Add utility classes for: .price-up (green), .price-down (red), .monospace (for price/PnL values), .panel-border (neon glow effect)."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend Tailwind configuration to include trading terminal color tokens and typography. Add custom colors: trading-green, trading-red, trading-amber, panel-bg, panel-border. Add a monospace font family for numeric values. Ensure these tokens are compatible with the existing neon color scheme. Add custom box-shadow utilities for neon glow effects on panels and cards."
+        },
+        {
+          "path": "frontend/src/components/MarketDataDashboard.tsx",
+          "operation": "modify",
+          "description": "Apply a multi-panel grid layout using CSS Grid or Flexbox. Structure: main chart area in the center (largest panel), SMC signal panel on the right (narrower), positions panel at the bottom (full width) or as a left sidebar. Use panel-border and panel-bg utility classes for consistent styling. Ensure the layout is responsive: on smaller screens, stack panels vertically. Apply consistent spacing and neon accent borders between panels."
+        },
+        {
+          "path": "frontend/src/components/CandlestickChart.tsx",
+          "operation": "modify",
+          "description": "Ensure the candlestick chart uses the trading-green color for bullish candles and trading-red for bearish candles. Apply the dark panel background. Use neon accent colors for all chart overlays (SMC indicators, MAs, Bollinger Bands). Configure the charting library theme to match the dark neon palette. Ensure axis labels and grid lines use subtle neon colors for visibility."
+        },
+        {
+          "path": "frontend/src/components/PositionCard.tsx",
+          "operation": "modify",
+          "description": "Ensure all numeric values (entry price, mark price, PnL, liquidation price) use the monospace font class. Apply trading-green to profit values and trading-red to loss values. Use neon accent borders on the card. Apply consistent padding and spacing. Ensure the card background matches the panel-bg token."
+        },
+        {
+          "path": "frontend/src/components/SMCSignalPanel.tsx",
+          "operation": "modify",
+          "description": "Apply dark panel background and neon accent borders. Use trading-green for bullish signals and trading-red for bearish signals. Ensure all text is readable with high contrast against the dark background. Use the panel-border utility for the outer border. Apply consistent spacing and typography."
+        },
+        {
+          "path": "frontend/src/components/TechnicalIndicatorSummary.tsx",
+          "operation": "modify",
+          "description": "Apply monospace font to all indicator values (RSI, MACD, etc.). Use color-coded badges: trading-green for bullish, trading-red for bearish, trading-amber for neutral. Ensure the panel background matches the dark theme. Apply neon accent borders if displayed as a standalone panel."
+        },
+        {
+          "path": "frontend/src/components/BinanceAccountSummary.tsx",
+          "operation": "modify",
+          "description": "Display balance and PnL values in monospace font. Apply trading-green to positive PnL and trading-red to negative PnL. Use the dark panel background and neon accent borders. Ensure the component styling is consistent with other trading terminal panels."
         }
       ]
     }

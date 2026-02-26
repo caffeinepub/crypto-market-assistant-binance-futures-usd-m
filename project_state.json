@@ -1,60 +1,58 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Paper trading app with AI on 558 USD-M pairs (Binance Futures). Removing ICP, Radar, Order Book, and Monitor tabs to reduce bundle size and fix deployment errors.",
+  "summary": "Crypto trading platform on Internet Computer (ICP) with Motoko backend and React/TypeScript frontend. Frontend communicates directly with Binance public API for market data, analytics, and metrics. Browser-side API key management for retrieving and monitoring open positions in near real-time. UI based on Smart Money Concepts (SMC) principles from provided trading books.",
   "architectural_notes": [
-    "App is deployed on Internet Computer (ICP) as a canister; bundle size and memory limits are deployment constraints.",
-    "Data source: Binance USD-M Perpetual Futures API (fapi.binance.com) — frontend/browser only.",
-    "Signal scoring uses RSI, MACD, EMA cross, Volume Spike, Funding Rate, Bollinger Bands, and Open Interest with defined weights."
+    "Frontend (React/TypeScript) handles all Binance API communication directly from the browser — no backend proxy",
+    "Binance API keys stored and used only in the browser for position retrieval; never sent to the canister",
+    "SMC analysis logic derived from user-provided trading books as knowledge base"
   ],
-  "known_issues": [
-    "Repeated deployment errors on ICP — likely caused by large bundle size or canister memory limits."
-  ],
+  "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-remove-the-icp-analysis-tab-icpanalysis-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
-      "title": "Remove the ICP Analysis tab (ICPAnalysis component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "id": "feature-implement-a-real-time-market-data-dashboard-that-fetches-binance-futures-usd-m-ticker-data-price-24h-change-volume-funding-rate-open-interest-via-public-api-calls-from-the-frontend-browser-displaying-data-in-a-professional-trading-terminal-style-with-dark-neon-theme",
+      "title": "Implement a real-time market data dashboard that fetches Binance Futures USD-M ticker data (price, 24h change, volume, funding rate, open interest) via public API calls from the frontend browser, displaying data in a professional trading terminal style with dark neon theme.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-the-radar-tab-radardashboard-component-and-dynamicalerts-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
-      "title": "Remove the Radar tab (RadarDashboard component and DynamicAlerts) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "id": "feature-implement-smart-money-concepts-smc-indicators-on-the-candlestick-chart-and-analysis-panels-based-on-the-smc-trading-books-provided-as-knowledge-base-include-order-blocks-bullish-bearish-fair-value-gaps-fvg-break-of-structure-bos-change-of-character-choch-liquidity-zones-buy-side-and-sell-side-liquidity-swing-highs-lows-and-premium-discount-zones",
+      "title": "Implement Smart Money Concepts (SMC) indicators on the candlestick chart and analysis panels, based on the SMC trading books provided as knowledge base. Include: Order Blocks (bullish/bearish), Fair Value Gaps (FVG), Break of Structure (BOS), Change of Character (CHoCH), liquidity zones (buy-side and sell-side liquidity), swing highs/lows, and Premium/Discount zones.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-the-order-book-tab-orderbook-component-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
-      "title": "Remove the Order Book tab (OrderBook component) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "id": "feature-implement-classic-technical-indicators-panel-alongside-the-smc-analysis-including-rsi-14-macd-12-26-9-exponential-moving-averages-ema-20-50-200-simple-moving-averages-sma-50-200-and-bollinger-bands-20-2-display-computed-values-in-a-compact-panel-below-the-chart-and-overlay-mas-and-bollinger-bands-directly-on-the-candlestick-chart",
+      "title": "Implement classic technical indicators panel alongside the SMC analysis, including RSI (14), MACD (12/26/9), Exponential Moving Averages (EMA 20, 50, 200), Simple Moving Averages (SMA 50, 200), and Bollinger Bands (20, 2). Display computed values in a compact panel below the chart and overlay MAs and Bollinger Bands directly on the candlestick chart.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-the-trade-monitor-tab-trademonitoring-component-monitoredtradecard-trademonitoringpanel-stoplossrecommendation-takeprofitzones-from-the-tab-navigation-and-from-the-app-entirely-including-its-lazy-loaded-import-route-entry-and-any-navigation-references",
-      "title": "Remove the Trade Monitor tab (TradeMonitoring component, MonitoredTradeCard, TradeMonitoringPanel, StopLossRecommendation, TakeProfitZones) from the tab navigation and from the app entirely, including its lazy-loaded import, route entry, and any navigation references.",
+      "id": "feature-implement-browser-side-binance-api-key-and-secret-key-authentication-to-retrieve-the-user-s-open-futures-positions-and-account-balance-store-the-api-credentials-securely-in-the-browser-s-localstorage-never-sent-to-the-backend-use-hmac-sha256-signing-in-the-browser-to-sign-requests-to-the-binance-private-rest-api-endpoints-for-account-and-position-data",
+      "title": "Implement browser-side Binance API Key and Secret Key authentication to retrieve the user's open futures positions and account balance. Store the API credentials securely in the browser's localStorage (never sent to the backend). Use HMAC-SHA256 signing in the browser to sign requests to the Binance private REST API endpoints for account and position data.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-all-hooks-query-files-and-libraries-that-are-exclusively-used-by-the-removed-tabs-icp-radar-order-book-monitor-and-are-not-referenced-by-any-remaining-tab-this-includes-but-may-not-be-limited-to-orderbookdepth-ts-hook-and-lib-usemonitoredtrade-ts-usemonitoredtrades-ts-useradarsensitivity-ts-radarfilters-ts-radarsensitivity-ts-stoplosscalculation-ts-takeprofitcalculation-ts-tradestorage-ts-and-related-query-files",
-      "title": "Remove all hooks, query files, and libraries that are exclusively used by the removed tabs (ICP, Radar, Order Book, Monitor) and are not referenced by any remaining tab. This includes but may not be limited to: orderBookDepth.ts (hook and lib), useMonitoredTrade.ts, useMonitoredTrades.ts, useRadarSensitivity.ts, radarFilters.ts, radarSensitivity.ts, stopLossCalculation.ts, takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
+      "id": "feature-implement-near-real-time-monitoring-of-open-binance-futures-positions-with-automatic-polling-every-5-10-seconds-display-each-position-with-entry-price-current-mark-price-unrealized-pnl-in-usdt-and-percentage-liquidation-price-leverage-and-side-long-short-show-visual-p-l-alerts-when-a-position-gains-or-loses-more-than-a-configurable-threshold",
+      "title": "Implement near real-time monitoring of open Binance Futures positions with automatic polling every 5–10 seconds. Display each position with entry price, current mark price, unrealized PnL (in USDT and percentage), liquidation price, leverage, and side (Long/Short). Show visual P&L alerts when a position gains or loses more than a configurable threshold.",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-pwa-manifest-frontend-public-manifest-json-to-remove-any-shortcuts-pointing-to-the-removed-tabs-icp-radar-order-book-monitor",
-      "title": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
+      "id": "feature-apply-a-consistent-professional-trading-terminal-visual-theme-across-the-entire-application-use-a-dark-background-with-high-contrast-neon-accent-colors-green-for-bullish-profit-red-for-bearish-loss-amber-yellow-for-neutral-signals-typography-should-be-monospace-or-semi-monospace-for-data-values-with-clean-sans-serif-for-labels-layout-should-follow-a-multi-panel-trading-dashboard-structure",
+      "title": "Apply a consistent professional trading terminal visual theme across the entire application. Use a dark background with high-contrast neon accent colors (green for bullish/profit, red for bearish/loss, amber/yellow for neutral signals). Typography should be monospace or semi-monospace for data values, with clean sans-serif for labels. Layout should follow a multi-panel trading dashboard structure.",
       "reqIds": [
         "REQ-6"
       ],
@@ -64,13 +62,37 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Remove ICP, Radar, Order Book, and Monitor tabs from the app",
+      "summary": "Binance public API integration for real-time market data (prices, volume, order book, candlestick charts)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Smart Money Concepts indicators: Order Blocks, Fair Value Gaps (FVG), BOS, CHoCH, liquidity zones, swing points",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Classic technical indicators panel: RSI, MACD, moving averages, Bollinger Bands",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Browser-side Binance API Key + Secret Key authentication for retrieving open positions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Near real-time position monitoring (polling every 5-10 seconds) with P&L visual alerts",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Paper Trading AI (USD-M)",
+  "projectName": "SMC Crypto Trading Platform",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,623 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.75rem;
-        --background: 0.08 0 0;
-        --foreground: 0.98 0 0;
-        --card: 0.14 0 0;
-        --card-foreground: 0.98 0 0;
-        --popover: 0.18 0 0;
-        --popover-foreground: 0.98 0 0;
-        --primary: 0.88 0 0;
-        --primary-foreground: 0.12 0 0;
-        --secondary: 0.22 0 0;
-        --secondary-foreground: 0.98 0 0;
-        --muted: 0.22 0 0;
-        --muted-foreground: 0.70 0 0;
-        --accent: 0.28 0 0;
-        --accent-foreground: 0.98 0 0;
-        --destructive: 0.68 0.32 25;
-        --destructive-foreground: 0.98 0 0;
-        --border: 1 0 0 / 18%;
-        --input: 1 0 0 / 22%;
-        --ring: 0.75 0.28 200;
-        
-        --sidebar: 0.14 0 0;
-        --sidebar-foreground: 0.98 0 0;
-        --sidebar-primary: 0.78 0.30 195;
-        --sidebar-primary-foreground: 0.98 0 0;
-        --sidebar-accent: 0.22 0 0;
-        --sidebar-accent-foreground: 0.98 0 0;
-        --sidebar-border: 1 0 0 / 18%;
-        --sidebar-ring: 0.70 0 0;
-    }
+  :root {
+    --background: oklch(0.08 0.01 240);
+    --foreground: oklch(0.92 0.02 200);
+    --card: oklch(0.11 0.015 240);
+    --card-foreground: oklch(0.92 0.02 200);
+    --popover: oklch(0.10 0.015 240);
+    --popover-foreground: oklch(0.92 0.02 200);
+    --primary: oklch(0.72 0.22 160);
+    --primary-foreground: oklch(0.08 0.01 240);
+    --secondary: oklch(0.15 0.02 240);
+    --secondary-foreground: oklch(0.85 0.02 200);
+    --muted: oklch(0.14 0.015 240);
+    --muted-foreground: oklch(0.55 0.02 200);
+    --accent: oklch(0.65 0.25 160);
+    --accent-foreground: oklch(0.08 0.01 240);
+    --destructive: oklch(0.60 0.22 25);
+    --destructive-foreground: oklch(0.95 0.01 25);
+    --border: oklch(0.20 0.02 240);
+    --input: oklch(0.15 0.02 240);
+    --ring: oklch(0.72 0.22 160);
+    --radius: 0.5rem;
 
-    /* Dark Neon Theme - Purple/Pink/Orange tones with high intensity */
-    .theme-dark-neon {
-        --neon-cyan: 0.78 0.32 290;
-        --neon-blue: 0.72 0.30 270;
-        --neon-green: 0.80 0.30 150;
-        --neon-purple: 0.75 0.35 310;
-        --neon-pink: 0.78 0.38 340;
-        --neon-orange: 0.75 0.35 40;
-        --neon-red: 0.70 0.35 25;
-        
-        --chart-1: 0.80 0.32 150;
-        --chart-2: 0.75 0.35 310;
-        --chart-3: 0.78 0.38 340;
-        --chart-4: 0.75 0.35 40;
-        --chart-5: 0.70 0.35 25;
-    }
+    /* Trading terminal colors */
+    --trading-green: oklch(0.72 0.22 160);
+    --trading-red: oklch(0.60 0.22 25);
+    --trading-amber: oklch(0.78 0.18 75);
+    --trading-blue: oklch(0.65 0.20 240);
+    --trading-purple: oklch(0.65 0.22 290);
+    --panel-bg: oklch(0.10 0.015 240);
+    --panel-border: oklch(0.25 0.05 160);
+    --chart-bg: oklch(0.07 0.01 240);
+    --neon-glow: oklch(0.72 0.22 160);
 
-    /* Cyber Glow Theme - Blue/Teal/Cyan tones with smooth animations */
-    .theme-cyber-glow {
-        --neon-cyan: 0.82 0.35 195;
-        --neon-blue: 0.75 0.32 240;
-        --neon-green: 0.80 0.30 150;
-        --neon-purple: 0.78 0.28 210;
-        --neon-pink: 0.80 0.30 200;
-        --neon-orange: 0.78 0.30 180;
-        --neon-red: 0.70 0.35 25;
-        
-        --chart-1: 0.80 0.32 150;
-        --chart-2: 0.82 0.35 195;
-        --chart-3: 0.75 0.32 240;
-        --chart-4: 0.78 0.28 210;
-        --chart-5: 0.78 0.30 180;
-    }
+    /* Chart overlay colors */
+    --ob-bullish: oklch(0.72 0.22 160 / 0.25);
+    --ob-bearish: oklch(0.60 0.22 25 / 0.25);
+    --fvg-color: oklch(0.65 0.20 240 / 0.20);
+    --premium-zone: oklch(0.60 0.22 25 / 0.10);
+    --discount-zone: oklch(0.72 0.22 160 / 0.10);
+  }
 
-    .dark {
-        --background: 0.08 0 0;
-        --foreground: 0.98 0 0;
-        --card: 0.14 0 0;
-        --card-foreground: 0.98 0 0;
-        --popover: 0.18 0 0;
-        --popover-foreground: 0.98 0 0;
-        --primary: 0.88 0 0;
-        --primary-foreground: 0.12 0 0;
-        --secondary: 0.22 0 0;
-        --secondary-foreground: 0.98 0 0;
-        --muted: 0.22 0 0;
-        --muted-foreground: 0.70 0 0;
-        --accent: 0.28 0 0;
-        --accent-foreground: 0.98 0 0;
-        --destructive: 0.68 0.32 25;
-        --destructive-foreground: 0.98 0 0;
-        --border: 1 0 0 / 18%;
-        --input: 1 0 0 / 22%;
-        --ring: 0.75 0.28 200;
-        
-        --sidebar: 0.14 0 0;
-        --sidebar-foreground: 0.98 0 0;
-        --sidebar-primary: 0.78 0.30 195;
-        --sidebar-primary-foreground: 0.98 0 0;
-        --sidebar-accent: 0.22 0 0;
-        --sidebar-accent-foreground: 0.98 0 0;
-        --sidebar-border: 1 0 0 / 18%;
-        --sidebar-ring: 0.70 0 0;
-    }
-
-    * {
-        @apply border-border;
-    }
-    
-    html {
-        /* Prevent text size adjustment on orientation change */
-        -webkit-text-size-adjust: 100%;
-        /* Enable smooth scrolling */
-        scroll-behavior: smooth;
-    }
-    
-    body {
-        @apply bg-background text-foreground;
-        transition: background-image 0.5s ease-in-out;
-    }
-    
-    /* Dark Neon background gradients */
-    .theme-dark-neon body {
-        background-image: 
-            radial-gradient(circle at 20% 50%, oklch(var(--neon-purple) / 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, oklch(var(--neon-pink) / 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, oklch(var(--neon-orange) / 0.12) 0%, transparent 50%);
-        background-attachment: fixed;
-    }
-    
-    /* Cyber Glow background gradients */
-    .theme-cyber-glow body {
-        background-image: 
-            radial-gradient(circle at 20% 50%, oklch(var(--neon-cyan) / 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, oklch(var(--neon-blue) / 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, oklch(var(--neon-purple) / 0.10) 0%, transparent 50%);
-        background-attachment: fixed;
-    }
-    
-    body {
-        /* Improve touch scrolling on iOS */
-        -webkit-overflow-scrolling: touch;
-        /* Prevent pull-to-refresh on mobile */
-        overscroll-behavior-y: contain;
-    }
-    
-    /* Safe area insets for notched devices */
-    .safe-area-inset {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    .safe-top {
-        padding-top: max(0.75rem, env(safe-area-inset-top));
-    }
-    
-    .safe-bottom {
-        padding-bottom: max(1rem, env(safe-area-inset-bottom));
-    }
+  .dark {
+    --background: oklch(0.08 0.01 240);
+    --foreground: oklch(0.92 0.02 200);
+    --card: oklch(0.11 0.015 240);
+    --card-foreground: oklch(0.92 0.02 200);
+    --popover: oklch(0.10 0.015 240);
+    --popover-foreground: oklch(0.92 0.02 200);
+    --primary: oklch(0.72 0.22 160);
+    --primary-foreground: oklch(0.08 0.01 240);
+    --secondary: oklch(0.15 0.02 240);
+    --secondary-foreground: oklch(0.85 0.02 200);
+    --muted: oklch(0.14 0.015 240);
+    --muted-foreground: oklch(0.55 0.02 200);
+    --accent: oklch(0.65 0.25 160);
+    --accent-foreground: oklch(0.08 0.01 240);
+    --destructive: oklch(0.60 0.22 25);
+    --destructive-foreground: oklch(0.95 0.01 25);
+    --border: oklch(0.20 0.02 240);
+    --input: oklch(0.15 0.02 240);
+    --ring: oklch(0.72 0.22 160);
+  }
 }
 
-@layer components {
-    /* Touch-friendly tap targets */
-    .touch-manipulation {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Enhanced neon glow effects - optimized for mobile screens */
-    .neon-glow {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-cyan) / 0.5),
-            0 0 24px oklch(var(--neon-blue) / 0.3),
-            0 0 36px oklch(var(--neon-purple) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-glow {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-cyan) / 0.5),
-                0 0 30px oklch(var(--neon-blue) / 0.3),
-                0 0 45px oklch(var(--neon-purple) / 0.2);
-        }
-    }
-    
-    .neon-glow-bullish {
-        box-shadow: 
-            0 0 16px oklch(var(--neon-green) / 0.6),
-            0 0 32px oklch(var(--neon-cyan) / 0.4),
-            0 0 48px oklch(var(--neon-green) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-glow-bullish {
-            box-shadow: 
-                0 0 20px oklch(var(--neon-green) / 0.6),
-                0 0 40px oklch(var(--neon-cyan) / 0.4),
-                0 0 60px oklch(var(--neon-green) / 0.2);
-        }
-    }
-    
-    .neon-glow-bearish {
-        box-shadow: 
-            0 0 16px oklch(var(--neon-red) / 0.6),
-            0 0 32px oklch(var(--neon-orange) / 0.4),
-            0 0 48px oklch(var(--neon-red) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-glow-bearish {
-            box-shadow: 
-                0 0 20px oklch(var(--neon-red) / 0.6),
-                0 0 40px oklch(var(--neon-orange) / 0.4),
-                0 0 60px oklch(var(--neon-red) / 0.2);
-        }
-    }
-    
-    .neon-text {
-        text-shadow: 
-            0 0 12px oklch(var(--neon-cyan) / 0.7),
-            0 0 24px oklch(var(--neon-blue) / 0.5);
-        transition: text-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-text {
-            text-shadow: 
-                0 0 15px oklch(var(--neon-cyan) / 0.7),
-                0 0 30px oklch(var(--neon-blue) / 0.5);
-        }
-    }
-    
-    .neon-text-bullish {
-        text-shadow: 
-            0 0 12px oklch(var(--neon-green) / 0.8),
-            0 0 24px oklch(var(--neon-cyan) / 0.6);
-        transition: text-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-text-bullish {
-            text-shadow: 
-                0 0 15px oklch(var(--neon-green) / 0.8),
-                0 0 30px oklch(var(--neon-cyan) / 0.6);
-        }
-    }
-    
-    .neon-text-bearish {
-        text-shadow: 
-            0 0 12px oklch(var(--neon-red) / 0.8),
-            0 0 24px oklch(var(--neon-orange) / 0.6);
-        transition: text-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-text-bearish {
-            text-shadow: 
-                0 0 15px oklch(var(--neon-red) / 0.8),
-                0 0 30px oklch(var(--neon-orange) / 0.6);
-        }
-    }
-    
-    /* Radar-specific neon effects */
-    .neon-text-radar {
-        text-shadow: 
-            0 0 12px oklch(var(--neon-orange) / 0.8),
-            0 0 24px oklch(var(--neon-orange) / 0.6);
-        transition: text-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-text-radar {
-            text-shadow: 
-                0 0 15px oklch(var(--neon-orange) / 0.8),
-                0 0 30px oklch(var(--neon-orange) / 0.6);
-        }
-    }
-    
-    .shadow-radar-glow {
-        box-shadow: 
-            0 0 16px oklch(var(--neon-orange) / 0.5),
-            0 0 32px oklch(var(--neon-orange) / 0.3),
-            0 0 48px oklch(var(--neon-orange) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .shadow-radar-glow {
-            box-shadow: 
-                0 0 20px oklch(var(--neon-orange) / 0.5),
-                0 0 40px oklch(var(--neon-orange) / 0.3),
-                0 0 60px oklch(var(--neon-orange) / 0.2);
-        }
-    }
-    
-    /* Shadow utilities with theme-aware colors */
-    .shadow-neon-md {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-cyan) / 0.4),
-            0 0 24px oklch(var(--neon-cyan) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .shadow-neon-md {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-cyan) / 0.4),
-                0 0 30px oklch(var(--neon-cyan) / 0.2);
-        }
-    }
-    
-    .shadow-neon-bullish {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-green) / 0.4),
-            0 0 24px oklch(var(--neon-green) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .shadow-neon-bullish {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-green) / 0.4),
-                0 0 30px oklch(var(--neon-green) / 0.2);
-        }
-    }
-    
-    .shadow-neon-bearish {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-red) / 0.4),
-            0 0 24px oklch(var(--neon-red) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .shadow-neon-bearish {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-red) / 0.4),
-                0 0 30px oklch(var(--neon-red) / 0.2);
-        }
-    }
-    
-    /* Enhanced border glows */
-    .neon-border-bullish {
-        border-color: oklch(var(--neon-green) / 0.6);
-        box-shadow: 
-            inset 0 0 12px oklch(var(--neon-green) / 0.3),
-            0 0 16px oklch(var(--neon-green) / 0.4);
-        transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-border-bullish {
-            box-shadow: 
-                inset 0 0 15px oklch(var(--neon-green) / 0.3),
-                0 0 20px oklch(var(--neon-green) / 0.4);
-        }
-    }
-    
-    .neon-border-bearish {
-        border-color: oklch(var(--neon-red) / 0.6);
-        box-shadow: 
-            inset 0 0 12px oklch(var(--neon-red) / 0.3),
-            0 0 16px oklch(var(--neon-red) / 0.4);
-        transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .neon-border-bearish {
-            box-shadow: 
-                inset 0 0 15px oklch(var(--neon-red) / 0.3),
-                0 0 20px oklch(var(--neon-red) / 0.4);
-        }
-    }
-    
-    /* Animated pulse effects */
-    .pulse-bullish {
-        animation: pulse-bullish 2s ease-in-out infinite;
-    }
-    
-    .pulse-bearish {
-        animation: pulse-bearish 2s ease-in-out infinite;
-    }
-    
-    .animate-pulse-neon {
-        animation: pulse-neon 2s ease-in-out infinite;
-    }
-    
-    .animate-pulse-bullish {
-        animation: pulse-bullish 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-neon {
-        0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 0.8;
-            transform: scale(1.05);
-        }
-    }
-    
-    @keyframes pulse-bullish {
-        0%, 100% {
-            box-shadow: 
-                0 0 16px oklch(var(--neon-green) / 0.6),
-                0 0 32px oklch(var(--neon-cyan) / 0.4);
-        }
-        50% {
-            box-shadow: 
-                0 0 24px oklch(var(--neon-green) / 0.8),
-                0 0 48px oklch(var(--neon-cyan) / 0.6);
-        }
-    }
-    
-    @media (min-width: 640px) {
-        @keyframes pulse-bullish {
-            0%, 100% {
-                box-shadow: 
-                    0 0 20px oklch(var(--neon-green) / 0.6),
-                    0 0 40px oklch(var(--neon-cyan) / 0.4);
-            }
-            50% {
-                box-shadow: 
-                    0 0 30px oklch(var(--neon-green) / 0.8),
-                    0 0 60px oklch(var(--neon-cyan) / 0.6);
-            }
-        }
-    }
-    
-    @keyframes pulse-bearish {
-        0%, 100% {
-            box-shadow: 
-                0 0 16px oklch(var(--neon-red) / 0.6),
-                0 0 32px oklch(var(--neon-orange) / 0.4);
-        }
-        50% {
-            box-shadow: 
-                0 0 24px oklch(var(--neon-red) / 0.8),
-                0 0 48px oklch(var(--neon-orange) / 0.6);
-        }
-    }
-    
-    @media (min-width: 640px) {
-        @keyframes pulse-bearish {
-            0%, 100% {
-                box-shadow: 
-                    0 0 20px oklch(var(--neon-red) / 0.6),
-                    0 0 40px oklch(var(--neon-orange) / 0.4);
-            }
-            50% {
-                box-shadow: 
-                    0 0 30px oklch(var(--neon-red) / 0.8),
-                    0 0 60px oklch(var(--neon-orange) / 0.6);
-            }
-        }
-    }
-    
-    /* Radar-specific animations */
-    .animate-pulse-radar {
-        animation: pulse-radar 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-radar {
-        0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 0.7;
-            transform: scale(1.05);
-        }
-    }
-    
-    .animate-pulse-radar-alert {
-        animation: pulse-radar-alert 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-radar-alert {
-        0%, 100% {
-            box-shadow: 
-                0 0 16px oklch(var(--neon-orange) / 0.5),
-                0 0 32px oklch(var(--neon-orange) / 0.3);
-        }
-        50% {
-            box-shadow: 
-                0 0 24px oklch(var(--neon-orange) / 0.7),
-                0 0 48px oklch(var(--neon-orange) / 0.5);
-        }
-    }
-    
-    @media (min-width: 640px) {
-        @keyframes pulse-radar-alert {
-            0%, 100% {
-                box-shadow: 
-                    0 0 20px oklch(var(--neon-orange) / 0.5),
-                    0 0 40px oklch(var(--neon-orange) / 0.3);
-            }
-            50% {
-                box-shadow: 
-                    0 0 30px oklch(var(--neon-orange) / 0.7),
-                    0 0 60px oklch(var(--neon-orange) / 0.5);
-            }
-        }
-    }
-    
-    .radar-alert-bullish {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-green) / 0.4),
-            0 0 24px oklch(var(--neon-green) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .radar-alert-bullish {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-green) / 0.4),
-                0 0 30px oklch(var(--neon-green) / 0.2);
-        }
-    }
-    
-    .radar-alert-bearish {
-        box-shadow: 
-            0 0 12px oklch(var(--neon-red) / 0.4),
-            0 0 24px oklch(var(--neon-red) / 0.2);
-        transition: box-shadow 0.3s ease-in-out;
-    }
-    
-    @media (min-width: 640px) {
-        .radar-alert-bearish {
-            box-shadow: 
-                0 0 15px oklch(var(--neon-red) / 0.4),
-                0 0 30px oklch(var(--neon-red) / 0.2);
-        }
-    }
-    
-    /* New alert animations */
-    .animate-radar-new-alert {
-        animation: radar-new-alert 3s ease-out;
-    }
-    
-    @keyframes radar-new-alert {
-        0% {
-            transform: scale(0.95);
-            opacity: 0;
-        }
-        10% {
-            transform: scale(1.02);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
-    }
-    
-    /* Soft neon pulse for new alerts */
-    .animate-pulse-neon-soft {
-        animation: pulse-neon-soft 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-neon-soft {
-        0%, 100% {
-            box-shadow: 
-                0 0 8px oklch(var(--neon-orange) / 0.4),
-                0 0 16px oklch(var(--neon-orange) / 0.2);
-        }
-        50% {
-            box-shadow: 
-                0 0 16px oklch(var(--neon-orange) / 0.6),
-                0 0 32px oklch(var(--neon-orange) / 0.4);
-        }
-    }
-    
-    @media (min-width: 640px) {
-        @keyframes pulse-neon-soft {
-            0%, 100% {
-                box-shadow: 
-                    0 0 10px oklch(var(--neon-orange) / 0.4),
-                    0 0 20px oklch(var(--neon-orange) / 0.2);
-            }
-            50% {
-                box-shadow: 
-                    0 0 20px oklch(var(--neon-orange) / 0.6),
-                    0 0 40px oklch(var(--neon-orange) / 0.4);
-            }
-        }
-    }
-    
-    /* Alert-specific animations */
-    .animate-fade-in-scale {
-        animation: fadeInScale 0.3s ease-out;
-    }
-    
-    @keyframes fadeInScale {
-        0% {
-            opacity: 0;
-            transform: scale(0.9) translateY(-10px);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
-    
-    @keyframes pulseGlow {
-        0%, 100% {
-            filter: brightness(1);
-        }
-        50% {
-            filter: brightness(1.2);
-        }
-    }
-    
-    @keyframes progressBar {
-        0% {
-            transform: scaleX(1);
-        }
-        100% {
-            transform: scaleX(0);
-        }
-    }
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Safe area support for PWA */
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@layer utilities {
+  /* Trading terminal utilities */
+  .font-mono-trading {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  .font-display {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .price-up {
+    color: oklch(0.72 0.22 160);
+  }
+
+  .price-down {
+    color: oklch(0.60 0.22 25);
+  }
+
+  .price-neutral {
+    color: oklch(0.78 0.18 75);
+  }
+
+  .monospace {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel-border {
+    border: 1px solid oklch(0.25 0.05 160);
+    box-shadow: 0 0 8px oklch(0.72 0.22 160 / 0.08);
+  }
+
+  .panel-border-red {
+    border: 1px solid oklch(0.35 0.08 25);
+    box-shadow: 0 0 8px oklch(0.60 0.22 25 / 0.08);
+  }
+
+  .neon-glow-green {
+    box-shadow: 0 0 12px oklch(0.72 0.22 160 / 0.4), 0 0 24px oklch(0.72 0.22 160 / 0.2);
+  }
+
+  .neon-glow-red {
+    box-shadow: 0 0 12px oklch(0.60 0.22 25 / 0.4), 0 0 24px oklch(0.60 0.22 25 / 0.2);
+  }
+
+  .neon-text-green {
+    color: oklch(0.72 0.22 160);
+    text-shadow: 0 0 8px oklch(0.72 0.22 160 / 0.6);
+  }
+
+  .neon-text-red {
+    color: oklch(0.60 0.22 25);
+    text-shadow: 0 0 8px oklch(0.60 0.22 25 / 0.6);
+  }
+
+  .neon-text-amber {
+    color: oklch(0.78 0.18 75);
+    text-shadow: 0 0 8px oklch(0.78 0.18 75 / 0.6);
+  }
+
+  .terminal-bg {
+    background: oklch(0.07 0.01 240);
+  }
+
+  .panel-bg {
+    background: oklch(0.10 0.015 240);
+  }
+
+  .card-bg {
+    background: oklch(0.11 0.015 240);
+  }
+
+  /* Pulse animation for alerts */
+  .pulse-alert {
+    animation: pulseAlert 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulseAlert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Fade in animation */
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .fade-in-scale {
+    animation: fadeInScale 0.2s ease-out;
+  }
+
+  /* Progress bar animation */
+  @keyframes progressBar {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: oklch(0.10 0.015 240);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.25 0.05 160);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.40 0.10 160);
+  }
+
+  /* Tab navigation */
+  .tab-active {
+    color: oklch(0.72 0.22 160);
+    border-bottom: 2px solid oklch(0.72 0.22 160);
+  }
+
+  /* Blinking cursor */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .cursor-blink::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+    color: oklch(0.72 0.22 160);
+  }
 }

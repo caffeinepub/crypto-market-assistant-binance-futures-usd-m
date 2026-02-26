@@ -1,53 +1,72 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T12:45:52.645Z",
-  "summary": "The diff shows modifications to 25 files covering removal of ICP, Radar, Order Book, and Monitor tab components and related hooks/libs. App.tsx no longer references the removed tabs. However, no files were actually deleted (removed=0), and the diff indicates the component files were modified rather than removed. Key hook/lib files appear modified. REQ-6 (manifest.json) is not evidenced in the diff.",
+  "generatedAt": "2026-02-26T21:42:23.688Z",
+  "summary": "The diff implements substantial portions of all six requirements. Core infrastructure for SMC indicators, technical indicators, HMAC-SHA256 signing, credential storage, position polling, and the visual theme are all present. However, several specific acceptance criteria are not verifiable from the diff: funding rate and open interest display (REQ-1), chart zoom capability (REQ-1), a dedicated positions panel component with all required fields and alert animation (REQ-5), and a top-level dashboard layout file composing the multi-panel grid (REQ-6). The SMA 50/200 overlay on the candlestick chart is also absent from the visible CandlestickChart.tsx snippet.",
   "missing_requirements": [
     {
-      "id": "REQ-5",
-      "requirement": "Remove all hooks, query files, and libraries exclusively used by removed tabs including takeProfitCalculation.ts, tradeStorage.ts, and related query files.",
-      "reason": "The diff does not show takeProfitCalculation.ts, tradeStorage.ts, or related query files being removed or modified. Additionally, no files are listed as removed (removed=0), meaning the exclusive files may still exist in the codebase even if emptied/gutted.",
+      "requirement": "Funding rate and open interest are displayed per symbol in the market data dashboard",
+      "reason": "The diff shows binanceFetch.ts handles 24hr ticker data but no fetch calls for /fapi/v1/fundingRate or /fapi/v1/openInterest endpoints are visible. No component displays funding rate or open interest fields.",
       "evidence": [
-        "frontend/src/lib/stopLossCalculation.ts",
-        "frontend/src/hooks/useMonitoredTrade.ts",
-        "frontend/src/hooks/useMonitoredTrades.ts"
+        "frontend/src/hooks/queries/binanceFetch.ts"
+      ]
+    },
+    {
+      "requirement": "Candlestick chart supports zoom interaction",
+      "reason": "CandlestickChart.tsx renders a canvas-based chart with timeframe selection but no zoom/pan interaction logic (mouse wheel, drag, pinch) is visible in the truncated file.",
+      "evidence": [
+        "frontend/src/components/CandlestickChart.tsx"
+      ]
+    },
+    {
+      "requirement": "SMA 50 and SMA 200 lines overlaid on the candlestick chart",
+      "reason": "CandlestickChart.tsx defines MA color constants only for EMA20, EMA50, EMA200 and Bollinger Bands. No SMA drawing code is visible in the truncated chart rendering section.",
+      "evidence": [
+        "frontend/src/components/CandlestickChart.tsx"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "A dedicated positions panel component showing each open position card with symbol, side, entry price, mark price, unrealized PnL (USDT and %), liquidation price, and leverage — with visual alert badge/animation for PnL exceeding threshold and last-updated timestamp",
+      "reason": "No PositionsPanel or PositionCard component is present in the diff. The positionAlerts.ts and useBinancePositions.ts hooks are implemented, but no UI component rendering position cards with all required fields and the alert animation is added.",
+      "evidence": [
+        "frontend/src/hooks/useBinancePositions.ts",
+        "frontend/src/lib/positionAlerts.ts"
       ]
     },
     {
       "id": "REQ-6",
-      "requirement": "Update the PWA manifest (frontend/public/manifest.json) to remove any shortcuts pointing to the removed tabs (ICP, Radar, Order Book, Monitor).",
-      "reason": "The diff does not include frontend/public/manifest.json among the modified files. There is no evidence that manifest shortcuts were updated.",
-      "evidence": []
+      "requirement": "Dashboard layout with multi-panel grid: chart area (center), SMC signals panel (right), positions panel (bottom or side)",
+      "reason": "No top-level dashboard or layout page component composing the multi-panel grid is added in the diff. App.tsx is modified but the file summary only mentions tab navigation changes, not a new trading dashboard layout.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.72,
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/public/manifest.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/DynamicAlerts.tsx",
-    "frontend/src/components/ICPAnalysis.tsx",
-    "frontend/src/components/MonitoredTradeCard.tsx",
-    "frontend/src/components/OrderBook.tsx",
-    "frontend/src/components/RadarDashboard.tsx",
-    "frontend/src/components/StopLossRecommendation.tsx",
-    "frontend/src/components/TakeProfitZones.tsx",
-    "frontend/src/components/TradeMonitoring.tsx",
-    "frontend/src/components/TradeMonitoringPanel.tsx",
-    "frontend/src/hooks/queries/localSignals.ts",
-    "frontend/src/hooks/queries/orderBookDepth.ts",
-    "frontend/src/hooks/useMonitoredTrade.ts",
-    "frontend/src/hooks/useMonitoredTrades.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useRadarSensitivity.ts",
-    "frontend/src/lib/orderBookDepth.ts",
-    "frontend/src/lib/radarFilters.ts",
-    "frontend/src/lib/radarSensitivity.ts",
-    "frontend/src/lib/stopLossCalculation.ts",
-    "frontend/src/lib/takeProfitCalculation.ts",
-    "frontend/src/lib/tradeStorage.ts",
+    "frontend/src/components/BinanceAccountSummary.tsx",
+    "frontend/src/components/BinanceCredentialsForm.tsx",
+    "frontend/src/components/CandlestickChart.tsx",
+    "frontend/src/components/IndicatorSubCharts.tsx",
+    "frontend/src/components/SMCSignalPanel.tsx",
+    "frontend/src/components/TechnicalIndicatorSummary.tsx",
+    "frontend/src/hooks/queries/binanceFetch.ts",
+    "frontend/src/hooks/queries/binancePrivateAPI.ts",
+    "frontend/src/hooks/useBinanceAccount.ts",
+    "frontend/src/hooks/useBinanceAuth.ts",
+    "frontend/src/hooks/useBinanceCandlestickData.ts",
+    "frontend/src/hooks/useBinancePositions.ts",
+    "frontend/src/hooks/useSMCAnalysis.ts",
+    "frontend/src/hooks/useTechnicalIndicators.ts",
+    "frontend/src/index.css",
+    "frontend/src/lib/binanceAuth.ts",
+    "frontend/src/lib/positionAlerts.ts",
+    "frontend/src/lib/smcIndicators.ts",
+    "frontend/src/lib/technicalIndicators.ts",
+    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }
