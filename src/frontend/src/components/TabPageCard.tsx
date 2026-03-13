@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ReactNode } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { ReactNode } from "react";
 
 interface TabPageCardProps {
   icon?: ReactNode;
@@ -16,17 +22,23 @@ export default function TabPageCard({
   description,
   badge,
   children,
-  className = '',
+  className = "",
 }: TabPageCardProps) {
   return (
-    <Card className={`border-2 border-neon-cyan/30 bg-card/60 backdrop-blur-sm shadow-neon-md ${className}`}>
+    <Card
+      className={`border-2 border-neon-cyan/30 bg-card/60 backdrop-blur-sm shadow-neon-md ${className}`}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {icon}
             <div>
-              <CardTitle className="text-2xl text-neon-cyan neon-text">{title}</CardTitle>
-              <CardDescription className="text-base mt-1">{description}</CardDescription>
+              <CardTitle className="text-2xl text-neon-cyan neon-text">
+                {title}
+              </CardTitle>
+              <CardDescription className="text-base mt-1">
+                {description}
+              </CardDescription>
             </div>
           </div>
           {badge}

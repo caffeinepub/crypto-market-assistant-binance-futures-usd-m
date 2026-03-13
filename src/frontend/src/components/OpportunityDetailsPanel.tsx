@@ -1,11 +1,24 @@
-import { X, TrendingUp, TrendingDown, Target, AlertCircle, DollarSign } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { useTradeRecommendation } from '@/hooks/useTradeRecommendation';
-import { useBinanceMarketData } from '@/hooks/useQueries';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { useBinanceMarketData } from "@/hooks/useQueries";
+import { useTradeRecommendation } from "@/hooks/useTradeRecommendation";
+import {
+  AlertCircle,
+  DollarSign,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  X,
+} from "lucide-react";
 
 interface OpportunityDetailsPanelProps {
   symbol: string;
@@ -19,11 +32,15 @@ export default function OpportunityDetailsPanel({
   onClose,
 }: OpportunityDetailsPanelProps) {
   const { data: marketData } = useBinanceMarketData();
-  const { result, isReady } = useTradeRecommendation({ symbol, modality, marketData });
+  const { result, isReady } = useTradeRecommendation({
+    symbol,
+    modality,
+    marketData,
+  });
 
   // Find current asset data
   const asset = marketData?.find((m) => m.symbol === symbol);
-  const currentPrice = asset ? parseFloat(asset.lastPrice) : 0;
+  const currentPrice = asset ? Number.parseFloat(asset.lastPrice) : 0;
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-background border-l border-border shadow-2xl">
@@ -32,7 +49,9 @@ export default function OpportunityDetailsPanel({
         <div className="flex items-center justify-between p-4 border-b border-border bg-card/60 backdrop-blur-sm">
           <div className="space-y-1">
             <h2 className="text-xl font-bold">{symbol}</h2>
-            <p className="text-sm text-muted-foreground capitalize">{modality} Opportunity</p>
+            <p className="text-sm text-muted-foreground capitalize">
+              {modality} Opportunity
+            </p>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -46,18 +65,28 @@ export default function OpportunityDetailsPanel({
             {asset && (
               <Card className="border-primary/20">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Current Price</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Current Price
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">${currentPrice.toLocaleString()}</span>
-                    <Badge variant={asset.priceChangePercent >= 0 ? 'default' : 'destructive'}>
+                    <span className="text-3xl font-bold">
+                      ${currentPrice.toLocaleString()}
+                    </span>
+                    <Badge
+                      variant={
+                        asset.priceChangePercent >= 0
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
                       {asset.priceChangePercent >= 0 ? (
                         <TrendingUp className="h-3 w-3 mr-1" />
                       ) : (
                         <TrendingDown className="h-3 w-3 mr-1" />
                       )}
-                      {asset.priceChangePercent >= 0 ? '+' : ''}
+                      {asset.priceChangePercent >= 0 ? "+" : ""}
                       {asset.priceChangePercent.toFixed(2)}%
                     </Badge>
                   </div>
@@ -91,15 +120,21 @@ export default function OpportunityDetailsPanel({
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
                         <AlertCircle className="h-5 w-5" />
-                        <p className="font-medium">Cannot compute recommendation</p>
+                        <p className="font-medium">
+                          Cannot compute recommendation
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{result.error.reason}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {result.error.reason}
+                      </p>
                       {result.error.missingData.length > 0 && (
                         <div className="mt-2">
-                          <p className="text-xs text-muted-foreground">Missing data:</p>
+                          <p className="text-xs text-muted-foreground">
+                            Missing data:
+                          </p>
                           <ul className="list-disc list-inside text-xs text-muted-foreground mt-1">
-                            {result.error.missingData.map((item, idx) => (
-                              <li key={idx}>{item}</li>
+                            {result.error.missingData.map((item) => (
+                              <li key={item}>{item}</li>
                             ))}
                           </ul>
                         </div>
@@ -114,14 +149,20 @@ export default function OpportunityDetailsPanel({
                   {/* Direction */}
                   <Card className="border-primary/30">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">Direction</CardTitle>
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Direction
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <Badge
-                        variant={result.recommendation.direction === 'Long' ? 'default' : 'destructive'}
+                        variant={
+                          result.recommendation.direction === "Long"
+                            ? "default"
+                            : "destructive"
+                        }
                         className="text-lg px-4 py-1"
                       >
-                        {result.recommendation.direction === 'Long' ? (
+                        {result.recommendation.direction === "Long" ? (
                           <TrendingUp className="h-4 w-4 mr-2" />
                         ) : (
                           <TrendingDown className="h-4 w-4 mr-2" />
@@ -143,10 +184,14 @@ export default function OpportunityDetailsPanel({
                       </CardHeader>
                       <CardContent>
                         <p className="text-2xl font-bold text-primary">
-                          ${result.recommendation.entry.toLocaleString(undefined, { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
-                          })}
+                          $
+                          {result.recommendation.entry.toLocaleString(
+                            undefined,
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           Optimal entry based on technical analysis
@@ -164,15 +209,20 @@ export default function OpportunityDetailsPanel({
                       </CardHeader>
                       <CardContent>
                         <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          ${result.recommendation.takeProfit.toLocaleString(undefined, { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
-                          })}
+                          $
+                          {result.recommendation.takeProfit.toLocaleString(
+                            undefined,
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
                         </p>
                         <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1 font-medium">
                           +
                           {(
-                            ((result.recommendation.takeProfit - result.recommendation.entry) /
+                            ((result.recommendation.takeProfit -
+                              result.recommendation.entry) /
                               result.recommendation.entry) *
                             100
                           ).toFixed(2)}
@@ -191,14 +241,19 @@ export default function OpportunityDetailsPanel({
                       </CardHeader>
                       <CardContent>
                         <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                          ${result.recommendation.stopLoss.toLocaleString(undefined, { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
-                          })}
+                          $
+                          {result.recommendation.stopLoss.toLocaleString(
+                            undefined,
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
                         </p>
                         <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1 font-medium">
                           {(
-                            ((result.recommendation.stopLoss - result.recommendation.entry) /
+                            ((result.recommendation.stopLoss -
+                              result.recommendation.entry) /
                               result.recommendation.entry) *
                             100
                           ).toFixed(2)}
@@ -217,15 +272,18 @@ export default function OpportunityDetailsPanel({
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-base px-3 py-1">
+                        <Badge
+                          variant="outline"
+                          className="text-base px-3 py-1"
+                        >
                           1 : {result.recommendation.riskRewardRatio.toFixed(2)}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {result.recommendation.riskRewardRatio >= 2 
-                            ? 'Excellent setup' 
-                            : result.recommendation.riskRewardRatio >= 1.5 
-                            ? 'Good setup' 
-                            : 'Moderate setup'}
+                          {result.recommendation.riskRewardRatio >= 2
+                            ? "Excellent setup"
+                            : result.recommendation.riskRewardRatio >= 1.5
+                              ? "Good setup"
+                              : "Moderate setup"}
                         </span>
                       </div>
                     </CardContent>
@@ -236,15 +294,21 @@ export default function OpportunityDetailsPanel({
                   {/* Rationale */}
                   <Card className="border-border">
                     <CardHeader>
-                      <CardTitle className="text-sm font-medium">Analysis & Rationale</CardTitle>
-                      <CardDescription>Technical signals supporting this setup</CardDescription>
+                      <CardTitle className="text-sm font-medium">
+                        Analysis & Rationale
+                      </CardTitle>
+                      <CardDescription>
+                        Technical signals supporting this setup
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {result.recommendation.rationale.map((reason, idx) => (
-                          <div key={idx} className="flex items-start gap-2">
+                        {result.recommendation.rationale.map((reason) => (
+                          <div key={reason} className="flex items-start gap-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                            <p className="text-sm text-muted-foreground">{reason}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {reason}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -262,32 +326,38 @@ export default function OpportunityDetailsPanel({
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-2xl font-bold">
-                            {(result.recommendation.confidence * 100).toFixed(0)}%
+                            {(result.recommendation.confidence * 100).toFixed(
+                              0,
+                            )}
+                            %
                           </span>
                           <Badge
                             variant={
                               result.recommendation.confidence >= 0.7
-                                ? 'default'
+                                ? "default"
                                 : result.recommendation.confidence >= 0.5
-                                ? 'secondary'
-                                : 'outline'
+                                  ? "secondary"
+                                  : "outline"
                             }
                           >
                             {result.recommendation.confidence >= 0.7
-                              ? 'High'
+                              ? "High"
                               : result.recommendation.confidence >= 0.5
-                              ? 'Medium'
-                              : 'Low'}
+                                ? "Medium"
+                                : "Low"}
                           </Badge>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-green-500 to-primary transition-all"
-                            style={{ width: `${result.recommendation.confidence * 100}%` }}
+                            style={{
+                              width: `${result.recommendation.confidence * 100}%`,
+                            }}
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Based on technical analysis, market conditions, and AI learning
+                          Based on technical analysis, market conditions, and AI
+                          learning
                         </p>
                       </div>
                     </CardContent>

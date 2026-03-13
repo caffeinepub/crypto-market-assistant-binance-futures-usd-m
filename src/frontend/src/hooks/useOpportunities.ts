@@ -1,14 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { useBinanceMarketData, BinanceMarketData } from './useQueries';
+import { useQuery } from "@tanstack/react-query";
 import {
-  selectScalpingOpportunities,
-  selectSwingOpportunities,
+  type OpportunityItem,
   selectBreakoutOpportunities,
+  selectFVGOpportunities,
   selectReversalOpportunities,
   selectSMCOpportunities,
-  selectFVGOpportunities,
-  OpportunityItem,
-} from './queries/opportunityRules';
+  selectScalpingOpportunities,
+  selectSwingOpportunities,
+} from "./queries/opportunityRules";
+import { BinanceMarketData, useBinanceMarketData } from "./useQueries";
 
 export interface OpportunitiesData {
   scalping: OpportunityItem[];
@@ -24,10 +24,15 @@ export interface OpportunitiesData {
  * Uses live Binance market data and deterministic selection rules
  */
 export function useOpportunities() {
-  const { data: marketData, error: marketError, isFetching, dataUpdatedAt } = useBinanceMarketData();
+  const {
+    data: marketData,
+    error: marketError,
+    isFetching,
+    dataUpdatedAt: _dataUpdatedAt,
+  } = useBinanceMarketData();
 
   return useQuery<OpportunitiesData, Error>({
-    queryKey: ['opportunities', marketData],
+    queryKey: ["opportunities", marketData],
     queryFn: async (): Promise<OpportunitiesData> => {
       if (!marketData || marketData.length === 0) {
         return {

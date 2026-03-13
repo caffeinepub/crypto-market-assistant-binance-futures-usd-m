@@ -3,7 +3,7 @@
  * Clears: IndexedDB (AI learning), localStorage (settings), React Query cache, and service worker caches
  */
 
-const RESET_SUCCESS_FLAG = 'reset-from-scratch-success';
+const RESET_SUCCESS_FLAG = "reset-from-scratch-success";
 
 export interface ResetResult {
   success: boolean;
@@ -15,13 +15,14 @@ export interface ResetResult {
  */
 async function clearIndexedDB(): Promise<void> {
   const databases = await indexedDB.databases();
-  
+
   for (const db of databases) {
     if (db.name) {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.deleteDatabase(db.name!);
         request.onsuccess = () => resolve();
-        request.onerror = () => reject(new Error(`Failed to delete database: ${db.name}`));
+        request.onerror = () =>
+          reject(new Error(`Failed to delete database: ${db.name}`));
         request.onblocked = () => {
           console.warn(`Database deletion blocked: ${db.name}`);
           // Still resolve - we'll try again on next reset
@@ -43,9 +44,9 @@ function clearLocalStorage(): void {
  * Clear all CacheStorage caches
  */
 async function clearCacheStorage(): Promise<void> {
-  if ('caches' in window) {
+  if ("caches" in window) {
     const cacheNames = await caches.keys();
-    await Promise.all(cacheNames.map(name => caches.delete(name)));
+    await Promise.all(cacheNames.map((name) => caches.delete(name)));
   }
 }
 
@@ -53,9 +54,9 @@ async function clearCacheStorage(): Promise<void> {
  * Unregister all service workers
  */
 async function unregisterServiceWorkers(): Promise<void> {
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     const registrations = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(registrations.map(reg => reg.unregister()));
+    await Promise.all(registrations.map((reg) => reg.unregister()));
   }
 }
 
@@ -66,16 +67,16 @@ export async function resetFromScratch(): Promise<ResetResult> {
   try {
     // Clear IndexedDB (AI learning data)
     await clearIndexedDB();
-    
+
     // Clear CacheStorage (app caches)
     await clearCacheStorage();
-    
+
     // Unregister service workers
     await unregisterServiceWorkers();
-    
+
     // Set success flag before clearing localStorage
-    localStorage.setItem(RESET_SUCCESS_FLAG, 'true');
-    
+    localStorage.setItem(RESET_SUCCESS_FLAG, "true");
+
     // Clear localStorage (settings, preferences)
     // Note: We set the flag first, then clear everything except the flag
     const successFlag = localStorage.getItem(RESET_SUCCESS_FLAG);
@@ -83,13 +84,14 @@ export async function resetFromScratch(): Promise<ResetResult> {
     if (successFlag) {
       localStorage.setItem(RESET_SUCCESS_FLAG, successFlag);
     }
-    
+
     return { success: true };
   } catch (error) {
-    console.error('Reset from scratch failed:', error);
+    console.error("Reset from scratch failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error during reset',
+      error:
+        error instanceof Error ? error.message : "Unknown error during reset",
     };
   }
 }
@@ -99,7 +101,7 @@ export async function resetFromScratch(): Promise<ResetResult> {
  */
 export function checkResetSuccess(): boolean {
   const flag = localStorage.getItem(RESET_SUCCESS_FLAG);
-  if (flag === 'true') {
+  if (flag === "true") {
     localStorage.removeItem(RESET_SUCCESS_FLAG);
     return true;
   }

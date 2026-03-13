@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,17 +7,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { AlertTriangle, Loader2 } from 'lucide-react';
-import { resetFromScratch, reloadApp } from '@/lib/resetFromScratch';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { reloadApp, resetFromScratch } from "@/lib/resetFromScratch";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ResetFromScratchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export default function ResetFromScratchDialog({ open, onOpenChange }: ResetFromScratchDialogProps) {
+export default function ResetFromScratchDialog({
+  open,
+  onOpenChange,
+}: ResetFromScratchDialogProps) {
   const [isResetting, setIsResetting] = useState(false);
 
   const handleConfirmReset = async () => {
@@ -29,10 +32,10 @@ export default function ResetFromScratchDialog({ open, onOpenChange }: ResetFrom
 
       if (result.success) {
         // Success - reload the app
-        toast.success('Reset complete. Reloading app...', {
+        toast.success("Reset complete. Reloading app...", {
           duration: 2000,
         });
-        
+
         // Give the toast time to show, then reload
         setTimeout(() => {
           reloadApp();
@@ -40,14 +43,17 @@ export default function ResetFromScratchDialog({ open, onOpenChange }: ResetFrom
       } else {
         // Error during reset
         setIsResetting(false);
-        toast.error('Reset failed', {
-          description: result.error || 'An unknown error occurred during reset',
+        toast.error("Reset failed", {
+          description: result.error || "An unknown error occurred during reset",
         });
       }
     } catch (error) {
       setIsResetting(false);
-      toast.error('Reset failed', {
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      toast.error("Reset failed", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       });
     }
   };
@@ -68,24 +74,32 @@ export default function ResetFromScratchDialog({ open, onOpenChange }: ResetFrom
             </p>
             <ul className="list-disc list-inside space-y-2 ml-2 text-muted-foreground">
               <li>
-                <span className="font-semibold text-foreground">AI Learning History:</span> All predictions, accuracy stats, and learned patterns
+                <span className="font-semibold text-foreground">
+                  AI Learning History:
+                </span>{" "}
+                All predictions, accuracy stats, and learned patterns
               </li>
               <li>
-                <span className="font-semibold text-foreground">User Preferences:</span> Theme, alerts, favourite assets, and all settings
+                <span className="font-semibold text-foreground">
+                  User Preferences:
+                </span>{" "}
+                Theme, alerts, favourite assets, and all settings
               </li>
               <li>
-                <span className="font-semibold text-foreground">App Caches:</span> Cached market data and offline resources
+                <span className="font-semibold text-foreground">
+                  App Caches:
+                </span>{" "}
+                Cached market data and offline resources
               </li>
             </ul>
             <p className="text-destructive font-semibold mt-4">
-              ⚠️ This action cannot be undone. The app will reload with a fresh state.
+              ⚠️ This action cannot be undone. The app will reload with a fresh
+              state.
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isResetting}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isResetting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirmReset}
             disabled={isResetting}
@@ -97,7 +111,7 @@ export default function ResetFromScratchDialog({ open, onOpenChange }: ResetFrom
                 Resetting...
               </>
             ) : (
-              'Confirm Reset'
+              "Confirm Reset"
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

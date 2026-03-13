@@ -1,6 +1,10 @@
-import { UnifiedSnapshot } from '@/backend';
-import { BinanceMarketData, TechnicalAnalysis, BinanceTicker } from '../useQueries';
-import { calculateAdvancedTechnicalAnalysis } from './analysisEnrichment';
+import type { UnifiedSnapshot } from "@/backend";
+import {
+  type BinanceMarketData,
+  type BinanceTicker,
+  TechnicalAnalysis,
+} from "../useQueries";
+import { calculateAdvancedTechnicalAnalysis } from "./analysisEnrichment";
 
 export interface SnapshotMetadata {
   serverTime: bigint;
@@ -17,8 +21,8 @@ export interface EnrichedSnapshot {
 /**
  * Safely convert a value to a finite number, returning a default if invalid
  */
-function toSafeNumber(value: any, defaultValue: number = 0): number {
-  if (typeof value === 'bigint') {
+function toSafeNumber(value: any, defaultValue = 0): number {
+  if (typeof value === "bigint") {
     try {
       const num = Number(value);
       return Number.isFinite(num) ? num : defaultValue;
@@ -26,16 +30,16 @@ function toSafeNumber(value: any, defaultValue: number = 0): number {
       return defaultValue;
     }
   }
-  
-  if (typeof value === 'number') {
+
+  if (typeof value === "number") {
     return Number.isFinite(value) ? value : defaultValue;
   }
-  
-  if (typeof value === 'string') {
-    const parsed = parseFloat(value);
+
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value);
     return Number.isFinite(parsed) ? parsed : defaultValue;
   }
-  
+
   return defaultValue;
 }
 
@@ -43,24 +47,30 @@ function toSafeNumber(value: any, defaultValue: number = 0): number {
  * Transform backend UnifiedSnapshot into frontend-compatible BinanceMarketData format
  */
 export async function transformUnifiedSnapshot(
-  snapshot: UnifiedSnapshot
+  snapshot: UnifiedSnapshot,
 ): Promise<EnrichedSnapshot> {
   try {
     // Validate snapshot structure
-    if (!snapshot || typeof snapshot !== 'object') {
-      throw new Error('Invalid snapshot: snapshot is null or not an object');
+    if (!snapshot || typeof snapshot !== "object") {
+      throw new Error("Invalid snapshot: snapshot is null or not an object");
     }
 
     if (!Array.isArray(snapshot.marketData)) {
-      throw new Error('Invalid snapshot: marketData is not an array');
+      throw new Error("Invalid snapshot: marketData is not an array");
     }
 
-    if (typeof snapshot.timestamp !== 'bigint' && typeof snapshot.timestamp !== 'number') {
-      throw new Error('Invalid snapshot: timestamp is missing or invalid');
+    if (
+      typeof snapshot.timestamp !== "bigint" &&
+      typeof snapshot.timestamp !== "number"
+    ) {
+      throw new Error("Invalid snapshot: timestamp is missing or invalid");
     }
 
     const metadata: SnapshotMetadata = {
-      serverTime: typeof snapshot.timestamp === 'bigint' ? snapshot.timestamp : BigInt(snapshot.timestamp),
+      serverTime:
+        typeof snapshot.timestamp === "bigint"
+          ? snapshot.timestamp
+          : BigInt(snapshot.timestamp),
       isStale: false,
       hasError: false,
     };
@@ -71,11 +81,11 @@ export async function transformUnifiedSnapshot(
         // Validate each market data item
         return (
           item &&
-          typeof item === 'object' &&
-          typeof item.symbol === 'string' &&
+          typeof item === "object" &&
+          typeof item.symbol === "string" &&
           item.symbol.length > 0 &&
-          (typeof item.price === 'number' || typeof item.price === 'bigint') &&
-          (typeof item.volume === 'number' || typeof item.volume === 'bigint')
+          (typeof item.price === "number" || typeof item.price === "bigint") &&
+          (typeof item.volume === "number" || typeof item.volume === "bigint")
         );
       })
       .map((item) => {
@@ -85,11 +95,11 @@ export async function transformUnifiedSnapshot(
 
         return {
           symbol: item.symbol,
-          priceChange: '0',
-          priceChangePercent: '0',
+          priceChange: "0",
+          priceChangePercent: "0",
           weightedAvgPrice: price.toString(),
           lastPrice: price.toString(),
-          lastQty: '0',
+          lastQty: "0",
           openPrice: price.toString(),
           highPrice: price.toString(),
           lowPrice: price.toString(),
@@ -143,7 +153,7 @@ export async function transformUnifiedSnapshot(
             closeTime: ticker.closeTime,
             count: ticker.count,
             analysis: {
-              trend: 'bullish',
+              trend: "bullish",
               strength: 0,
               prediction: toSafeNumber(ticker.lastPrice, 0),
               supportZones: [],
@@ -155,7 +165,7 @@ export async function transformUnifiedSnapshot(
             },
           };
         }
-      })
+      }),
     );
 
     return {
@@ -163,9 +173,9 @@ export async function transformUnifiedSnapshot(
       metadata,
     };
   } catch (error) {
-    console.error('Error transforming unified snapshot:', error);
+    console.error("Error transforming unified snapshot:", error);
     throw new Error(
-      `Frontend-backend interface mismatch: ${error instanceof Error ? error.message : 'Unknown transformation error'}. Please reload the page to clear stale cache.`
+      `Frontend-backend interface mismatch: ${error instanceof Error ? error.message : "Unknown transformation error"}. Please reload the page to clear stale cache.`,
     );
   }
 }
@@ -173,13 +183,13 @@ export async function transformUnifiedSnapshot(
 /**
  * Check if snapshot data is stale based on timestamp
  */
-export function isSnapshotStale(timestamp: bigint, maxAgeMs: number = 120000): boolean {
+export function isSnapshotStale(timestamp: bigint, maxAgeMs = 120000): boolean {
   try {
     const now = BigInt(Date.now() * 1000000); // Convert to nanoseconds
     const age = Number((now - timestamp) / 1000000n); // Convert to milliseconds
     return age > maxAgeMs;
   } catch (error) {
-    console.error('Error checking snapshot staleness:', error);
+    console.error("Error checking snapshot staleness:", error);
     return true; // Assume stale on error
   }
 }

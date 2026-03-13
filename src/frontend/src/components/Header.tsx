@@ -1,16 +1,18 @@
-import { useState } from 'react';
-import { TrendingUp, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
-import PWAInstallDialog from './PWAInstallDialog';
+import { Button } from "@/components/ui/button";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { Download, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import PWAInstallDialog from "./PWAInstallDialog";
 
 export default function Header() {
-  const { isInstallable, isInstalled, hasReceivedInstallPrompt } = usePWAInstall();
+  const { isInstallable, isInstalled, hasReceivedInstallPrompt } =
+    usePWAInstall();
   const [showInstallDialog, setShowInstallDialog] = useState(false);
 
   // Show install button if installable and not installed
   // Also show if we received the prompt but user hasn't installed yet
-  const showInstallButton = (isInstallable || hasReceivedInstallPrompt) && !isInstalled;
+  const showInstallButton =
+    (isInstallable || hasReceivedInstallPrompt) && !isInstalled;
 
   return (
     <>
@@ -28,7 +30,9 @@ export default function Header() {
                 <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 bg-clip-text text-transparent">
                   Crypto Market Assistant
                 </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">Binance Futures USD-M</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Binance Futures USD-M
+                </p>
               </div>
             </div>
 
@@ -56,7 +60,10 @@ export default function Header() {
         </div>
       </header>
 
-      <PWAInstallDialog open={showInstallDialog} onOpenChange={setShowInstallDialog} />
+      <PWAInstallDialog
+        open={showInstallDialog}
+        onOpenChange={setShowInstallDialog}
+      />
     </>
   );
 }

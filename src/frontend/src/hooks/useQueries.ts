@@ -1,16 +1,22 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useEffect, useRef } from 'react';
-import { learningEngine } from '@/lib/learningEngine';
-import { fetchBinanceAsset, fetchBinanceMarketData, filterMajorPairs } from './queries/binanceFetch';
-import { calculateAdvancedTechnicalAnalysis } from './queries/analysisEnrichment';
-import { generateRecommendations, generateRadarAlerts, ExtendedRadarAlert, AnomalyType } from './queries/localSignals';
-import { recordPredictions, updatePastPredictions, LearningPrioritization } from './queries/learningIntegration';
-import { getCurrentPolicy } from '@/lib/radarSensitivity';
+import { learningEngine } from "@/lib/learningEngine";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { calculateAdvancedTechnicalAnalysis } from "./queries/analysisEnrichment";
+import {
+  fetchBinanceAsset,
+  fetchBinanceMarketData,
+  filterMajorPairs,
+} from "./queries/binanceFetch";
+import {
+  type LearningPrioritization,
+  recordPredictions,
+  updatePastPredictions,
+} from "./queries/learningIntegration";
+import { generateRecommendations } from "./queries/localSignals";
 
 // Type definitions
-export type Trend = 'bullish' | 'bearish' | 'all';
-export type DirectionType = 'up' | 'down';
+export type Trend = "bullish" | "bearish" | "all";
+export type DirectionType = "up" | "down";
 
 export interface PriceRange {
   min: number;
@@ -26,18 +32,6 @@ export interface InstitutionalOrder {
   direction: DirectionType;
   confidence: number;
   price: number;
-}
-
-export interface RadarAlert {
-  symbol: string;
-  percentChange: number;
-  volumeDelta: number;
-  direction: DirectionType;
-  confidence: number;
-  anomalyScore: number;
-  anomalyTypes: AnomalyType[];
-  reasons: string[];
-  timestamp: number;
 }
 
 export interface Recommendation {
@@ -65,7 +59,7 @@ export interface BinanceTicker {
 }
 
 export interface TechnicalAnalysis {
-  trend: 'bullish' | 'bearish';
+  trend: "bullish" | "bearish";
   strength: number;
   prediction: number;
   supportZones: number[];
@@ -110,16 +104,17 @@ export interface DataStatus {
  */
 function getLearningPrioritization(): LearningPrioritization {
   try {
-    const enabled = localStorage.getItem('prioritize-favourites-learning') === 'true';
-    const favouritesStr = localStorage.getItem('favourite-assets');
+    const enabled =
+      localStorage.getItem("prioritize-favourites-learning") === "true";
+    const favouritesStr = localStorage.getItem("favourite-assets");
     const favouriteSymbols = favouritesStr ? JSON.parse(favouritesStr) : [];
-    
+
     return {
       enabled: enabled && favouriteSymbols.length > 0,
       favouriteSymbols,
     };
   } catch (error) {
-    console.warn('Error reading learning prioritization settings:', error);
+    console.warn("Error reading learning prioritization settings:", error);
     return { enabled: false, favouriteSymbols: [] };
   }
 }
@@ -130,17 +125,17 @@ function getLearningPrioritization(): LearningPrioritization {
  */
 export function useBinanceMarketData() {
   return useQuery<BinanceMarketData[], Error>({
-    queryKey: ['binance-market-data-browser'],
+    queryKey: ["binance-market-data-browser"],
     queryFn: async (): Promise<BinanceMarketData[]> => {
       try {
         // Fetch directly from Binance API in the browser
         const rawData = await fetchBinanceMarketData();
-        
+
         // Filter for major pairs
         const majorPairs = filterMajorPairs(rawData);
-        
+
         if (majorPairs.length === 0) {
-          throw new Error('No market data available from Binance');
+          throw new Error("No market data available from Binance");
         }
 
         // Enrich with technical analysis
@@ -151,9 +146,11 @@ export function useBinanceMarketData() {
 
               const marketData: BinanceMarketData = {
                 symbol: ticker.symbol,
-                priceChange: parseFloat(ticker.priceChange),
-                priceChangePercent: parseFloat(ticker.priceChangePercent),
-                weightedAvgPrice: parseFloat(ticker.weightedAvgPrice),
+                priceChange: Number.parseFloat(ticker.priceChange),
+                priceChangePercent: Number.parseFloat(
+                  ticker.priceChangePercent,
+                ),
+                weightedAvgPrice: Number.parseFloat(ticker.weightedAvgPrice),
                 lastPrice: ticker.lastPrice,
                 lastQty: ticker.lastQty,
                 openPrice: ticker.openPrice,
@@ -172,9 +169,9 @@ export function useBinanceMarketData() {
               console.error(`Error enriching ${ticker.symbol}:`, error);
               // Return basic data without analysis on enrichment failure
               const fallbackAnalysis: TechnicalAnalysis = {
-                trend: 'bullish' as const,
+                trend: "bullish" as const,
                 strength: 0,
-                prediction: parseFloat(ticker.lastPrice),
+                prediction: Number.parseFloat(ticker.lastPrice),
                 supportZones: [],
                 resistanceZones: [],
                 confidence: 0,
@@ -185,9 +182,11 @@ export function useBinanceMarketData() {
 
               return {
                 symbol: ticker.symbol,
-                priceChange: parseFloat(ticker.priceChange),
-                priceChangePercent: parseFloat(ticker.priceChangePercent),
-                weightedAvgPrice: parseFloat(ticker.weightedAvgPrice),
+                priceChange: Number.parseFloat(ticker.priceChange),
+                priceChangePercent: Number.parseFloat(
+                  ticker.priceChangePercent,
+                ),
+                weightedAvgPrice: Number.parseFloat(ticker.weightedAvgPrice),
                 lastPrice: ticker.lastPrice,
                 lastQty: ticker.lastQty,
                 openPrice: ticker.openPrice,
@@ -201,7 +200,7 @@ export function useBinanceMarketData() {
                 analysis: fallbackAnalysis,
               };
             }
-          })
+          }),
         );
 
         // Read learning prioritization settings
@@ -212,31 +211,35 @@ export function useBinanceMarketData() {
           await recordPredictions(enriched, prioritization);
           await updatePastPredictions(enriched, prioritization);
         } catch (learningError) {
-          console.warn('Learning engine error (non-critical):', learningError);
+          console.warn("Learning engine error (non-critical):", learningError);
           // Don't fail the query if learning fails
         }
 
         return enriched;
       } catch (error) {
-        console.error('Error fetching Binance market data:', error);
-        
+        console.error("Error fetching Binance market data:", error);
+
         // Provide clear, actionable error message
         if (error instanceof Error) {
           // Check if it's a blocked/restricted error
-          if (error.message.includes('blocked') || error.message.includes('restricted')) {
+          if (
+            error.message.includes("blocked") ||
+            error.message.includes("restricted")
+          ) {
             throw new Error(`Binance access blocked: ${error.message}`);
           }
           throw new Error(`Live market data unavailable: ${error.message}`);
         }
-        
-        throw new Error('Live market data unavailable. Unable to fetch from Binance API.');
+
+        throw new Error(
+          "Live market data unavailable. Unable to fetch from Binance API.",
+        );
       }
     },
     refetchInterval: 30000, // Refresh every 30 seconds
     staleTime: 20000, // Consider data stale after 20 seconds
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-    // Do NOT keep previous data on error - we want explicit error states
     placeholderData: undefined,
   });
 }
@@ -245,12 +248,17 @@ export function useBinanceMarketData() {
  * Get data status with provider and freshness information
  */
 export function useDataStatus(): DataStatus {
-  const { data, error, dataUpdatedAt, isFetching } = useBinanceMarketData();
-  
+  const {
+    data: _data,
+    error,
+    dataUpdatedAt,
+    isFetching,
+  } = useBinanceMarketData();
+
   const now = Date.now();
   const lastUpdate = dataUpdatedAt || 0;
   const ageMs = now - lastUpdate;
-  
+
   // Data is stale if older than 2 minutes
   const isStale = lastUpdate > 0 && ageMs > 120000;
 
@@ -259,7 +267,7 @@ export function useDataStatus(): DataStatus {
     hasError: !!error,
     errorMessage: error?.message,
     lastUpdate: lastUpdate > 0 ? lastUpdate : undefined,
-    provider: 'Binance (browser)',
+    provider: "Binance (browser)",
     isFetching,
   };
 }
@@ -269,7 +277,7 @@ export function useDataStatus(): DataStatus {
  */
 export function useSearchBinanceAsset(symbol: string) {
   return useQuery<BinanceMarketData | null>({
-    queryKey: ['binance-asset-search', symbol],
+    queryKey: ["binance-asset-search", symbol],
     queryFn: async () => {
       try {
         const ticker = await fetchBinanceAsset(symbol);
@@ -277,9 +285,9 @@ export function useSearchBinanceAsset(symbol: string) {
 
         const enrichedData: BinanceMarketData = {
           symbol: ticker.symbol,
-          priceChange: parseFloat(ticker.priceChange),
-          priceChangePercent: parseFloat(ticker.priceChangePercent),
-          weightedAvgPrice: parseFloat(ticker.weightedAvgPrice),
+          priceChange: Number.parseFloat(ticker.priceChange),
+          priceChangePercent: Number.parseFloat(ticker.priceChangePercent),
+          weightedAvgPrice: Number.parseFloat(ticker.weightedAvgPrice),
           lastPrice: ticker.lastPrice,
           lastQty: ticker.lastQty,
           openPrice: ticker.openPrice,
@@ -295,7 +303,7 @@ export function useSearchBinanceAsset(symbol: string) {
 
         return enrichedData;
       } catch (error) {
-        console.error('Error searching for asset:', error);
+        console.error("Error searching for asset:", error);
         return null;
       }
     },
@@ -311,31 +319,10 @@ export function useRecommendations() {
   const { data: marketData } = useBinanceMarketData();
 
   return useQuery<Recommendation[]>({
-    queryKey: ['recommendations', marketData?.length],
+    queryKey: ["recommendations", marketData?.length],
     queryFn: () => {
       if (!marketData) return [];
       return generateRecommendations(marketData);
-    },
-    enabled: !!marketData,
-    staleTime: 30000,
-  });
-}
-
-/**
- * Generate radar alerts with sensitivity-aware detection
- */
-export function useRadarAlerts() {
-  const { data: marketData } = useBinanceMarketData();
-  
-  // Get current sensitivity policy
-  const policy = getCurrentPolicy();
-
-  return useQuery<RadarAlert[]>({
-    queryKey: ['radar-alerts', marketData?.length, policy.minConfidenceForAlert, policy.priceChangeThreshold],
-    queryFn: async () => {
-      if (!marketData) return [];
-      const alerts = await generateRadarAlerts(marketData, policy);
-      return alerts;
     },
     enabled: !!marketData,
     staleTime: 30000,
@@ -349,7 +336,7 @@ export function useHighLearningAssets() {
   const { data: marketData } = useBinanceMarketData();
 
   return useQuery<string[]>({
-    queryKey: ['high-learning-assets', marketData?.length],
+    queryKey: ["high-learning-assets", marketData?.length],
     queryFn: () => {
       if (!marketData) return [];
       return marketData

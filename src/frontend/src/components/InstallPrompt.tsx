@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
-import { X, Download, Smartphone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
-import PWAInstallDialog from './PWAInstallDialog';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { Download, Smartphone, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import PWAInstallDialog from "./PWAInstallDialog";
 
 export default function InstallPrompt() {
-  const { isInstallable, isInstalled, isIOSDevice, isDismissed, dismissPrompt } = usePWAInstall();
+  const {
+    isInstallable,
+    isInstalled,
+    isIOSDevice,
+    isDismissed,
+    dismissPrompt,
+  } = usePWAInstall();
   const [showPrompt, setShowPrompt] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -53,29 +59,31 @@ export default function InstallPrompt() {
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Smartphone className="h-5 w-5 text-primary" />
               </div>
-              
+
               <div className="flex-1 space-y-2">
                 <h3 className="font-semibold text-sm text-foreground">
                   Instalar Aplicativo
                 </h3>
-                
+
                 {isIOSDevice ? (
                   <p className="text-xs text-muted-foreground">
-                    Adicione à tela inicial para acesso rápido e experiência completa offline.
+                    Adicione à tela inicial para acesso rápido e experiência
+                    completa offline.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Instale o app na tela inicial para acesso rápido e experiência completa offline.
+                    Instale o app na tela inicial para acesso rápido e
+                    experiência completa offline.
                   </p>
                 )}
-                
+
                 <Button
                   onClick={handleOpenDialog}
                   size="sm"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {isIOSDevice ? 'Ver Instruções' : 'Instalar Agora'}
+                  {isIOSDevice ? "Ver Instruções" : "Instalar Agora"}
                 </Button>
               </div>
             </div>

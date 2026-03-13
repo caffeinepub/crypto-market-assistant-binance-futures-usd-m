@@ -1,12 +1,28 @@
-import { Building2, RefreshCw, TrendingUp, TrendingDown, AlertCircle, Server } from 'lucide-react';
-import TabPageCard from './TabPageCard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useInstitutionalOrdersFutures, useInstitutionalOrdersSpot } from '@/hooks/queries/institutionalOrders';
-import { useQueryClient } from '@tanstack/react-query';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useInstitutionalOrdersFutures,
+  useInstitutionalOrdersSpot,
+} from "@/hooks/queries/institutionalOrders";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Building2,
+  RefreshCw,
+  Server,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import TabPageCard from "./TabPageCard";
 
 export default function InstitutionalOrders() {
   const queryClient = useQueryClient();
@@ -14,49 +30,75 @@ export default function InstitutionalOrders() {
   const spotQuery = useInstitutionalOrdersSpot();
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['institutional-orders-futures'] });
-    queryClient.invalidateQueries({ queryKey: ['institutional-orders-spot'] });
+    queryClient.invalidateQueries({
+      queryKey: ["institutional-orders-futures"],
+    });
+    queryClient.invalidateQueries({ queryKey: ["institutional-orders-spot"] });
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(price);
   };
 
   const formatTimestamp = (timestamp?: number) => {
-    if (!timestamp) return 'Never';
-    return new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    if (!timestamp) return "Never";
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     }).format(new Date(timestamp));
   };
 
   // Classify error type for better messaging
-  const getErrorCategory = (errorMessage: string): { category: string; icon: React.ReactNode } => {
+  const getErrorCategory = (
+    errorMessage: string,
+  ): { category: string; icon: React.ReactNode } => {
     const msg = errorMessage.toLowerCase();
-    
-    if (msg.includes('network') || msg.includes('fetch')) {
-      return { category: 'Network Error', icon: <AlertCircle className="h-4 w-4" /> };
+
+    if (msg.includes("network") || msg.includes("fetch")) {
+      return {
+        category: "Network Error",
+        icon: <AlertCircle className="h-4 w-4" />,
+      };
     }
-    
-    if (msg.includes('blocked') || msg.includes('restricted') || msg.includes('cors') || msg.includes('403')) {
-      return { category: 'Binance Spot API Blocked', icon: <AlertCircle className="h-4 w-4" /> };
+
+    if (
+      msg.includes("blocked") ||
+      msg.includes("restricted") ||
+      msg.includes("cors") ||
+      msg.includes("403")
+    ) {
+      return {
+        category: "Binance Spot API Blocked",
+        icon: <AlertCircle className="h-4 w-4" />,
+      };
     }
-    
-    if (msg.includes('429') || msg.includes('rate limit')) {
-      return { category: 'Rate Limit', icon: <AlertCircle className="h-4 w-4" /> };
+
+    if (msg.includes("429") || msg.includes("rate limit")) {
+      return {
+        category: "Rate Limit",
+        icon: <AlertCircle className="h-4 w-4" />,
+      };
     }
-    
-    if (msg.includes('500') || msg.includes('502') || msg.includes('503') || msg.includes('server')) {
-      return { category: 'Server Error', icon: <AlertCircle className="h-4 w-4" /> };
+
+    if (
+      msg.includes("500") ||
+      msg.includes("502") ||
+      msg.includes("503") ||
+      msg.includes("server")
+    ) {
+      return {
+        category: "Server Error",
+        icon: <AlertCircle className="h-4 w-4" />,
+      };
     }
-    
-    return { category: 'Error', icon: <AlertCircle className="h-4 w-4" /> };
+
+    return { category: "Error", icon: <AlertCircle className="h-4 w-4" /> };
   };
 
   return (
@@ -72,7 +114,9 @@ export default function InstitutionalOrders() {
           disabled={futuresQuery.isFetching || spotQuery.isFetching}
           className="gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${(futuresQuery.isFetching || spotQuery.isFetching) ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`h-4 w-4 ${futuresQuery.isFetching || spotQuery.isFetching ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       }
@@ -83,7 +127,9 @@ export default function InstitutionalOrders() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-neon-cyan">BTC Futures (USD-M)</CardTitle>
+                <CardTitle className="text-xl text-neon-cyan">
+                  BTC Futures (USD-M)
+                </CardTitle>
                 <CardDescription className="mt-1">
                   Institutional signals from Binance Futures
                 </CardDescription>
@@ -107,66 +153,74 @@ export default function InstitutionalOrders() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold">Failed to load Futures data</div>
-                  <div className="text-sm mt-1">{futuresQuery.error?.message || 'Unknown error'}</div>
+                  <div className="font-semibold">
+                    Failed to load Futures data
+                  </div>
+                  <div className="text-sm mt-1">
+                    {futuresQuery.error?.message || "Unknown error"}
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
 
-            {futuresQuery.isSuccess && futuresQuery.data && (
-              <>
-                {futuresQuery.data.signals.length === 0 ? (
-                  <Alert>
-                    <AlertDescription>
-                      No institutional signals detected for BTC Futures at this time.
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-3">
-                    {futuresQuery.data.signals.map((signal, idx) => (
-                      <Card
-                        key={idx}
-                        className={`border-2 ${
-                          signal.direction === 'up'
-                            ? 'border-neon-green/40 bg-neon-green/5'
-                            : 'border-neon-red/40 bg-neon-red/5'
-                        }`}
-                      >
-                        <CardContent className="pt-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              {signal.direction === 'up' ? (
-                                <TrendingUp className="h-6 w-6 text-neon-green" />
-                              ) : (
-                                <TrendingDown className="h-6 w-6 text-neon-red" />
-                              )}
-                              <div>
-                                <div className="font-semibold text-lg">
-                                  {signal.direction === 'up' ? 'BUY' : 'SELL'} Signal
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  Price Level: {formatPrice(signal.price)}
-                                </div>
+            {futuresQuery.isSuccess &&
+              futuresQuery.data &&
+              (futuresQuery.data.signals.length === 0 ? (
+                <Alert>
+                  <AlertDescription>
+                    No institutional signals detected for BTC Futures at this
+                    time.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-3">
+                  {futuresQuery.data.signals.map((signal) => (
+                    <Card
+                      key={
+                        String(signal.price) +
+                        signal.direction +
+                        String(signal.confidence)
+                      }
+                      className={`border-2 ${
+                        signal.direction === "up"
+                          ? "border-neon-green/40 bg-neon-green/5"
+                          : "border-neon-red/40 bg-neon-red/5"
+                      }`}
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {signal.direction === "up" ? (
+                              <TrendingUp className="h-6 w-6 text-neon-green" />
+                            ) : (
+                              <TrendingDown className="h-6 w-6 text-neon-red" />
+                            )}
+                            <div>
+                              <div className="font-semibold text-lg">
+                                {signal.direction === "up" ? "BUY" : "SELL"}{" "}
+                                Signal
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                Price Level: {formatPrice(signal.price)}
                               </div>
                             </div>
-                            <Badge
-                              variant="outline"
-                              className={`text-sm ${
-                                signal.direction === 'up'
-                                  ? 'border-neon-green text-neon-green'
-                                  : 'border-neon-red text-neon-red'
-                              }`}
-                            >
-                              {(signal.confidence * 100).toFixed(0)}% confidence
-                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+                          <Badge
+                            variant="outline"
+                            className={`text-sm ${
+                              signal.direction === "up"
+                                ? "border-neon-green text-neon-green"
+                                : "border-neon-red text-neon-red"
+                            }`}
+                          >
+                            {(signal.confidence * 100).toFixed(0)}% confidence
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ))}
           </CardContent>
         </Card>
 
@@ -175,14 +229,19 @@ export default function InstitutionalOrders() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-neon-purple">BTC Spot</CardTitle>
+                <CardTitle className="text-xl text-neon-purple">
+                  BTC Spot
+                </CardTitle>
                 <CardDescription className="mt-1">
                   Institutional signals from Binance Spot
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 {spotQuery.data?.usedBackendFallback && (
-                  <Badge variant="outline" className="text-xs gap-1 border-neon-cyan/50 text-neon-cyan">
+                  <Badge
+                    variant="outline"
+                    className="text-xs gap-1 border-neon-cyan/50 text-neon-cyan"
+                  >
                     <Server className="h-3 w-3" />
                     Backend
                   </Badge>
@@ -206,16 +265,21 @@ export default function InstitutionalOrders() {
             {spotQuery.isError && (
               <Alert variant="destructive">
                 {(() => {
-                  const { category, icon } = getErrorCategory(spotQuery.error?.message || '');
+                  const { category, icon } = getErrorCategory(
+                    spotQuery.error?.message || "",
+                  );
                   return (
                     <>
                       {icon}
                       <AlertDescription>
                         <div className="font-semibold">{category}</div>
-                        <div className="text-sm mt-1">{spotQuery.error?.message || 'Unknown error'}</div>
-                        {category === 'Binance Spot API Blocked' && (
+                        <div className="text-sm mt-1">
+                          {spotQuery.error?.message || "Unknown error"}
+                        </div>
+                        {category === "Binance Spot API Blocked" && (
                           <div className="text-xs mt-2 opacity-80">
-                            The browser cannot reach Binance Spot API. Backend fallback will be attempted automatically.
+                            The browser cannot reach Binance Spot API. Backend
+                            fallback will be attempted automatically.
                           </div>
                         )}
                       </AlertDescription>
@@ -225,60 +289,63 @@ export default function InstitutionalOrders() {
               </Alert>
             )}
 
-            {spotQuery.isSuccess && spotQuery.data && (
-              <>
-                {spotQuery.data.signals.length === 0 ? (
-                  <Alert>
-                    <AlertDescription>
-                      No institutional signals detected for BTC Spot at this time.
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-3">
-                    {spotQuery.data.signals.map((signal, idx) => (
-                      <Card
-                        key={idx}
-                        className={`border-2 ${
-                          signal.direction === 'up'
-                            ? 'border-neon-green/40 bg-neon-green/5'
-                            : 'border-neon-red/40 bg-neon-red/5'
-                        }`}
-                      >
-                        <CardContent className="pt-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              {signal.direction === 'up' ? (
-                                <TrendingUp className="h-6 w-6 text-neon-green" />
-                              ) : (
-                                <TrendingDown className="h-6 w-6 text-neon-red" />
-                              )}
-                              <div>
-                                <div className="font-semibold text-lg">
-                                  {signal.direction === 'up' ? 'BUY' : 'SELL'} Signal
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  Price Level: {formatPrice(signal.price)}
-                                </div>
+            {spotQuery.isSuccess &&
+              spotQuery.data &&
+              (spotQuery.data.signals.length === 0 ? (
+                <Alert>
+                  <AlertDescription>
+                    No institutional signals detected for BTC Spot at this time.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-3">
+                  {spotQuery.data.signals.map((signal) => (
+                    <Card
+                      key={
+                        String(signal.price) +
+                        signal.direction +
+                        String(signal.confidence)
+                      }
+                      className={`border-2 ${
+                        signal.direction === "up"
+                          ? "border-neon-green/40 bg-neon-green/5"
+                          : "border-neon-red/40 bg-neon-red/5"
+                      }`}
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {signal.direction === "up" ? (
+                              <TrendingUp className="h-6 w-6 text-neon-green" />
+                            ) : (
+                              <TrendingDown className="h-6 w-6 text-neon-red" />
+                            )}
+                            <div>
+                              <div className="font-semibold text-lg">
+                                {signal.direction === "up" ? "BUY" : "SELL"}{" "}
+                                Signal
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                Price Level: {formatPrice(signal.price)}
                               </div>
                             </div>
-                            <Badge
-                              variant="outline"
-                              className={`text-sm ${
-                                signal.direction === 'up'
-                                  ? 'border-neon-green text-neon-green'
-                                  : 'border-neon-red text-neon-red'
-                              }`}
-                            >
-                              {(signal.confidence * 100).toFixed(0)}% confidence
-                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+                          <Badge
+                            variant="outline"
+                            className={`text-sm ${
+                              signal.direction === "up"
+                                ? "border-neon-green text-neon-green"
+                                : "border-neon-red text-neon-red"
+                            }`}
+                          >
+                            {(signal.confidence * 100).toFixed(0)}% confidence
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ))}
           </CardContent>
         </Card>
       </div>

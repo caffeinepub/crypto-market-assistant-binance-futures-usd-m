@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
-import { useBinanceMarketData } from '@/hooks/useQueries';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { useBinanceMarketData } from "@/hooks/useQueries";
+import { Loader2, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export interface TradeFormData {
   symbol: string;
   leverage: number;
-  direction: 'long' | 'short';
+  direction: "long" | "short";
   entryPrice: number;
 }
 
@@ -19,15 +19,19 @@ interface TradeInputFormProps {
   isSubmitting?: boolean;
 }
 
-export default function TradeInputForm({ onSubmit, isSubmitting = false }: TradeInputFormProps) {
-  const [symbol, setSymbol] = useState('');
+export default function TradeInputForm({
+  onSubmit,
+  isSubmitting = false,
+}: TradeInputFormProps) {
+  const [symbol, setSymbol] = useState("");
   const [leverage, setLeverage] = useState(10);
-  const [direction, setDirection] = useState<'long' | 'short'>('long');
-  const [entryPrice, setEntryPrice] = useState('');
+  const [direction, setDirection] = useState<"long" | "short">("long");
+  const [entryPrice, setEntryPrice] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const { data: marketData, isLoading: isLoadingMarket } = useBinanceMarketData();
+  const { data: marketData, isLoading: isLoadingMarket } =
+    useBinanceMarketData();
 
   // Generate symbol suggestions
   useEffect(() => {
@@ -37,7 +41,9 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
     }
 
     const filtered = marketData
-      .filter((asset) => asset.symbol.toLowerCase().includes(symbol.toLowerCase()))
+      .filter((asset) =>
+        asset.symbol.toLowerCase().includes(symbol.toLowerCase()),
+      )
       .map((asset) => asset.symbol)
       .slice(0, 10);
 
@@ -47,13 +53,15 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const price = parseFloat(entryPrice);
-    if (isNaN(price) || price <= 0) {
+    const price = Number.parseFloat(entryPrice);
+    if (Number.isNaN(price) || price <= 0) {
       return;
     }
 
     // Validate symbol exists in Binance Futures
-    const symbolExists = marketData?.some((asset) => asset.symbol === symbol.toUpperCase());
+    const symbolExists = marketData?.some(
+      (asset) => asset.symbol === symbol.toUpperCase(),
+    );
     if (!symbolExists) {
       return;
     }
@@ -65,14 +73,18 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
       entryPrice: price,
     });
 
-    // Reset form
-    setSymbol('');
-    setEntryPrice('');
+    // Reset form after successful submission
+    setSymbol("");
+    setEntryPrice("");
     setLeverage(10);
-    setDirection('long');
+    setDirection("long");
   };
 
-  const isValid = symbol.trim() !== '' && entryPrice.trim() !== '' && !isNaN(parseFloat(entryPrice)) && parseFloat(entryPrice) > 0;
+  const isValid =
+    symbol.trim() !== "" &&
+    entryPrice.trim() !== "" &&
+    !Number.isNaN(Number.parseFloat(entryPrice)) &&
+    Number.parseFloat(entryPrice) > 0;
 
   return (
     <Card className="border-2 border-neon-purple/30 bg-card/80 backdrop-blur-sm">
@@ -122,13 +134,13 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
             <div className="grid grid-cols-2 gap-3">
               <Button
                 type="button"
-                variant={direction === 'long' ? 'default' : 'outline'}
+                variant={direction === "long" ? "default" : "outline"}
                 className={`h-12 ${
-                  direction === 'long'
-                    ? 'bg-neon-green/20 border-neon-green text-neon-green hover:bg-neon-green/30'
-                    : 'border-neon-green/30 text-neon-green/60 hover:bg-neon-green/10'
+                  direction === "long"
+                    ? "bg-neon-green/20 border-neon-green text-neon-green hover:bg-neon-green/30"
+                    : "border-neon-green/30 text-neon-green/60 hover:bg-neon-green/10"
                 }`}
-                onClick={() => setDirection('long')}
+                onClick={() => setDirection("long")}
                 disabled={isSubmitting}
               >
                 <TrendingUp className="mr-2 h-5 w-5" />
@@ -136,13 +148,13 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
               </Button>
               <Button
                 type="button"
-                variant={direction === 'short' ? 'default' : 'outline'}
+                variant={direction === "short" ? "default" : "outline"}
                 className={`h-12 ${
-                  direction === 'short'
-                    ? 'bg-neon-red/20 border-neon-red text-neon-red hover:bg-neon-red/30'
-                    : 'border-neon-red/30 text-neon-red/60 hover:bg-neon-red/10'
+                  direction === "short"
+                    ? "bg-neon-red/20 border-neon-red text-neon-red hover:bg-neon-red/30"
+                    : "border-neon-red/30 text-neon-red/60 hover:bg-neon-red/10"
                 }`}
-                onClick={() => setDirection('short')}
+                onClick={() => setDirection("short")}
                 disabled={isSubmitting}
               >
                 <TrendingDown className="mr-2 h-5 w-5" />
@@ -157,7 +169,9 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
               <Label htmlFor="leverage" className="text-sm font-medium">
                 Alavancagem
               </Label>
-              <span className="text-lg font-bold text-neon-purple">{leverage}x</span>
+              <span className="text-lg font-bold text-neon-purple">
+                {leverage}x
+              </span>
             </div>
             <Slider
               id="leverage"
@@ -203,7 +217,7 @@ export default function TradeInputForm({ onSubmit, isSubmitting = false }: Trade
                 Adicionando...
               </>
             ) : (
-              'Adicionar Monitoramento'
+              "Adicionar Monitoramento"
             )}
           </Button>
         </form>

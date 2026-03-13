@@ -1,6 +1,12 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  type ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-type ThemeType = 'darkNeon' | 'cyberGlow';
+type ThemeType = "darkNeon" | "cyberGlow";
 
 interface ThemeContextType {
   theme: ThemeType;
@@ -11,23 +17,24 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeType>(() => {
-    const stored = localStorage.getItem('app-theme');
-    return (stored === 'cyberGlow' ? 'cyberGlow' : 'darkNeon') as ThemeType;
+    const stored = localStorage.getItem("app-theme");
+    return (stored === "cyberGlow" ? "cyberGlow" : "darkNeon") as ThemeType;
   });
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Remove both theme classes first
-    root.classList.remove('theme-dark-neon', 'theme-cyber-glow');
-    
+    root.classList.remove("theme-dark-neon", "theme-cyber-glow");
+
     // Add the selected theme class
-    const themeClass = theme === 'cyberGlow' ? 'theme-cyber-glow' : 'theme-dark-neon';
+    const themeClass =
+      theme === "cyberGlow" ? "theme-cyber-glow" : "theme-dark-neon";
     root.classList.add(themeClass);
-    
+
     // Save to localStorage
-    localStorage.setItem('app-theme', theme);
-    
+    localStorage.setItem("app-theme", theme);
+
     // Force a reflow to ensure CSS variables are updated immediately
     void root.offsetHeight;
   }, [theme]);
@@ -46,8 +53,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
+    throw new Error("useTheme must be used within ThemeProvider");
   }
   return context;
 }
-

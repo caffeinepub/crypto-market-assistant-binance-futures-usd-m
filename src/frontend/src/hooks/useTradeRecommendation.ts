@@ -1,6 +1,9 @@
-import { useMemo } from 'react';
-import { BinanceMarketData } from './useQueries';
-import { computeTradeRecommendation, RecommendationResult } from '@/lib/tradeRecommendation';
+import {
+  type RecommendationResult,
+  computeTradeRecommendation,
+} from "@/lib/tradeRecommendation";
+import { useMemo } from "react";
+import type { BinanceMarketData } from "./useQueries";
 
 export interface UseTradeRecommendationParams {
   symbol: string | null;
@@ -32,8 +35,8 @@ export function useTradeRecommendation({
       return {
         success: false,
         error: {
-          reason: 'Asset not found in current market data',
-          missingData: ['market data for ' + symbol],
+          reason: "Asset not found in current market data",
+          missingData: [`market data for ${symbol}`],
         },
       };
     }

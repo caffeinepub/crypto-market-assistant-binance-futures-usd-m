@@ -1,11 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Smartphone, Check, Download, Info, Share } from 'lucide-react';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { Check, Download, Info, Share, Smartphone } from "lucide-react";
 
 export default function PWAInstallStatus() {
-  const { isInstallable, isInstalled, isIOSDevice, isNotSupported, promptInstall, displayMode } = usePWAInstall();
+  const {
+    isInstallable,
+    isInstalled,
+    isIOSDevice,
+    isNotSupported,
+    promptInstall,
+    displayMode,
+  } = usePWAInstall();
 
   return (
     <Card className="border-2 border-neon-cyan/30 bg-card/60 backdrop-blur-sm">
@@ -13,7 +26,9 @@ export default function PWAInstallStatus() {
         <div className="flex items-center gap-3">
           <Smartphone className="w-6 h-6 text-neon-cyan" />
           <div>
-            <CardTitle className="text-xl text-neon-cyan">Status do Aplicativo PWA</CardTitle>
+            <CardTitle className="text-xl text-neon-cyan">
+              Status do Aplicativo PWA
+            </CardTitle>
             <CardDescription className="mt-1">
               Informações sobre instalação e modo standalone
             </CardDescription>
@@ -23,7 +38,9 @@ export default function PWAInstallStatus() {
       <CardContent className="space-y-4">
         {/* Status Badge */}
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm font-semibold text-muted-foreground">Status atual:</span>
+          <span className="text-sm font-semibold text-muted-foreground">
+            Status atual:
+          </span>
           {isInstalled && (
             <Badge className="bg-neon-green/20 text-neon-green border border-neon-green/60">
               <Check className="w-3 h-3 mr-1" />
@@ -57,8 +74,9 @@ export default function PWAInstallStatus() {
                   Aplicativo Instalado com Sucesso
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  O app está rodando em modo <strong>{displayMode}</strong> (sem interface do navegador). 
-                  Você pode acessá-lo diretamente da tela inicial do seu dispositivo.
+                  O app está rodando em modo <strong>{displayMode}</strong> (sem
+                  interface do navegador). Você pode acessá-lo diretamente da
+                  tela inicial do seu dispositivo.
                 </p>
               </div>
             </div>
@@ -76,11 +94,13 @@ export default function PWAInstallStatus() {
                     Pronto para Instalar
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Seu navegador suporta instalação PWA. Clique no botão abaixo ou use o 
-                    ícone de instalação no cabeçalho para adicionar o app à tela inicial.
+                    Seu navegador suporta instalação PWA. Clique no botão abaixo
+                    ou use o ícone de instalação no cabeçalho para adicionar o
+                    app à tela inicial.
                   </p>
                   <p className="text-xs text-neon-orange font-semibold">
-                    ✓ Após instalado, o app abrirá em modo standalone (tela cheia, sem barra do navegador)
+                    ✓ Após instalado, o app abrirá em modo standalone (tela
+                    cheia, sem barra do navegador)
                   </p>
                 </div>
               </div>
@@ -105,13 +125,32 @@ export default function PWAInstallStatus() {
                   Como Instalar no iOS/Safari
                 </p>
                 <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
-                  <li>Toque no ícone de compartilhar <span className="inline-block text-base">⎋</span> na barra inferior</li>
-                  <li>Role para baixo e toque em <span className="font-semibold text-foreground">"Adicionar à Tela de Início"</span></li>
-                  <li>Toque em <span className="font-semibold text-foreground">"Adicionar"</span> para confirmar</li>
-                  <li>O app aparecerá na sua tela inicial como um aplicativo nativo</li>
+                  <li>
+                    Toque no ícone de compartilhar{" "}
+                    <span className="inline-block text-base">⎋</span> na barra
+                    inferior
+                  </li>
+                  <li>
+                    Role para baixo e toque em{" "}
+                    <span className="font-semibold text-foreground">
+                      "Adicionar à Tela de Início"
+                    </span>
+                  </li>
+                  <li>
+                    Toque em{" "}
+                    <span className="font-semibold text-foreground">
+                      "Adicionar"
+                    </span>{" "}
+                    para confirmar
+                  </li>
+                  <li>
+                    O app aparecerá na sua tela inicial como um aplicativo
+                    nativo
+                  </li>
                 </ol>
                 <p className="text-xs text-neon-cyan font-semibold mt-2">
-                  ✓ Após instalado, o app abrirá em tela cheia sem a interface do Safari
+                  ✓ Após instalado, o app abrirá em tela cheia sem a interface
+                  do Safari
                 </p>
               </div>
             </div>
@@ -128,8 +167,9 @@ export default function PWAInstallStatus() {
                   Instalação Não Disponível
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Seu navegador atual não suporta instalação PWA ou o app já foi instalado 
-                  anteriormente. Você ainda pode usar o app normalmente através do navegador.
+                  Seu navegador atual não suporta instalação PWA ou o app já foi
+                  instalado anteriormente. Você ainda pode usar o app
+                  normalmente através do navegador.
                 </p>
               </div>
             </div>
