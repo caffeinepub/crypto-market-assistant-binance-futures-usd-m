@@ -138,7 +138,7 @@ export default function SMCSignalPanel({
               <div className="space-y-1">
                 {activeOBs.slice(-5).map((ob) => (
                   <div
-                    key={ob.high + ob.time}
+                    key={`ob-${ob.low}-${ob.high}`}
                     className="flex items-center justify-between bg-secondary/30 rounded px-2 py-1"
                   >
                     <Badge
@@ -174,7 +174,7 @@ export default function SMCSignalPanel({
               <div className="space-y-1">
                 {activeFVGs.slice(-5).map((fvg) => (
                   <div
-                    key={fvg.high + fvg.time}
+                    key={`fvg-${fvg.low}-${fvg.high}`}
                     className="flex items-center justify-between bg-secondary/30 rounded px-2 py-1"
                   >
                     <Badge
@@ -210,7 +210,7 @@ export default function SMCSignalPanel({
               <div className="space-y-1">
                 {recentStructure.map((sp) => (
                   <div
-                    key={sp.price + sp.type}
+                    key={`sp-${sp.price}-${sp.type}`}
                     className="flex items-center justify-between bg-secondary/30 rounded px-2 py-1"
                   >
                     <Badge
@@ -246,7 +246,7 @@ export default function SMCSignalPanel({
               <div className="space-y-1">
                 {activeZones.slice(-6).map((lz) => (
                   <div
-                    key={lz.price + lz.type}
+                    key={`lz-${lz.price}-${lz.type}`}
                     className="flex items-center justify-between bg-secondary/30 rounded px-2 py-1"
                   >
                     <span

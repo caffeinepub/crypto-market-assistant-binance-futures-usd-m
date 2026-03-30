@@ -61,7 +61,7 @@ export async function fetchFundingRates(
 
     // Filter for requested symbols
     const symbolSet = new Set(symbols);
-    for (const item of data) {
+    for (const item of data as any[]) {
       if (symbolSet.has(item.symbol)) {
         try {
           results.set(item.symbol, {
@@ -124,7 +124,7 @@ export async function fetchOpenInterest(
 
     // Filter for requested symbols
     const symbolSet = new Set(symbols);
-    for (const item of data) {
+    for (const item of data as any[]) {
       if (symbolSet.has(item.symbol)) {
         try {
           results.set(item.symbol, {
@@ -156,15 +156,15 @@ class MetricsHistory {
   private openInterestHistory = new Map<string, OpenInterestData>();
 
   updateFunding(data: Map<string, FundingRateData>) {
-    for (const [key, value] of data) {
+    data.forEach((value, key) => {
       this.fundingHistory.set(key, value);
-    }
+    });
   }
 
   updateOpenInterest(data: Map<string, OpenInterestData>) {
-    for (const [key, value] of data) {
+    data.forEach((value, key) => {
       this.openInterestHistory.set(key, value);
-    }
+    });
   }
 
   getPriorFunding(symbol: string): FundingRateData | undefined {

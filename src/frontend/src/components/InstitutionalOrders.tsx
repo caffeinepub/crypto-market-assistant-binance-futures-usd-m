@@ -176,11 +176,7 @@ export default function InstitutionalOrders() {
                 <div className="space-y-3">
                   {futuresQuery.data.signals.map((signal) => (
                     <Card
-                      key={
-                        String(signal.price) +
-                        signal.direction +
-                        String(signal.confidence)
-                      }
+                      key={`${signal.direction}-${signal.price}`}
                       className={`border-2 ${
                         signal.direction === "up"
                           ? "border-neon-green/40 bg-neon-green/5"
@@ -301,11 +297,7 @@ export default function InstitutionalOrders() {
                 <div className="space-y-3">
                   {spotQuery.data.signals.map((signal) => (
                     <Card
-                      key={
-                        String(signal.price) +
-                        signal.direction +
-                        String(signal.confidence)
-                      }
+                      key={`${signal.direction}-${signal.price}`}
                       className={`border-2 ${
                         signal.direction === "up"
                           ? "border-neon-green/40 bg-neon-green/5"

@@ -316,9 +316,9 @@ export default function MarketOverview() {
                         </div>
                         <div className="space-y-2">
                           {selectedMarket.analysis.manipulationZones.map(
-                            (zone, _zoneIdx) => (
+                            (zone) => (
                               <div
-                                key={zone.priceRange.min}
+                                key={`${zone.priceRange.min}-${zone.priceRange.max}`}
                                 className="flex items-center justify-between text-xs p-2 rounded bg-card/50 border border-neon-orange/30"
                               >
                                 <span className="text-muted-foreground font-semibold">
@@ -351,9 +351,9 @@ export default function MarketOverview() {
                         </div>
                         <div className="space-y-2">
                           {selectedMarket.analysis.institutionalOrders.map(
-                            (order, _idx) => (
+                            (order) => (
                               <div
-                                key={order.price + order.direction}
+                                key={`${order.direction}-${order.price}`}
                                 className="flex items-center justify-between text-xs p-2 rounded bg-card/50 border border-neon-purple/30"
                               >
                                 <span className="text-muted-foreground font-semibold">
@@ -381,13 +381,13 @@ export default function MarketOverview() {
                   </h4>
                   <div className="space-y-2">
                     {selectedMarket.analysis.resistanceZones.map(
-                      (zone, zoneIdx) => (
+                      (zone, idx) => (
                         <div
                           key={zone}
                           className="flex items-center justify-between text-sm p-2 rounded bg-card/50 border border-neon-green/30"
                         >
                           <span className="text-muted-foreground font-semibold">
-                            R{zoneIdx + 1}
+                            R{idx + 1}
                           </span>
                           <span className="font-mono font-bold text-neon-green">
                             $
@@ -408,25 +408,23 @@ export default function MarketOverview() {
                     Support Zones
                   </h4>
                   <div className="space-y-2">
-                    {selectedMarket.analysis.supportZones.map(
-                      (zone, zoneIdx) => (
-                        <div
-                          key={zone}
-                          className="flex items-center justify-between text-sm p-2 rounded bg-card/50 border border-neon-cyan/30"
-                        >
-                          <span className="text-muted-foreground font-semibold">
-                            S{zoneIdx + 1}
-                          </span>
-                          <span className="font-mono font-bold text-neon-cyan">
-                            $
-                            {zone.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                      ),
-                    )}
+                    {selectedMarket.analysis.supportZones.map((zone, idx) => (
+                      <div
+                        key={zone}
+                        className="flex items-center justify-between text-sm p-2 rounded bg-card/50 border border-neon-cyan/30"
+                      >
+                        <span className="text-muted-foreground font-semibold">
+                          S{idx + 1}
+                        </span>
+                        <span className="font-mono font-bold text-neon-cyan">
+                          $
+                          {zone.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

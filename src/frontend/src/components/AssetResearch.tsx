@@ -721,13 +721,13 @@ export default function AssetResearch() {
                     </h4>
                     <div className="space-y-2">
                       {selectedAsset.analysis.resistanceZones.map(
-                        (zone, zoneIdx) => (
+                        (zone, idx) => (
                           <div
                             key={zone}
                             className="flex items-center justify-between p-3 rounded bg-card/60 border-2 border-neon-green/30"
                           >
                             <span className="text-sm text-muted-foreground font-bold">
-                              R{zoneIdx + 1}
+                              R{idx + 1}
                             </span>
                             <span className="font-mono font-bold text-lg text-neon-green neon-text-bullish">
                               $
@@ -748,25 +748,23 @@ export default function AssetResearch() {
                       Zonas de Suporte
                     </h4>
                     <div className="space-y-2">
-                      {selectedAsset.analysis.supportZones.map(
-                        (zone, zoneIdx) => (
-                          <div
-                            key={zone}
-                            className="flex items-center justify-between p-3 rounded bg-card/60 border-2 border-neon-cyan/30"
-                          >
-                            <span className="text-sm text-muted-foreground font-bold">
-                              S{zoneIdx + 1}
-                            </span>
-                            <span className="font-mono font-bold text-lg text-neon-cyan neon-text">
-                              $
-                              {zone.toLocaleString("pt-BR", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </span>
-                          </div>
-                        ),
-                      )}
+                      {selectedAsset.analysis.supportZones.map((zone, idx) => (
+                        <div
+                          key={zone}
+                          className="flex items-center justify-between p-3 rounded bg-card/60 border-2 border-neon-cyan/30"
+                        >
+                          <span className="text-sm text-muted-foreground font-bold">
+                            S{idx + 1}
+                          </span>
+                          <span className="font-mono font-bold text-lg text-neon-cyan neon-text">
+                            $
+                            {zone.toLocaleString("pt-BR", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
